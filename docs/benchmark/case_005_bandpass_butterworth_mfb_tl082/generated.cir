@@ -1,0 +1,89 @@
+* SOFIA Filter Studio generated netlist
+* Topology request: mfb
+* Filter kind: bandpass
+* Approximation: butterworth
+* Filter order: 8
+* Epsilon: 0.50884714
+.include "resources/models/TL082.cir"
+
+* polarizacion de tierra virtual
+Vin IN 0 DC 2.5 AC 1
+VTIERRA VREF 0 2.5V
+VCC VCC 0 DC 5
+RLOAD OUT 0 100k
+
+* Stage 1: bandpass, f0=1182.49082 Hz, Q=6.51432, order=2
+* Stage input: IN
+* Stage output: STAGE1_OUT
+* MFB band-pass synthesis follows the legacy relations R1 = 2/(C*alpha), R3 = 1/(C*BW) and R2 from w0.
+* Stage capacitor auto-tuned from 1.000e-08 F to 1.000e-07 F.
+Xao11 31 VREF VCC 0 11 TL082
+c11 21 31 1.000000000e-07
+c21 21 11 1.000000000e-07
+* R1: parallel array for target 17535.620080 ohm
+r111 31 11 18000.000000
+r112 31 11 680000.000000
+* R2: parallel array for target 0.011782 ohm
+r211 21 VREF 1.000000
+r212 21 VREF 1.000000
+* R3: parallel array for target 8767.810040 ohm
+r311 10 21 9100.000000
+r312 10 21 240000.000000
+
+* Stage 2: bandpass, f0=1060.81593 Hz, Q=2.65968, order=2
+* Stage input: STAGE1_OUT
+* Stage output: STAGE2_OUT
+* MFB band-pass synthesis follows the legacy relations R1 = 2/(C*alpha), R3 = 1/(C*BW) and R2 from w0.
+* Stage capacitor auto-tuned from 1.000e-08 F to 1.000e-07 F.
+Xao12 32 VREF VCC 0 12 TL082
+c12 22 32 1.000000000e-07
+c22 22 12 1.000000000e-07
+* R1: parallel array for target 7980.674740 ohm
+r121 32 12 8200.000000
+r122 32 12 300000.000000
+* R2: parallel array for target 0.070682 ohm
+r221 22 VREF 1.000000
+r222 22 VREF 1.000000
+* R3: series array for target 3990.337370 ohm
+r321 11 r32_MID1 390.000000
+r322 r32_MID1 22 3600.000000
+
+* Stage 3: bandpass, f0=904.96379 Hz, Q=2.65968, order=2
+* Stage input: STAGE2_OUT
+* Stage output: STAGE3_OUT
+* MFB band-pass synthesis follows the legacy relations R1 = 2/(C*alpha), R3 = 1/(C*BW) and R2 from w0.
+* Stage capacitor auto-tuned from 1.000e-08 F to 1.000e-09 F.
+Xao13 33 VREF VCC 0 13 TL082
+c13 23 33 1.000000000e-09
+c23 23 13 1.000000000e-09
+* R1: parallel array for target 935510.020027 ohm
+r131 33 13 1100000.000000
+r132 33 13 6200000.000000
+* R2: parallel array for target 0.070682 ohm
+r231 23 VREF 1.000000
+r232 23 VREF 1.000000
+* R3: parallel array for target 467755.010013 ohm
+r331 12 23 680000.000000
+r332 12 23 1500000.000000
+
+* Stage 4: bandpass, f0=811.84563 Hz, Q=6.51432, order=2
+* Stage input: STAGE3_OUT
+* Stage output: OUT
+* MFB band-pass synthesis follows the legacy relations R1 = 2/(C*alpha), R3 = 1/(C*BW) and R2 from w0.
+* Stage capacitor auto-tuned from 1.000e-08 F to 1.000e-07 F.
+Xao14 34 VREF VCC 0 OUT TL082
+c14 24 34 1.000000000e-07
+c24 24 OUT 1.000000000e-07
+* R1: parallel array for target 25541.444238 ohm
+r141 34 OUT 27000.000000
+r142 34 OUT 470000.000000
+* R2: parallel array for target 0.011782 ohm
+r241 24 VREF 1.000000
+r242 24 VREF 1.000000
+* R3: parallel array for target 12770.722119 ohm
+r341 13 24 13000.000000
+r342 13 24 750000.000000
+
+.ac dec 100 1Hz 500Hz
+.probe V(OUT)
+.end

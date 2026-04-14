@@ -1,0 +1,616 @@
+{
+  "case_id": "case_007_bandstop_butterworth_tow_thomas_tl082",
+  "status": "pending_legacy",
+  "modern_result": {
+    "order": 8,
+    "stage_count": 4,
+    "stage_q": [
+      2.8388456929462316,
+      1.0858840794725666,
+      1.0858840794725666,
+      2.8388456929462276
+    ],
+    "stage_f0_hz": [
+      1555.6550345745525,
+      1218.777830449402,
+      787.6743209597256,
+      617.103392888479
+    ],
+    "summary": {
+      "center_frequency_hz": 979.7958971132713,
+      "bandwidth_hz": 999.9999999999999,
+      "ratio": 4.4,
+      "kind": "bandstop",
+      "approximation": "butterworth",
+      "topology": "tow_thomas",
+      "opamp": "TL082",
+      "resistor_series": "E24",
+      "allow_resistor_arrays": true,
+      "recommended_opamps": [
+        "LM324",
+        "LM318",
+        "uA741",
+        "TL082",
+        "LM7171",
+        "LM6164",
+        "LM6165",
+        "LM6171"
+      ]
+    },
+    "warnings": [
+      "Band filters are migrated with pole-based section synthesis; component-level realizations still need topology-specific refinement."
+    ]
+  },
+  "modern_netlist": {
+    "present": true,
+    "component_count": 56,
+    "component_counts_by_prefix": {
+      "V": 3,
+      "R": 33,
+      "X": 12,
+      "C": 8
+    },
+    "includes": [
+      ".include \"resources/models/TL082.cir\""
+    ],
+    "analyses": [
+      ".ac dec 100 1Hz 500Hz"
+    ],
+    "components": [
+      {
+        "name": "Vin",
+        "kind": "V",
+        "line": "Vin IN 0 DC 2.5 AC 1",
+        "numeric_values": [
+          0.0,
+          2.5,
+          1.0
+        ]
+      },
+      {
+        "name": "VTIERRA",
+        "kind": "V",
+        "line": "VTIERRA VREF 0 2.5V",
+        "numeric_values": [
+          0.0
+        ]
+      },
+      {
+        "name": "VCC",
+        "kind": "V",
+        "line": "VCC VCC 0 DC 5",
+        "numeric_values": [
+          0.0,
+          5.0
+        ]
+      },
+      {
+        "name": "RLOAD",
+        "kind": "R",
+        "line": "RLOAD OUT 0 100k",
+        "numeric_values": [
+          0.0,
+          100000.0
+        ]
+      },
+      {
+        "name": "Xao11",
+        "kind": "X",
+        "line": "Xao11 VREF 21 VCC 0 31 TL082",
+        "numeric_values": [
+          21.0,
+          0.0,
+          31.0
+        ]
+      },
+      {
+        "name": "Xao21",
+        "kind": "X",
+        "line": "Xao21 VREF 41 VCC 0 11 TL082",
+        "numeric_values": [
+          41.0,
+          0.0,
+          11.0
+        ]
+      },
+      {
+        "name": "Xao31",
+        "kind": "X",
+        "line": "Xao31 VREF 61 VCC 0 71 TL082",
+        "numeric_values": [
+          61.0,
+          0.0,
+          71.0
+        ]
+      },
+      {
+        "name": "c11",
+        "kind": "C",
+        "line": "c11 21 31 1.000000000e-08",
+        "numeric_values": [
+          21.0,
+          31.0,
+          1e-08
+        ]
+      },
+      {
+        "name": "c21",
+        "kind": "C",
+        "line": "c21 41 11 1.000000000e-08",
+        "numeric_values": [
+          41.0,
+          11.0,
+          1e-08
+        ]
+      },
+      {
+        "name": "r111",
+        "kind": "R",
+        "line": "r111 IN r11_MID1 240.000000",
+        "numeric_values": [
+          240.0
+        ]
+      },
+      {
+        "name": "r112",
+        "kind": "R",
+        "line": "r112 r11_MID1 21 10000.000000",
+        "numeric_values": [
+          21.0,
+          10000.0
+        ]
+      },
+      {
+        "name": "r211",
+        "kind": "R",
+        "line": "r211 21 r21_MID1 240.000000",
+        "numeric_values": [
+          21.0,
+          240.0
+        ]
+      },
+      {
+        "name": "r212",
+        "kind": "R",
+        "line": "r212 r21_MID1 71 10000.000000",
+        "numeric_values": [
+          71.0,
+          10000.0
+        ]
+      },
+      {
+        "name": "r311",
+        "kind": "R",
+        "line": "r311 31 r31_MID1 240.000000",
+        "numeric_values": [
+          31.0,
+          240.0
+        ]
+      },
+      {
+        "name": "r312",
+        "kind": "R",
+        "line": "r312 r31_MID1 41 10000.000000",
+        "numeric_values": [
+          41.0,
+          10000.0
+        ]
+      },
+      {
+        "name": "r411",
+        "kind": "R",
+        "line": "r411 21 31 30000.000000",
+        "numeric_values": [
+          21.0,
+          31.0,
+          30000.0
+        ]
+      },
+      {
+        "name": "r412",
+        "kind": "R",
+        "line": "r412 21 31 910000.000000",
+        "numeric_values": [
+          21.0,
+          31.0,
+          910000.0
+        ]
+      },
+      {
+        "name": "Xao12",
+        "kind": "X",
+        "line": "Xao12 VREF 22 VCC 0 32 TL082",
+        "numeric_values": [
+          22.0,
+          0.0,
+          32.0
+        ]
+      },
+      {
+        "name": "Xao22",
+        "kind": "X",
+        "line": "Xao22 VREF 42 VCC 0 12 TL082",
+        "numeric_values": [
+          42.0,
+          0.0,
+          12.0
+        ]
+      },
+      {
+        "name": "Xao32",
+        "kind": "X",
+        "line": "Xao32 VREF 62 VCC 0 72 TL082",
+        "numeric_values": [
+          62.0,
+          0.0,
+          72.0
+        ]
+      },
+      {
+        "name": "c12",
+        "kind": "C",
+        "line": "c12 22 32 1.000000000e-07",
+        "numeric_values": [
+          22.0,
+          32.0,
+          1e-07
+        ]
+      },
+      {
+        "name": "c22",
+        "kind": "C",
+        "line": "c22 42 12 1.000000000e-07",
+        "numeric_values": [
+          42.0,
+          12.0,
+          1e-07
+        ]
+      },
+      {
+        "name": "r121",
+        "kind": "R",
+        "line": "r121 11 22 1500.000000",
+        "numeric_values": [
+          11.0,
+          22.0,
+          1500.0
+        ]
+      },
+      {
+        "name": "r122",
+        "kind": "R",
+        "line": "r122 11 22 10000.000000",
+        "numeric_values": [
+          11.0,
+          22.0,
+          10000.0
+        ]
+      },
+      {
+        "name": "r221",
+        "kind": "R",
+        "line": "r221 22 72 1500.000000",
+        "numeric_values": [
+          22.0,
+          72.0,
+          1500.0
+        ]
+      },
+      {
+        "name": "r222",
+        "kind": "R",
+        "line": "r222 22 72 10000.000000",
+        "numeric_values": [
+          22.0,
+          72.0,
+          10000.0
+        ]
+      },
+      {
+        "name": "r321",
+        "kind": "R",
+        "line": "r321 32 42 1500.000000",
+        "numeric_values": [
+          32.0,
+          42.0,
+          1500.0
+        ]
+      },
+      {
+        "name": "r322",
+        "kind": "R",
+        "line": "r322 32 42 10000.000000",
+        "numeric_values": [
+          32.0,
+          42.0,
+          10000.0
+        ]
+      },
+      {
+        "name": "r421",
+        "kind": "R",
+        "line": "r421 22 r42_MID1 120.000000",
+        "numeric_values": [
+          22.0,
+          120.0
+        ]
+      },
+      {
+        "name": "r422",
+        "kind": "R",
+        "line": "r422 r42_MID1 32 1300.000000",
+        "numeric_values": [
+          32.0,
+          1300.0
+        ]
+      },
+      {
+        "name": "Xao13",
+        "kind": "X",
+        "line": "Xao13 VREF 23 VCC 0 33 TL082",
+        "numeric_values": [
+          23.0,
+          0.0,
+          33.0
+        ]
+      },
+      {
+        "name": "Xao23",
+        "kind": "X",
+        "line": "Xao23 VREF 43 VCC 0 13 TL082",
+        "numeric_values": [
+          43.0,
+          0.0,
+          13.0
+        ]
+      },
+      {
+        "name": "Xao33",
+        "kind": "X",
+        "line": "Xao33 VREF 63 VCC 0 73 TL082",
+        "numeric_values": [
+          63.0,
+          0.0,
+          73.0
+        ]
+      },
+      {
+        "name": "c13",
+        "kind": "C",
+        "line": "c13 23 33 1.000000000e-09",
+        "numeric_values": [
+          23.0,
+          33.0,
+          1e-09
+        ]
+      },
+      {
+        "name": "c23",
+        "kind": "C",
+        "line": "c23 43 13 1.000000000e-09",
+        "numeric_values": [
+          43.0,
+          13.0,
+          1e-09
+        ]
+      },
+      {
+        "name": "r131",
+        "kind": "R",
+        "line": "r131 12 r13_MID1 2000.000000",
+        "numeric_values": [
+          12.0,
+          2000.0
+        ]
+      },
+      {
+        "name": "r132",
+        "kind": "R",
+        "line": "r132 r13_MID1 23 200000.000000",
+        "numeric_values": [
+          23.0,
+          200000.0
+        ]
+      },
+      {
+        "name": "r231",
+        "kind": "R",
+        "line": "r231 23 r23_MID1 2000.000000",
+        "numeric_values": [
+          23.0,
+          2000.0
+        ]
+      },
+      {
+        "name": "r232",
+        "kind": "R",
+        "line": "r232 r23_MID1 73 200000.000000",
+        "numeric_values": [
+          73.0,
+          200000.0
+        ]
+      },
+      {
+        "name": "r331",
+        "kind": "R",
+        "line": "r331 33 r33_MID1 2000.000000",
+        "numeric_values": [
+          33.0,
+          2000.0
+        ]
+      },
+      {
+        "name": "r332",
+        "kind": "R",
+        "line": "r332 r33_MID1 43 200000.000000",
+        "numeric_values": [
+          43.0,
+          200000.0
+        ]
+      },
+      {
+        "name": "r431",
+        "kind": "R",
+        "line": "r431 23 33 220000.000000",
+        "numeric_values": [
+          23.0,
+          33.0,
+          220000.0
+        ]
+      },
+      {
+        "name": "r432",
+        "kind": "R",
+        "line": "r432 23 33 82000000.000000",
+        "numeric_values": [
+          23.0,
+          33.0,
+          82000000.0
+        ]
+      },
+      {
+        "name": "Xao14",
+        "kind": "X",
+        "line": "Xao14 VREF 24 VCC 0 34 TL082",
+        "numeric_values": [
+          24.0,
+          0.0,
+          34.0
+        ]
+      },
+      {
+        "name": "Xao24",
+        "kind": "X",
+        "line": "Xao24 VREF 44 VCC 0 OUT TL082",
+        "numeric_values": [
+          44.0,
+          0.0
+        ]
+      },
+      {
+        "name": "Xao34",
+        "kind": "X",
+        "line": "Xao34 VREF 64 VCC 0 74 TL082",
+        "numeric_values": [
+          64.0,
+          0.0,
+          74.0
+        ]
+      },
+      {
+        "name": "c14",
+        "kind": "C",
+        "line": "c14 24 34 1.000000000e-08",
+        "numeric_values": [
+          24.0,
+          34.0,
+          1e-08
+        ]
+      },
+      {
+        "name": "c24",
+        "kind": "C",
+        "line": "c24 44 OUT 1.000000000e-08",
+        "numeric_values": [
+          44.0,
+          1e-08
+        ]
+      },
+      {
+        "name": "r141",
+        "kind": "R",
+        "line": "r141 13 24 36000.000000",
+        "numeric_values": [
+          13.0,
+          24.0,
+          36000.0
+        ]
+      },
+      {
+        "name": "r142",
+        "kind": "R",
+        "line": "r142 13 24 91000.000000",
+        "numeric_values": [
+          13.0,
+          24.0,
+          91000.0
+        ]
+      },
+      {
+        "name": "r241",
+        "kind": "R",
+        "line": "r241 24 74 36000.000000",
+        "numeric_values": [
+          24.0,
+          74.0,
+          36000.0
+        ]
+      },
+      {
+        "name": "r242",
+        "kind": "R",
+        "line": "r242 24 74 91000.000000",
+        "numeric_values": [
+          24.0,
+          74.0,
+          91000.0
+        ]
+      },
+      {
+        "name": "r341",
+        "kind": "R",
+        "line": "r341 34 44 36000.000000",
+        "numeric_values": [
+          34.0,
+          44.0,
+          36000.0
+        ]
+      },
+      {
+        "name": "r342",
+        "kind": "R",
+        "line": "r342 34 44 91000.000000",
+        "numeric_values": [
+          34.0,
+          44.0,
+          91000.0
+        ]
+      },
+      {
+        "name": "r441",
+        "kind": "R",
+        "line": "r441 24 34 82000.000000",
+        "numeric_values": [
+          24.0,
+          34.0,
+          82000.0
+        ]
+      },
+      {
+        "name": "r442",
+        "kind": "R",
+        "line": "r442 24 34 680000.000000",
+        "numeric_values": [
+          24.0,
+          34.0,
+          680000.0
+        ]
+      }
+    ]
+  },
+  "legacy_netlist": {
+    "present": false
+  },
+  "checks": [
+    {
+      "name": "legacy_netlist_present",
+      "status": "pending",
+      "detail": "Capture legacy.cir from SOFIA original on Windows."
+    },
+    {
+      "name": "modern_netlist_present",
+      "status": "pass",
+      "detail": "generated.cir is present"
+    }
+  ]
+}

@@ -1,0 +1,352 @@
+{
+  "order": 8,
+  "epsilon": 0.5088471399095875,
+  "poles": [
+    {
+      "real": -391.5205384227955,
+      "imag": -5085.92892103676
+    },
+    {
+      "real": -570.2678293921584,
+      "imag": 7407.891442748304
+    },
+    {
+      "real": -1068.9356378795396,
+      "imag": -5584.675453393706
+    },
+    {
+      "real": -1253.0268838320053,
+      "imag": 6546.46382120866
+    },
+    {
+      "real": -1068.9356378795396,
+      "imag": 5584.675453393706
+    },
+    {
+      "real": -1253.0268838320053,
+      "imag": -6546.46382120866
+    },
+    {
+      "real": -391.5205384227961,
+      "imag": 5085.92892103676
+    },
+    {
+      "real": -570.2678293921593,
+      "imag": -7407.891442748304
+    }
+  ],
+  "stages": [
+    {
+      "index": 1,
+      "natural_frequency_hz": 1182.4908205275417,
+      "q": 6.514315350151109,
+      "order": 2,
+      "poles": [
+        {
+          "real": -570.2678293921584,
+          "imag": 7407.891442748304
+        },
+        {
+          "real": -570.2678293921593,
+          "imag": -7407.891442748304
+        }
+      ],
+      "damping_hz": 181.52188786809532,
+      "realization": {
+        "topology": "mfb",
+        "stage_index": 1,
+        "kind": "bandpass",
+        "gain": 1.0,
+        "resistor_targets_ohms": {
+          "R1": 17535.620079882254,
+          "R2": 0.011782364324898728,
+          "R3": 8767.810039941125
+        },
+        "capacitor_values_f": {
+          "C1": 1e-07,
+          "C2": 1e-07
+        },
+        "resistor_networks": {
+          "R1": {
+            "label": "R1",
+            "target_ohms": 17535.620079882254,
+            "realized_ohms": 17535.816618911173,
+            "connection": "parallel",
+            "parts_ohms": [
+              18000.0,
+              680000.0
+            ],
+            "relative_error": 1.1207988541235421e-05
+          },
+          "R2": {
+            "label": "R2",
+            "target_ohms": 0.011782364324898728,
+            "realized_ohms": 0.5,
+            "connection": "parallel",
+            "parts_ohms": [
+              1.0,
+              1.0
+            ],
+            "relative_error": 41.43630448121436
+          },
+          "R3": {
+            "label": "R3",
+            "target_ohms": 8767.810039941125,
+            "realized_ohms": 8767.56322761943,
+            "connection": "parallel",
+            "parts_ohms": [
+              9100.0,
+              240000.0
+            ],
+            "relative_error": 2.8149825392044878e-05
+          }
+        },
+        "notes": [
+          "MFB band-pass synthesis follows the legacy relations R1 = 2/(C*alpha), R3 = 1/(C*BW) and R2 from w0.",
+          "Stage capacitor auto-tuned from 1.000e-08 F to 1.000e-07 F."
+        ]
+      }
+    },
+    {
+      "index": 2,
+      "natural_frequency_hz": 1060.8159298295968,
+      "q": 2.659680789746327,
+      "order": 2,
+      "poles": [
+        {
+          "real": -1253.0268838320053,
+          "imag": 6546.46382120866
+        },
+        {
+          "real": -1253.0268838320053,
+          "imag": -6546.46382120866
+        }
+      ],
+      "damping_hz": 398.85084477779554,
+      "realization": {
+        "topology": "mfb",
+        "stage_index": 2,
+        "kind": "bandpass",
+        "gain": 1.0,
+        "resistor_targets_ohms": {
+          "R1": 7980.674739729456,
+          "R2": 0.0706823485583709,
+          "R3": 3990.337369864727
+        },
+        "capacitor_values_f": {
+          "C1": 1e-07,
+          "C2": 1e-07
+        },
+        "resistor_networks": {
+          "R1": {
+            "label": "R1",
+            "target_ohms": 7980.674739729456,
+            "realized_ohms": 7981.829980532123,
+            "connection": "parallel",
+            "parts_ohms": [
+              8200.0,
+              300000.0
+            ],
+            "relative_error": 0.0001447547783041819
+          },
+          "R2": {
+            "label": "R2",
+            "target_ohms": 0.0706823485583709,
+            "realized_ohms": 0.5,
+            "connection": "parallel",
+            "parts_ohms": [
+              1.0,
+              1.0
+            ],
+            "relative_error": 6.073901903345642
+          },
+          "R3": {
+            "label": "R3",
+            "target_ohms": 3990.337369864727,
+            "realized_ohms": 3990.0,
+            "connection": "series",
+            "parts_ohms": [
+              390.0,
+              3600.0
+            ],
+            "relative_error": 8.45467020595276e-05
+          }
+        },
+        "notes": [
+          "MFB band-pass synthesis follows the legacy relations R1 = 2/(C*alpha), R3 = 1/(C*BW) and R2 from w0.",
+          "Stage capacitor auto-tuned from 1.000e-08 F to 1.000e-07 F."
+        ]
+      }
+    },
+    {
+      "index": 3,
+      "natural_frequency_hz": 904.9637858984725,
+      "q": 2.659680789746327,
+      "order": 2,
+      "poles": [
+        {
+          "real": -1068.9356378795396,
+          "imag": 5584.675453393706
+        },
+        {
+          "real": -1068.9356378795396,
+          "imag": -5584.675453393706
+        }
+      ],
+      "damping_hz": 340.25278123123394,
+      "realization": {
+        "topology": "mfb",
+        "stage_index": 3,
+        "kind": "bandpass",
+        "gain": 1.0,
+        "resistor_targets_ohms": {
+          "R1": 935510.0200267546,
+          "R2": 0.07068234855837088,
+          "R3": 467755.0100133774
+        },
+        "capacitor_values_f": {
+          "C1": 1e-09,
+          "C2": 1e-09
+        },
+        "resistor_networks": {
+          "R1": {
+            "label": "R1",
+            "target_ohms": 935510.0200267546,
+            "realized_ohms": 934246.5753424659,
+            "connection": "parallel",
+            "parts_ohms": [
+              1100000.0,
+              6200000.0
+            ],
+            "relative_error": 0.0013505410495256525
+          },
+          "R2": {
+            "label": "R2",
+            "target_ohms": 0.07068234855837088,
+            "realized_ohms": 0.5,
+            "connection": "parallel",
+            "parts_ohms": [
+              1.0,
+              1.0
+            ],
+            "relative_error": 6.073901903345644
+          },
+          "R3": {
+            "label": "R3",
+            "target_ohms": 467755.0100133774,
+            "realized_ohms": 467889.9082568807,
+            "connection": "parallel",
+            "parts_ohms": [
+              680000.0,
+              1500000.0
+            ],
+            "relative_error": 0.00028839507993604996
+          }
+        },
+        "notes": [
+          "MFB band-pass synthesis follows the legacy relations R1 = 2/(C*alpha), R3 = 1/(C*BW) and R2 from w0.",
+          "Stage capacitor auto-tuned from 1.000e-08 F to 1.000e-09 F."
+        ]
+      }
+    },
+    {
+      "index": 4,
+      "natural_frequency_hz": 811.8456256359925,
+      "q": 6.514315350151098,
+      "order": 2,
+      "poles": [
+        {
+          "real": -391.5205384227961,
+          "imag": 5085.92892103676
+        },
+        {
+          "real": -391.5205384227955,
+          "imag": -5085.92892103676
+        }
+      ],
+      "damping_hz": 124.62485802397667,
+      "realization": {
+        "topology": "mfb",
+        "stage_index": 4,
+        "kind": "bandpass",
+        "gain": 1.0,
+        "resistor_targets_ohms": {
+          "R1": 25541.444237597512,
+          "R2": 0.011782364324898762,
+          "R3": 12770.722118798756
+        },
+        "capacitor_values_f": {
+          "C1": 1e-07,
+          "C2": 1e-07
+        },
+        "resistor_networks": {
+          "R1": {
+            "label": "R1",
+            "target_ohms": 25541.444237597512,
+            "realized_ohms": 25533.199195171026,
+            "connection": "parallel",
+            "parts_ohms": [
+              27000.0,
+              470000.0
+            ],
+            "relative_error": 0.0003228103450136666
+          },
+          "R2": {
+            "label": "R2",
+            "target_ohms": 0.011782364324898762,
+            "realized_ohms": 0.5,
+            "connection": "parallel",
+            "parts_ohms": [
+              1.0,
+              1.0
+            ],
+            "relative_error": 41.43630448121423
+          },
+          "R3": {
+            "label": "R3",
+            "target_ohms": 12770.722118798756,
+            "realized_ohms": 12778.505897771953,
+            "connection": "parallel",
+            "parts_ohms": [
+              13000.0,
+              750000.0
+            ],
+            "relative_error": 0.0006095018669099947
+          }
+        },
+        "notes": [
+          "MFB band-pass synthesis follows the legacy relations R1 = 2/(C*alpha), R3 = 1/(C*BW) and R2 from w0.",
+          "Stage capacitor auto-tuned from 1.000e-08 F to 1.000e-07 F."
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "center_frequency_hz": 979.7958971132713,
+    "bandwidth_hz": 400.0,
+    "ratio": 3.550000000000001,
+    "kind": "bandpass",
+    "approximation": "butterworth",
+    "topology": "mfb",
+    "opamp": "TL082",
+    "resistor_series": "E24",
+    "allow_resistor_arrays": true,
+    "recommended_opamps": [
+      "LM324",
+      "LM318",
+      "uA741",
+      "TL082",
+      "LM7171",
+      "LM6164",
+      "LM6165",
+      "LM6171"
+    ]
+  },
+  "warnings": [
+    "Band filters are migrated with pole-based section synthesis; component-level realizations still need topology-specific refinement.",
+    "Stage 1 requests resistors below 10 ohm. A capacitor near 1.178e-10 F would move the design toward a saner range.",
+    "Stage 2 requests resistors below 10 ohm. A capacitor near 7.042e-10 F would move the design toward a saner range.",
+    "Stage 3 requests resistors below 10 ohm. A capacitor near 7.042e-12 F would move the design toward a saner range.",
+    "Stage 4 requests resistors below 10 ohm. A capacitor near 1.178e-10 F would move the design toward a saner range."
+  ]
+}

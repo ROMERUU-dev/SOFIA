@@ -1,0 +1,93 @@
+* SOFIA Filter Studio generated netlist
+* Topology request: sallen_key
+* Filter kind: lowpass
+* Approximation: butterworth
+* Filter order: 8
+* Epsilon: 0.50884714
+.include "resources/models/oplm324.cir"
+
+* polarizacion de tierra virtual
+Vin IN 0 DC 2.5 AC 1
+VTIERRA VREF 0 2.5V
+VCC VCC 0 DC 5
+RLOAD OUT 0 100k
+
+* Stage 1: lowpass, f0=1088.11947 Hz, Q=2.56292, order=2
+* Stage input: IN
+* Stage output: STAGE1_OUT
+* Equal-C, equal-R Sallen-Key synthesis derived from the legacy gain/Q relation Av = 3 - 1/Q.
+* Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-09 F.
+Xao11 31 41 VCC 0 11 LM324
+c11 31 VREF 1.000000000e-09
+c21 21 11 1.000000000e-09
+* R1: parallel array for target 146266.055285 ohm
+r311 IN 21 150000.000000
+r312 IN 21 5600000.000000
+* R2: parallel array for target 146266.055285 ohm
+r411 21 31 150000.000000
+r412 21 31 5600000.000000
+r11 41 VREF 10000.000000
+* Rf: series array for target 16098.193560 ohm
+r211 41 r21_MID1 100.000000
+r212 r21_MID1 11 16000.000000
+
+* Stage 2: lowpass, f0=1088.11947 Hz, Q=0.89998, order=2
+* Stage input: STAGE1_OUT
+* Stage output: STAGE2_OUT
+* Equal-C, equal-R Sallen-Key synthesis derived from the legacy gain/Q relation Av = 3 - 1/Q.
+* Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-09 F.
+Xao12 32 42 VCC 0 12 LM324
+c12 32 VREF 1.000000000e-09
+c22 22 12 1.000000000e-09
+* R1: parallel array for target 146266.055285 ohm
+r321 11 22 150000.000000
+r322 11 22 5600000.000000
+* R2: parallel array for target 146266.055285 ohm
+r421 22 32 150000.000000
+r422 22 32 5600000.000000
+r12 42 VREF 10000.000000
+* Rf: parallel array for target 8888.595340 ohm
+r221 42 12 16000.000000
+r222 42 12 20000.000000
+
+* Stage 3: lowpass, f0=1088.11947 Hz, Q=0.60134, order=2
+* Stage input: STAGE2_OUT
+* Stage output: STAGE3_OUT
+* Equal-C, equal-R Sallen-Key synthesis derived from the legacy gain/Q relation Av = 3 - 1/Q.
+* Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-09 F.
+Xao13 33 43 VCC 0 13 LM324
+c13 33 VREF 1.000000000e-09
+c23 23 13 1.000000000e-09
+* R1: parallel array for target 146266.055285 ohm
+r331 12 23 150000.000000
+r332 12 23 5600000.000000
+* R2: parallel array for target 146266.055285 ohm
+r431 23 33 150000.000000
+r432 23 33 5600000.000000
+r13 43 VREF 10000.000000
+* Rf: series array for target 3370.607754 ohm
+r231 43 r23_MID1 68.000000
+r232 r23_MID1 13 3300.000000
+
+* Stage 4: lowpass, f0=1088.11947 Hz, Q=0.50980, order=2
+* Stage input: STAGE3_OUT
+* Stage output: OUT
+* Equal-C, equal-R Sallen-Key synthesis derived from the legacy gain/Q relation Av = 3 - 1/Q.
+* Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-09 F.
+Xao14 34 44 VCC 0 OUT LM324
+c14 34 VREF 1.000000000e-09
+c24 24 OUT 1.000000000e-09
+* R1: parallel array for target 146266.055285 ohm
+r341 13 24 150000.000000
+r342 13 24 5600000.000000
+* R2: parallel array for target 146266.055285 ohm
+r441 24 34 150000.000000
+r442 24 34 5600000.000000
+r14 44 VREF 10000.000000
+* Rf: parallel array for target 384.294392 ohm
+r241 44 OUT 390.000000
+r242 44 OUT 27000.000000
+
+.ac dec 100 1Hz 500Hz
+.probe V(OUT)
+.end

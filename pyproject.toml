@@ -1,0 +1,35 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "sofia-filter-studio"
+version = "0.1.0"
+description = "Modern cross-platform rewrite of the legacy SOFIA analog filter design tool."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Proprietary" }
+authors = [
+  { name = "Codex Migration Bootstrap" }
+]
+keywords = ["filters", "analog", "spice", "sallen-key", "chebyshev", "butterworth"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX :: Linux",
+  "Operating System :: MacOS",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
+]
+
+[project.scripts]
+sofia = "sofia_filter_studio.cli:main"
+sofia-gui = "sofia_filter_studio.gui.app:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sofia_filter_studio"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

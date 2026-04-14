@@ -1,0 +1,92 @@
+* SOFIA Filter Studio generated netlist
+* Topology request: sallen_key
+* Filter kind: bandpass
+* Approximation: butterworth
+* Filter order: 8
+* Epsilon: 0.50884714
+.include "resources/models/TL082.cir"
+
+* polarizacion de tierra virtual
+Vin IN 0 DC 2.5 AC 1
+VTIERRA VREF 0 2.5V
+VCC VCC 0 DC 5
+RLOAD OUT 0 100k
+
+* Stage 1: bandpass, f0=1091.72955 Hz, Q=13.05614, order=2
+* Stage input: IN
+* Stage output: STAGE1_OUT
+* Equal-C, equal-R Sallen-Key synthesis derived from the legacy gain/Q relation Av = 3 - 1/Q.
+* Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-08 F.
+Xao11 31 41 VCC 0 11 TL082
+c11 31 VREF 1.000000000e-08
+c21 21 11 1.000000000e-08
+* R1: parallel array for target 14578.239042 ohm
+r311 IN 21 15000.000000
+r312 IN 21 510000.000000
+* R2: parallel array for target 14578.239042 ohm
+r411 21 31 15000.000000
+r412 21 31 510000.000000
+r11 41 VREF 10000.000000
+* Rf: parallel array for target 19234.076900 ohm
+r211 41 11 20000.000000
+r212 41 11 510000.000000
+
+* Stage 2: bandpass, f0=1034.16361 Hz, Q=5.38885, order=2
+* Stage input: STAGE1_OUT
+* Stage output: STAGE2_OUT
+* Equal-C, equal-R Sallen-Key synthesis derived from the legacy gain/Q relation Av = 3 - 1/Q.
+Xao12 32 42 VCC 0 12 TL082
+c12 32 VREF 1.000000000e-07
+c22 22 12 1.000000000e-07
+* R1: series array for target 1538.972570 ohm
+r321 11 r32_MID1 39.000000
+r322 r32_MID1 22 1500.000000
+* R2: series array for target 1538.972570 ohm
+r421 22 r42_MID1 39.000000
+r422 r42_MID1 32 1500.000000
+r12 42 VREF 10000.000000
+* Rf: series array for target 18144.316187 ohm
+r221 42 r22_MID1 150.000000
+r222 r22_MID1 12 18000.000000
+
+* Stage 3: bandpass, f0=957.29533 Hz, Q=5.38885, order=2
+* Stage input: STAGE2_OUT
+* Stage output: STAGE3_OUT
+* Equal-C, equal-R Sallen-Key synthesis derived from the legacy gain/Q relation Av = 3 - 1/Q.
+* Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-09 F.
+Xao13 33 43 VCC 0 13 TL082
+c13 33 VREF 1.000000000e-09
+c23 23 13 1.000000000e-09
+* R1: parallel array for target 166254.798738 ohm
+r331 12 23 220000.000000
+r332 12 23 680000.000000
+* R2: parallel array for target 166254.798738 ohm
+r431 23 33 220000.000000
+r432 23 33 680000.000000
+r13 43 VREF 10000.000000
+* Rf: series array for target 18144.316187 ohm
+r231 43 r23_MID1 150.000000
+r232 r23_MID1 13 18000.000000
+
+* Stage 4: bandpass, f0=906.81800 Hz, Q=13.05614, order=2
+* Stage input: STAGE3_OUT
+* Stage output: OUT
+* Equal-C, equal-R Sallen-Key synthesis derived from the legacy gain/Q relation Av = 3 - 1/Q.
+* Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-09 F.
+Xao14 34 44 VCC 0 OUT TL082
+c14 34 VREF 1.000000000e-09
+c24 24 OUT 1.000000000e-09
+* R1: parallel array for target 175509.246432 ohm
+r341 13 24 180000.000000
+r342 13 24 6800000.000000
+* R2: parallel array for target 175509.246432 ohm
+r441 24 34 180000.000000
+r442 24 34 6800000.000000
+r14 44 VREF 10000.000000
+* Rf: parallel array for target 19234.076900 ohm
+r241 44 OUT 20000.000000
+r242 44 OUT 510000.000000
+
+.ac dec 100 1Hz 500Hz
+.probe V(OUT)
+.end

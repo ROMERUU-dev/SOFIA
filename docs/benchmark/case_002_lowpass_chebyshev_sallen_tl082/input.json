@@ -1,0 +1,19 @@
+{
+  "kind": "lowpass",
+  "approx": "chebyshev",
+  "ap": "1",
+  "as": "40",
+  "topology": "sallen_key",
+  "opamp": "TL082",
+  "cap": "1e-7",
+  "resistor_series": "E24",
+  "max_network_size": "2",
+  "allow_resistor_arrays": true,
+  "auto_stage_capacitor": true,
+  "fp": "1000",
+  "fs": "2000",
+  "fp1": null,
+  "fp2": null,
+  "fs1": null,
+  "fs2": null
+}

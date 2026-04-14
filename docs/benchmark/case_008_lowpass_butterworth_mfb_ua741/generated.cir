@@ -1,0 +1,87 @@
+* SOFIA Filter Studio generated netlist
+* Topology request: mfb
+* Filter kind: lowpass
+* Approximation: butterworth
+* Filter order: 8
+* Epsilon: 0.50884714
+.include "resources/models/ua741.cir"
+
+* polarizacion de tierra virtual
+Vin IN 0 DC 2.5 AC 1
+VTIERRA VREF 0 2.5V
+VCC VCC 0 DC 5
+RLOAD OUT 0 100k
+
+* Stage 1: lowpass, f0=1088.11947 Hz, Q=2.56292, order=2
+* Stage input: IN
+* Stage output: STAGE1_OUT
+* Non-band MFB remains a practical heuristic; the legacy code only implemented explicit MFB sizing for band-pass.
+Xao11 31 VREF VCC 0 11 uA741
+c11 21 31 1.000000000e-07
+c21 21 11 1.000000000e-07
+* R1: series array for target 570.701837 ohm
+r111 31 r11_MID1 11.000000
+r112 r11_MID1 11 560.000000
+* R2: parallel array for target 1462.660553 ohm
+r211 21 VREF 1500.000000
+r212 21 VREF 56000.000000
+* R3: series array for target 3748.675326 ohm
+r311 10 r31_MID1 150.000000
+r312 r31_MID1 21 3600.000000
+
+* Stage 2: lowpass, f0=1088.11947 Hz, Q=0.89998, order=2
+* Stage input: STAGE1_OUT
+* Stage output: STAGE2_OUT
+* Non-band MFB remains a practical heuristic; the legacy code only implemented explicit MFB sizing for band-pass.
+* Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-09 F.
+Xao12 32 VREF VCC 0 12 uA741
+c12 22 32 1.000000000e-09
+c22 22 12 1.000000000e-09
+* R1: series array for target 162522.132836 ohm
+r121 32 r12_MID1 2400.000000
+r122 r12_MID1 12 160000.000000
+* R2: parallel array for target 146266.055285 ohm
+r221 22 VREF 150000.000000
+r222 22 VREF 5600000.000000
+* R3: series array for target 131635.972009 ohm
+r321 11 r32_MID1 1600.000000
+r322 r32_MID1 22 130000.000000
+
+* Stage 3: lowpass, f0=1088.11947 Hz, Q=0.60134, order=2
+* Stage input: STAGE2_OUT
+* Stage output: STAGE3_OUT
+* Non-band MFB remains a practical heuristic; the legacy code only implemented explicit MFB sizing for band-pass.
+Xao13 33 VREF VCC 0 13 uA741
+c13 23 33 1.000000000e-07
+c23 23 13 1.000000000e-07
+* R1: parallel array for target 2432.315606 ohm
+r131 33 13 4300.000000
+r132 33 13 5600.000000
+* R2: parallel array for target 1462.660553 ohm
+r231 23 VREF 1500.000000
+r232 23 VREF 56000.000000
+* R3: series array for target 879.563445 ohm
+r331 12 r33_MID1 130.000000
+r332 r33_MID1 23 750.000000
+
+* Stage 4: lowpass, f0=1088.11947 Hz, Q=0.50980, order=2
+* Stage input: STAGE3_OUT
+* Stage output: OUT
+* Non-band MFB remains a practical heuristic; the legacy code only implemented explicit MFB sizing for band-pass.
+* Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-09 F.
+Xao14 34 VREF VCC 0 OUT uA741
+c14 24 34 1.000000000e-09
+c24 24 OUT 1.000000000e-09
+* R1: parallel array for target 286911.188093 ohm
+r141 34 OUT 330000.000000
+r142 34 OUT 2200000.000000
+* R2: parallel array for target 146266.055285 ohm
+r241 24 VREF 150000.000000
+r242 24 VREF 5600000.000000
+* R3: parallel array for target 74565.788358 ohm
+r341 13 24 82000.000000
+r342 13 24 820000.000000
+
+.ac dec 100 1Hz 500Hz
+.probe V(OUT)
+.end

@@ -1,0 +1,112 @@
+* SOFIA Filter Studio generated netlist
+* Topology request: tow_thomas
+* Filter kind: bandstop
+* Approximation: butterworth
+* Filter order: 8
+* Epsilon: 0.50884714
+.include "resources/models/TL082.cir"
+
+* polarizacion de tierra virtual
+Vin IN 0 DC 2.5 AC 1
+VTIERRA VREF 0 2.5V
+VCC VCC 0 DC 5
+RLOAD OUT 0 100k
+
+* Stage 1: bandstop, f0=1555.65503 Hz, Q=2.83885, order=2
+* Stage input: IN
+* Stage output: STAGE1_OUT
+* Tow-Thomas synthesis anchored to the legacy relations R = 1/(C*w0) and Rq = Q*R.
+* Band-stop extra resistor uses the legacy notch relation around the center frequency.
+* Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-08 F.
+Xao11 VREF 21 VCC 0 31 TL082
+Xao21 VREF 41 VCC 0 11 TL082
+Xao31 VREF 61 VCC 0 71 TL082
+c11 21 31 1.000000000e-08
+c21 41 11 1.000000000e-08
+* Rbase: series array for target 10230.734935 ohm
+r111 IN r11_MID1 240.000000
+r112 r11_MID1 21 10000.000000
+* Rbase: series array for target 10230.734935 ohm
+r211 21 r21_MID1 240.000000
+r212 r21_MID1 71 10000.000000
+* Rbase: series array for target 10230.734935 ohm
+r311 31 r31_MID1 240.000000
+r312 r31_MID1 41 10000.000000
+* Rq: parallel array for target 29043.477806 ohm
+r411 21 31 30000.000000
+r412 21 31 910000.000000
+
+* Stage 2: bandstop, f0=1218.77783 Hz, Q=1.08588, order=2
+* Stage input: STAGE1_OUT
+* Stage output: STAGE2_OUT
+* Tow-Thomas synthesis anchored to the legacy relations R = 1/(C*w0) and Rq = Q*R.
+* Band-stop extra resistor uses the legacy notch relation around the center frequency.
+Xao12 VREF 22 VCC 0 32 TL082
+Xao22 VREF 42 VCC 0 12 TL082
+Xao32 VREF 62 VCC 0 72 TL082
+c12 22 32 1.000000000e-07
+c22 42 12 1.000000000e-07
+* Rbase: parallel array for target 1305.856893 ohm
+r121 11 22 1500.000000
+r122 11 22 10000.000000
+* Rbase: parallel array for target 1305.856893 ohm
+r221 22 72 1500.000000
+r222 22 72 10000.000000
+* Rbase: parallel array for target 1305.856893 ohm
+r321 32 42 1500.000000
+r322 32 42 10000.000000
+* Rq: series array for target 1418.009210 ohm
+r421 22 r42_MID1 120.000000
+r422 r42_MID1 32 1300.000000
+
+* Stage 3: bandstop, f0=787.67432 Hz, Q=1.08588, order=2
+* Stage input: STAGE2_OUT
+* Stage output: STAGE3_OUT
+* Tow-Thomas synthesis anchored to the legacy relations R = 1/(C*w0) and Rq = Q*R.
+* Band-stop extra resistor uses the legacy notch relation around the center frequency.
+* Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-09 F.
+Xao13 VREF 23 VCC 0 33 TL082
+Xao23 VREF 43 VCC 0 13 TL082
+Xao33 VREF 63 VCC 0 73 TL082
+c13 23 33 1.000000000e-09
+c23 43 13 1.000000000e-09
+* Rbase: series array for target 202056.787757 ohm
+r131 12 r13_MID1 2000.000000
+r132 r13_MID1 23 200000.000000
+* Rbase: series array for target 202056.787757 ohm
+r231 23 r23_MID1 2000.000000
+r232 r23_MID1 73 200000.000000
+* Rbase: series array for target 202056.787757 ohm
+r331 33 r33_MID1 2000.000000
+r332 r33_MID1 43 200000.000000
+* Rq: parallel array for target 219410.248975 ohm
+r431 23 33 220000.000000
+r432 23 33 82000000.000000
+
+* Stage 4: bandstop, f0=617.10339 Hz, Q=2.83885, order=2
+* Stage input: STAGE3_OUT
+* Stage output: OUT
+* Tow-Thomas synthesis anchored to the legacy relations R = 1/(C*w0) and Rq = Q*R.
+* Band-stop extra resistor uses the legacy notch relation around the center frequency.
+* Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-08 F.
+Xao14 VREF 24 VCC 0 34 TL082
+Xao24 VREF 44 VCC 0 OUT TL082
+Xao34 VREF 64 VCC 0 74 TL082
+c14 24 34 1.000000000e-08
+c24 44 OUT 1.000000000e-08
+* Rbase: parallel array for target 25790.644635 ohm
+r141 13 24 36000.000000
+r142 13 24 91000.000000
+* Rbase: parallel array for target 25790.644635 ohm
+r241 24 74 36000.000000
+r242 24 74 91000.000000
+* Rbase: parallel array for target 25790.644635 ohm
+r341 34 44 36000.000000
+r342 34 44 91000.000000
+* Rq: parallel array for target 73215.660441 ohm
+r441 24 34 82000.000000
+r442 24 34 680000.000000
+
+.ac dec 100 1Hz 500Hz
+.probe V(OUT)
+.end
