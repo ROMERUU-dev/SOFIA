@@ -227,8 +227,10 @@ class ResponsePlot(QWidget):
                 painter.drawLine(QPointF(x, rect.top()), QPointF(x, rect.bottom()))
                 if step == 1 or (label_minor and step in (2, 3, 5, 7)):
                     painter.setPen(QColor(theme.MUTED))
+                    # Keep edge labels inside the widget instead of cutting them.
+                    label_x = min(max(x - 40, 0.0), self.width() - 80.0)
                     painter.drawText(
-                        QRectF(x - 40, rect.bottom() + 6, 80, 18),
+                        QRectF(label_x, rect.bottom() + 6, 80, 18),
                         Qt.AlignmentFlag.AlignHCenter,
                         format_quantity(freq, "Hz", 3),
                     )

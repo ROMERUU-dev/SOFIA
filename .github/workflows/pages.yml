@@ -1,4 +1,5 @@
-# Publishes the web version (web/ + the Python package for Pyodide) on GitHub Pages.
+# Publishes the web site on GitHub Pages: presentation page, the app (web/ + the Python package for
+# Pyodide) and the PDF manual.
 name: Pagina web
 
 on:
@@ -8,6 +9,7 @@ on:
       - "src/**"
       - "web/**"
       - "resources/models/**"
+      - "docs/manual/**"
       - "tests/**"
       - "scripts/build_web.py"
       - ".github/workflows/pages.yml"

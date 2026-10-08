@@ -376,8 +376,12 @@ export class ResponsePlot {
         ctx.lineTo(x, rect.bottom);
         ctx.stroke();
         if (step === 1 || (labelMinor && [2, 3, 5, 7].includes(step))) {
+          const label = formatQuantity(freq, "Hz", 3);
+          // Keep edge labels inside the canvas instead of cutting them.
+          const half = ctx.measureText(label).width / 2;
+          const labelX = Math.min(Math.max(x, half + 2), this.canvas.clientWidth - half - 2);
           ctx.fillStyle = this.colors.muted;
-          ctx.fillText(formatQuantity(freq, "Hz", 3), x, rect.bottom + 8);
+          ctx.fillText(label, labelX, rect.bottom + 8);
         }
       }
     }

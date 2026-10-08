@@ -3,185 +3,389 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>SOFIA Filter Studio</title>
+    <title>SOFIA Filter Studio · Diseño de filtros activos</title>
     <meta
       name="description"
-      content="Diseño de filtros activos Butterworth y Chebyshev (Sallen-Key, MFB, Tow-Thomas, Antoniou) con netlist SPICE, directo en el navegador."
+      content="Diseña filtros activos Butterworth y Chebyshev en el navegador: orden, etapas, resistencias y capacitores comerciales, y el netlist SPICE listo para LTspice."
     />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="SOFIA Filter Studio · Diseño de filtros activos" />
+    <meta
+      property="og:description"
+      content="De la especificación al circuito: orden, etapas, componentes comerciales y netlist SPICE, directo en el navegador."
+    />
+    <meta property="og:image" content="https://romeruu-dev.github.io/SOFIA/img/og.png" />
+    <meta property="og:url" content="https://romeruu-dev.github.io/SOFIA/" />
+    <meta name="twitter:card" content="summary_large_image" />
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f6fed'/%3E%3Cpath d='M12 46h6c6 0 7-28 12-28h4c5 0 6 28 12 28h6' fill='none' stroke='white' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"
     />
-    <link rel="stylesheet" href="style.css" />
-    <script type="module" src="app.js"></script>
+    <script>
+      // Design links used to point at the site root; they now live in app/.
+      if (/(^#|&)kind=/.test(location.hash)) location.replace("app/" + location.hash);
+    </script>
+    <link rel="stylesheet" href="landing.css" />
   </head>
   <body>
-    <div class="app">
-      <aside class="sidebar">
-        <header class="brand">
+    <header class="nav">
+      <div class="container nav-inner">
+        <a class="brand" href="#inicio" aria-label="SOFIA, inicio">
           <svg viewBox="0 0 64 64" aria-hidden="true">
             <rect width="64" height="64" rx="14" fill="var(--accent)" />
-            <path
-              d="M12 46h6c6 0 7-28 12-28h4c5 0 6 28 12 28h6"
-              fill="none"
-              stroke="white"
-              stroke-width="5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
+            <path d="M12 46h6c6 0 7-28 12-28h4c5 0 6 28 12 28h6" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
-          <div>
-            <h1>SOFIA</h1>
-            <p>Diseño de filtros activos</p>
-          </div>
-        </header>
+          <span>SOFIA <small>Filter Studio</small></span>
+        </a>
+        <nav class="nav-links" aria-label="Secciones">
+          <a href="#caracteristicas">Características</a>
+          <a href="#como-funciona">Cómo funciona</a>
+          <a href="#recorrido">Recorrido</a>
+          <a href="#descargas">Descargas</a>
+          <a href="#preguntas">Preguntas</a>
+        </nav>
+        <a class="button primary small" href="app/">Abrir la app</a>
+      </div>
+    </header>
 
-        <section class="card">
-          <h2 class="card-title"><span class="step">1</span>¿Qué filtro necesitas?</h2>
-          <div class="kinds" id="kinds" role="radiogroup" aria-label="Tipo de filtro"></div>
-          <span class="label" id="approx-label">Aproximación</span>
-          <div class="segments" id="approximations" role="radiogroup" aria-labelledby="approx-label"></div>
-        </section>
-
-        <section class="card">
-          <h2 class="card-title"><span class="step">2</span>Especificación</h2>
-          <div id="single-spec" class="row">
-            <label class="field">
-              <span>Frecuencia de paso Fp</span>
-              <span class="input"><input id="fp" autocomplete="off" spellcheck="false" /><span class="unit">Hz</span></span>
-            </label>
-            <label class="field">
-              <span>Frecuencia de rechazo Fs</span>
-              <span class="input"><input id="fs" autocomplete="off" spellcheck="false" /><span class="unit">Hz</span></span>
-            </label>
+    <main id="inicio">
+      <section class="hero">
+        <div class="container">
+          <p class="eyebrow"><span class="dot"></span> Versión 0.3.0 · ahora también en el navegador</p>
+          <h1>Diseña filtros activos y llévalos <span class="accent">directo a SPICE</span></h1>
+          <p class="lead">
+            Escribe la especificación y SOFIA calcula el orden, reparte las etapas, elige resistencias y
+            capacitores comerciales y te entrega el netlist listo para simular en LTspice. Sin instalar nada.
+          </p>
+          <div class="cta">
+            <a class="button primary" href="app/">
+              Abrir la app
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+            </a>
+            <a class="button" href="SOFIA-manual.pdf">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z" /><path d="M14 3v5h5M10 13h6M10 17h6" /></svg>
+              Manual (PDF)
+            </a>
+            <a class="button" href="https://github.com/ROMERUU-dev/SOFIA/releases">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.5 10.5 4.5v7H3zM12 4.3 21 3v8.5h-9zM3 12.5h7.5v7L3 18.5zM12 12.5h9V21l-9-1.3z" /></svg>
+              Para Windows
+            </a>
           </div>
-          <div id="band-spec" hidden>
-            <p class="group-label">Banda de paso</p>
-            <div class="row">
-              <label class="field">
-                <span>Fp1</span>
-                <span class="input"><input id="fp1" autocomplete="off" spellcheck="false" /><span class="unit">Hz</span></span>
-              </label>
-              <label class="field">
-                <span>Fp2</span>
-                <span class="input"><input id="fp2" autocomplete="off" spellcheck="false" /><span class="unit">Hz</span></span>
-              </label>
-            </div>
-            <p class="group-label">Banda de rechazo</p>
-            <div class="row">
-              <label class="field">
-                <span>Fs1</span>
-                <span class="input"><input id="fs1" autocomplete="off" spellcheck="false" /><span class="unit">Hz</span></span>
-              </label>
-              <label class="field">
-                <span>Fs2</span>
-                <span class="input"><input id="fs2" autocomplete="off" spellcheck="false" /><span class="unit">Hz</span></span>
-              </label>
-            </div>
-          </div>
-          <p class="hint" id="spec-hint"></p>
-          <div class="row">
-            <label class="field" title="Caída máxima permitida dentro de la banda de paso.">
-              <span>Rizo máximo (Ap)</span>
-              <span class="input"><input id="ap" autocomplete="off" spellcheck="false" /><span class="unit">dB</span></span>
-            </label>
-            <label class="field" title="Atenuación mínima exigida en la banda de rechazo.">
-              <span>Atenuación mínima (As)</span>
-              <span class="input"><input id="as" autocomplete="off" spellcheck="false" /><span class="unit">dB</span></span>
-            </label>
-          </div>
-        </section>
+          <p class="meta">Butterworth y Chebyshev · pasa bajas, altas, banda y rechaza banda · Sallen-Key, MFB, Tow-Thomas y Antoniou</p>
 
-        <section class="card">
-          <h2 class="card-title"><span class="step">3</span>Circuito</h2>
-          <label class="field" title="Automática elige por etapa según su Q y el tipo de filtro.">
-            <span>Topología</span>
-            <select id="topology"></select>
-          </label>
-          <label class="field">
-            <span>Amplificador operacional</span>
-            <select id="opamp"></select>
-          </label>
-          <label class="field">
-            <span>Capacitor base</span>
-            <span class="input"><input id="cap" autocomplete="off" spellcheck="false" /><span class="unit">F</span></span>
-          </label>
-          <p class="hint">Punto de partida; cada etapa lo ajusta si es necesario. Acepta 10n, 4.7k, 1.5M o 1e-8.</p>
-          <details class="advanced">
-            <summary>Opciones avanzadas</summary>
-            <label class="field">
-              <span>Serie de resistencias comerciales</span>
-              <select id="series"></select>
-            </label>
-            <p class="hint">Un solo resistor comercial por posición. E96 mantiene el filtro dentro de la especificación.</p>
-            <label class="check"><input type="checkbox" id="auto_cap" /> Ajustar el capacitor de cada etapa</label>
-          </details>
-        </section>
+          <figure class="window hero-shot">
+            <div class="window-bar" aria-hidden="true"><i></i><i></i><i></i><span>romeruu-dev.github.io/SOFIA/app</span></div>
+            <picture>
+              <source srcset="img/app-celular-resultado.webp" media="(max-width: 640px)" width="390" height="844" />
+              <source srcset="img/app-oscuro.webp" media="(prefers-color-scheme: dark)" />
+              <img
+                src="img/app-pasabanda.webp"
+                width="1440"
+                height="900"
+                alt="SOFIA diseñando un pasa banda Chebyshev de orden 8: gráfica de respuesta con las zonas fuera de especificación en rojo y las etapas Tow-Thomas con sus componentes."
+              />
+            </picture>
+          </figure>
+        </div>
+      </section>
 
-        <footer class="links">
-          <span id="version">SOFIA Filter Studio</span> ·
-          <a href="https://github.com/ROMERUU-dev/SOFIA">Código</a> ·
-          <a href="https://github.com/ROMERUU-dev/SOFIA/releases">Versión para Windows</a>
-        </footer>
-      </aside>
-
-      <main class="results">
-        <div class="results-header">
-          <div class="titles">
-            <h2 id="headline">Preparando…</h2>
-            <div class="chips" id="chips"></div>
+      <section class="stats" aria-label="Resultados de la verificación">
+        <div class="container stats-grid">
+          <div class="stat">
+            <strong>40 de 40</strong>
+            <span>combinaciones de filtro y topología cumplen la especificación al simularlas con el TL082 real</span>
           </div>
-          <div class="actions">
-            <button class="button" id="share" type="button" title="Copia un enlace que abre este mismo diseño">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7" /><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7" /></svg>
-              Enlace
-            </button>
-            <button class="button" id="copy" type="button" disabled>Copiar netlist</button>
-            <button class="button primary" id="save" type="button" disabled>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12" /><path d="m7 10 5 5 5-5" /><path d="M5 21h14" /></svg>
-              Descargar netlist
-            </button>
+          <div class="stat">
+            <strong>0.0009 dB</strong>
+            <span>diferencia máxima entre el netlist generado y la respuesta diseñada, en 120 netlists</span>
+          </div>
+          <div class="stat">
+            <strong>~50 ms</strong>
+            <span>para recalcular el diseño completo cada vez que cambias un valor</span>
+          </div>
+          <div class="stat">
+            <strong>8 opamps</strong>
+            <span>con su modelo SPICE incluido dentro del netlist: TL082, LM324, uA741, LM318 y más</span>
           </div>
         </div>
+      </section>
 
-        <div class="banner error" id="error" role="alert" hidden></div>
-
-        <section class="card plot-card">
-          <div class="plot-head">
-            <h3>Respuesta en frecuencia</h3>
-            <p id="plot-hint">Zonas rojas: fuera de la especificación. Rueda: zoom · arrastrar: mover · doble clic: ver todo.</p>
-            <div class="toggle" id="view">
-              <button type="button" aria-pressed="true" data-passband="0" title="Toda la respuesta, hasta donde llega la atenuación">Completa</button>
-              <button type="button" aria-pressed="false" data-passband="1" title="Acercamiento a la parte superior para ver el rizo">Banda de paso</button>
-            </div>
+      <section id="caracteristicas" class="section">
+        <div class="container">
+          <p class="kicker">Características</p>
+          <h2>Todo lo que necesitas para pasar de la idea al circuito</h2>
+          <div class="features">
+            <article class="feature">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z" /></svg>
+              <h3>Cálculo en vivo</h3>
+              <p>Cambias una frecuencia o el rizo y la respuesta, las etapas y el netlist se actualizan al momento.</p>
+            </article>
+            <article class="feature">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h3l2-5 3 10 3-10 3 10 2-5h4" /></svg>
+              <h3>Componentes que sí existen</h3>
+              <p>Un solo resistor E96 (1 %) por posición y capacitores E12. Cada valor muestra su error contra el ideal.</p>
+            </article>
+            <article class="feature">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M14 4l-4 16" /></svg>
+              <h3>Netlist listo para simular</h3>
+              <p>Trae el modelo del opamp, la alimentación con tierra virtual y el barrido AC. Ábrelo directo en LTspice o ngspice.</p>
+            </article>
+            <article class="feature">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4M8 11h6M11 8v6" /></svg>
+              <h3>Gráfica con zoom</h3>
+              <p>Lo que queda fuera de la especificación se marca en rojo. Acerca con la rueda o pellizcando y lee cada punto.</p>
+            </article>
+            <article class="feature">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20z" /><path d="M12 10v4M12 17h.01" /></svg>
+              <h3>Avisos que sí ayudan</h3>
+              <p>Te advierte si un opamp va a oscilar, si una etapa tiene un Q muy alto o si la serie de resistencias no alcanza.</p>
+            </article>
+            <article class="feature">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7" /><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7" /></svg>
+              <h3>Comparte un diseño</h3>
+              <p>El enlace de la app guarda toda la especificación: mándalo y quien lo abra ve exactamente el mismo filtro.</p>
+            </article>
           </div>
-          <div class="plot-wrap">
-            <canvas id="plot" aria-label="Gráfica de la respuesta en frecuencia"></canvas>
-            <div class="loading" id="loading">
-              <div class="spinner"></div>
-              <strong id="loading-title">Preparando el motor de cálculo</strong>
-              <span id="loading-text">La primera vez descarga unos 6 MB; después abre al instante.</span>
+        </div>
+      </section>
+
+      <section id="como-funciona" class="section alt">
+        <div class="container">
+          <p class="kicker">Cómo funciona</p>
+          <h2>Tres pasos, sin fórmulas a mano</h2>
+          <ol class="steps">
+            <li class="step-card">
+              <span class="step-number">1</span>
+              <h3>Elige el filtro</h3>
+              <p>Pasa bajas, pasa altas, pasa banda o rechaza banda, con respuesta Butterworth (plana) o Chebyshev (corte más abrupto).</p>
+              <div class="mini kinds" aria-hidden="true">
+                <svg viewBox="0 0 64 36"><path d="M7 7H29.26C37.74 7 39.86 30 50.46 30H60" /></svg>
+                <svg viewBox="0 0 64 36"><path d="M7 30H16.54C27.14 30 29.26 7 37.74 7H60" /></svg>
+                <svg viewBox="0 0 64 36" class="on"><path d="M7 30H13.36C22.9 30 23.96 7 29.26 7H37.74C43.04 7 44.1 30 53.64 30H60" /></svg>
+                <svg viewBox="0 0 64 36"><path d="M7 7H22.9C29.26 7 30.32 30 33.5 30C36.68 30 37.74 7 44.1 7H60" /></svg>
+              </div>
+            </li>
+            <li class="step-card">
+              <span class="step-number">2</span>
+              <h3>Escribe la especificación</h3>
+              <p>Frecuencias de paso y de rechazo, rizo y atenuación. Acepta notación de ingeniería: 1k, 4.7k, 10n.</p>
+              <div class="mini fields" aria-hidden="true">
+                <span><b>Fp</b> 1k <i>Hz</i></span><span><b>Fs</b> 2k <i>Hz</i></span>
+                <span><b>Ap</b> 1 <i>dB</i></span><span><b>As</b> 40 <i>dB</i></span>
+              </div>
+            </li>
+            <li class="step-card">
+              <span class="step-number">3</span>
+              <h3>Descarga y simula</h3>
+              <p>Revisa las etapas y descarga el netlist. En LTspice lo abres, presionas Run y ves la respuesta.</p>
+              <pre class="mini code" aria-hidden="true">Xao14 VREF 34 VCC 0 OUT TL082
+r14 34 OUT 76.8k
+.ac dec 100 50 20000
+.probe V(OUT)</pre>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section id="recorrido" class="section">
+        <div class="container">
+          <p class="kicker">Recorrido</p>
+          <h2>Una pantalla con todo a la vista</h2>
+          <div class="tour" data-tour>
+            <div class="tour-tabs" role="tablist" aria-label="Pantallas de la app">
+              <button role="tab" aria-selected="true" data-shot="zoom">Gráfica</button>
+              <button role="tab" aria-selected="false" data-shot="ripple">Rizo</button>
+              <button role="tab" aria-selected="false" data-shot="netlist">Netlist</button>
+              <button role="tab" aria-selected="false" data-shot="warnings">Avisos</button>
+              <button role="tab" aria-selected="false" data-shot="phone">Celular</button>
+              <button role="tab" aria-selected="false" data-shot="dark">Modo oscuro</button>
             </div>
+            <figure class="tour-stage">
+              <div class="window" data-frame>
+                <div class="window-bar" aria-hidden="true"><i></i><i></i><i></i><span>romeruu-dev.github.io/SOFIA/app</span></div>
+                <img data-image src="img/app-zoom.webp" width="1440" height="900" alt="" loading="lazy" />
+              </div>
+              <div class="phones" data-phones hidden>
+                <img src="img/app-celular-formulario.webp" width="390" height="844" alt="La app en un celular: el formulario de especificación." loading="lazy" />
+                <img src="img/app-celular-resultado.webp" width="390" height="844" alt="La app en un celular: la gráfica de un pasa altas Chebyshev." loading="lazy" />
+              </div>
+              <figcaption data-caption></figcaption>
+            </figure>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section class="card tabs-card">
-          <nav class="tabs" role="tablist">
-            <button type="button" role="tab" aria-selected="true" data-panel="stages">Etapas</button>
-            <button type="button" role="tab" aria-selected="false" data-panel="netlist">Netlist</button>
-            <button type="button" role="tab" aria-selected="false" data-panel="warnings" id="warnings-tab">Avisos</button>
-            <button type="button" role="tab" aria-selected="false" data-panel="details">Detalles</button>
-          </nav>
-          <div class="panel" role="tabpanel" id="panel-stages"><div class="stages" id="stages"></div></div>
-          <div class="panel" role="tabpanel" id="panel-netlist" hidden><pre class="netlist" id="netlist"></pre></div>
-          <div class="panel" role="tabpanel" id="panel-warnings" hidden></div>
-          <div class="panel" role="tabpanel" id="panel-details" hidden></div>
-        </section>
+      <section class="section alt">
+        <div class="container two-col">
+          <div>
+            <p class="kicker">Circuitos</p>
+            <h2>Cuatro topologías, elegidas por etapa</h2>
+            <p class="body">
+              Con la opción <b>Automática</b>, SOFIA decide la topología de cada etapa según su Q y el tipo de filtro.
+              También puedes forzar una: si no puede realizar esa etapa, usa Tow-Thomas y te lo avisa.
+            </p>
+          </div>
+          <table class="table">
+            <thead>
+              <tr><th>Topología</th><th>Cuándo la elige</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><b>Sallen-Key</b></td><td>Pasa bajas y pasa altas con Q ≤ 1.2, y las etapas de primer orden</td></tr>
+              <tr><td><b>Antoniou (GIC)</b></td><td>Pasa bajas y pasa altas con Q entre 1.2 y 4</td></tr>
+              <tr><td><b>MFB</b></td><td>Pasa banda con Q ≤ 3</td></tr>
+              <tr><td><b>Tow-Thomas</b></td><td>Rechaza banda, y cualquier etapa de Q alto</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-        <div class="status" id="status" aria-live="polite"></div>
-      </main>
-    </div>
-    <div class="toast" id="toast" role="status" aria-live="polite"></div>
-    <noscript><p style="padding: 16px">SOFIA necesita JavaScript para funcionar.</p></noscript>
+      <section class="section">
+        <div class="container two-col">
+          <div>
+            <p class="kicker">Historia</p>
+            <h2>El SOFIA original, rehecho y corregido</h2>
+            <p class="body">
+              SOFIA nació como un programa de escritorio en C++ Builder. Esta versión lo reescribe en Python para que
+              funcione en Windows, en el navegador y en cualquier sistema. Al comparar las dos versiones con un banco
+              de 12 casos simulados en SPICE se encontraron y corrigieron errores de cálculo y de circuito.
+            </p>
+            <a class="link" href="https://github.com/ROMERUU-dev/SOFIA/blob/main/docs/correcciones.md">Ver la lista completa de correcciones →</a>
+          </div>
+          <ul class="fixes">
+            <li><b>Fuente de 5 V para todos los opamps</b>: solo el LM324 polariza con ella; el TL082 quedaba con la salida muerta.</li>
+            <li><b>Barrido AC fijo de 1 Hz a 500 Hz</b>, por debajo de casi cualquier filtro de audio.</li>
+            <li><b>Etapas de orden impar</b> con resistencias de 0 Ω que SPICE rechaza.</li>
+            <li><b>MFB con las entradas del opamp invertidas</b>: realimentación positiva.</li>
+            <li><b>Butterworth de banda sin escalar</b>: los bordes caían a −3 dB en lugar del rizo pedido.</li>
+            <li class="result">Banco de 12 casos simulados: el original no cumple ninguno; la versión nueva cumple <b>los 12</b>.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="descargas" class="section alt">
+        <div class="container">
+          <p class="kicker">Descargas</p>
+          <h2>Úsala donde prefieras</h2>
+          <div class="downloads">
+            <a class="download" href="app/">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M3 9h18M7 6.5h.01M10 6.5h.01" /></svg>
+              <h3>En el navegador</h3>
+              <p>Funciona en computadora y celular. La primera vez descarga unos 6 MB; después abre al instante.</p>
+              <span class="go">Abrir la app →</span>
+            </a>
+            <a class="download" href="https://github.com/ROMERUU-dev/SOFIA/releases">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.5 10.5 4.5v7H3zM12 4.3 21 3v8.5h-9zM3 12.5h7.5v7L3 18.5zM12 12.5h9V21l-9-1.3z" /></svg>
+              <h3>Para Windows</h3>
+              <p>Un solo archivo .exe: no necesita Python ni internet. Guarda el netlist con el modelo incluido.</p>
+              <span class="go">Ir a descargas →</span>
+            </a>
+            <a class="download" href="SOFIA-manual.pdf">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z" /><path d="M14 3v5h5M10 13h6M10 17h6" /></svg>
+              <h3>Manual de uso</h3>
+              <p>Paso a paso con capturas: diseñar, leer los resultados, simular en LTspice y armar el circuito.</p>
+              <span class="go">Descargar PDF →</span>
+            </a>
+          </div>
+          <p class="small-print">
+            ¿Prefieres la línea de comandos o Linux/macOS? El
+            <a href="https://github.com/ROMERUU-dev/SOFIA">código está en GitHub</a> con instrucciones para correrlo con Python.
+          </p>
+        </div>
+      </section>
+
+      <section id="preguntas" class="section">
+        <div class="container narrow">
+          <p class="kicker">Preguntas frecuentes</p>
+          <h2>Antes de empezar</h2>
+          <details>
+            <summary>¿Tengo que instalar algo?</summary>
+            <p>No. La app corre en el navegador: el mismo motor de cálculo en Python de la versión de escritorio se ejecuta en tu computadora o celular, sin servidor. Para simular necesitas un simulador SPICE como LTspice (gratuito).</p>
+          </details>
+          <details>
+            <summary>¿Funciona sin internet?</summary>
+            <p>La versión web necesita internet la primera vez para descargar el intérprete de Python; después el navegador lo guarda. El ejecutable para Windows funciona completamente sin conexión.</p>
+          </details>
+          <details>
+            <summary>¿Por qué me sale un orden más alto del que esperaba?</summary>
+            <p>El orden es el mínimo entero que cumple la especificación. La selectividad que sobra se reparte como margen entre la banda de paso y la de rechazo, para que el filtro siga cumpliendo con resistencias comerciales. Los márgenes aparecen en la pestaña Detalles.</p>
+          </details>
+          <details>
+            <summary>¿Qué opamp conviene usar?</summary>
+            <p>El TL082 funciona bien en la mayoría de los casos de audio. Si solo tienes 5 V, usa el LM324. Los LM6164 y LM6165 son descompensados y oscilan en estas etapas; la app te lo avisa.</p>
+          </details>
+          <details>
+            <summary>¿Por qué no da lo mismo que el SOFIA original?</summary>
+            <p>Porque el original tenía errores de cálculo y de circuito: ninguno de los 12 casos del banco cumplía la especificación. La versión nueva cumple los 12. La lista de diferencias está en el repositorio.</p>
+          </details>
+          <details>
+            <summary>¿Cómo comparto un diseño?</summary>
+            <p>Usa el botón <b>Enlace</b> de la app. El link guarda el tipo de filtro, la especificación y el circuito; quien lo abra verá el mismo diseño.</p>
+          </details>
+        </div>
+      </section>
+
+      <section class="closing">
+        <div class="container">
+          <h2>Diseña tu próximo filtro</h2>
+          <p>Abre la app, escribe la especificación y descarga el netlist en menos de un minuto.</p>
+          <a class="button primary" href="app/">
+            Abrir la app
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer-inner">
+        <span>SOFIA Filter Studio 0.3.0</span>
+        <nav aria-label="Enlaces">
+          <a href="app/">App</a>
+          <a href="SOFIA-manual.pdf">Manual</a>
+          <a href="https://github.com/ROMERUU-dev/SOFIA/releases">Windows</a>
+          <a href="https://github.com/ROMERUU-dev/SOFIA">GitHub</a>
+        </nav>
+      </div>
+    </footer>
+
+    <script>
+      // Tour: one framed screenshot, switched by the tabs.
+      const SHOTS = {
+        zoom: ["img/app-zoom.webp", "Las zonas rojas marcan lo que queda fuera de la especificación. Con la rueda del mouse (o pellizcando) te acercas; al pasar el cursor lees la frecuencia y la ganancia de cada punto."],
+        ripple: ["img/app-banda-de-paso.webp", "La vista Banda de paso amplía la parte de arriba de la curva para revisar el rizo contra el límite que pediste."],
+        netlist: ["img/app-netlist.webp", "El netlist trae el modelo del opamp, la fuente única con tierra virtual y el barrido AC. Se descarga con un clic, listo para LTspice."],
+        warnings: ["img/app-avisos.webp", "Los avisos explican qué puede fallar al armar el circuito, como un opamp descompensado que va a oscilar, y qué usar en su lugar."],
+        phone: [null, "En el celular la app se acomoda en una columna: llenas la especificación y abajo ves la gráfica y las etapas."],
+        dark: ["img/app-oscuro.webp", "Si tu sistema usa modo oscuro, la app también. Aquí un rechaza banda Chebyshev de orden 8 con etapas Tow-Thomas."],
+      };
+      const tour = document.querySelector("[data-tour]");
+      const frame = tour.querySelector("[data-frame]");
+      const image = tour.querySelector("[data-image]");
+      const phones = tour.querySelector("[data-phones]");
+      const caption = tour.querySelector("[data-caption]");
+      const tabs = [...tour.querySelectorAll("[data-shot]")];
+      function show(name) {
+        const [src, text] = SHOTS[name];
+        for (const tab of tabs) tab.setAttribute("aria-selected", String(tab.dataset.shot === name));
+        frame.hidden = !src;
+        phones.hidden = Boolean(src);
+        if (src) {
+          image.src = src;
+          image.alt = text;
+        }
+        caption.textContent = text;
+      }
+      tabs.forEach((tab, index) => {
+        tab.addEventListener("click", () => show(tab.dataset.shot));
+        tab.addEventListener("keydown", (event) => {
+          const step = { ArrowRight: 1, ArrowLeft: -1 }[event.key];
+          if (!step) return;
+          const next = tabs[(index + step + tabs.length) % tabs.length];
+          next.focus();
+          show(next.dataset.shot);
+        });
+      });
+      show("zoom");
+    </script>
   </body>
 </html>

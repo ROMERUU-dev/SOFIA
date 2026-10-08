@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>SOFIA Filter Studio · Manual de uso</title>
+    <meta name="author" content="ROMERUU-dev" />
+    <link rel="stylesheet" href="manual.css" />
+  </head>
+  <body>
+    <!-- Portada -->
+    <section class="cover">
+      <div class="cover-brand">
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <rect width="64" height="64" rx="14" fill="#2f6fed" />
+          <path d="M12 46h6c6 0 7-28 12-28h4c5 0 6 28 12 28h6" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <span>SOFIA Filter Studio</span>
+      </div>
+      <h1>Manual de uso</h1>
+      <p class="cover-lead">Diseño de filtros activos Butterworth y Chebyshev, de la especificación al netlist SPICE.</p>
+      <img class="cover-shot" src="../../web/img/app-pasabanda.webp" alt="" />
+      <dl class="cover-meta">
+        <div><dt>Versión</dt><dd>0.3.0</dd></div>
+        <div><dt>App en el navegador</dt><dd>romeruu-dev.github.io/SOFIA/app</dd></div>
+        <div><dt>Descargas y código</dt><dd>github.com/ROMERUU-dev/SOFIA</dd></div>
+      </dl>
+    </section>
+
+    <!-- Contenido -->
+    <section class="page">
+      <h2 class="toc-title">Contenido</h2>
+      <ol class="toc">
+        <li><a href="#que-es">Qué es SOFIA</a></li>
+        <li><a href="#pantalla">Un vistazo a la pantalla</a></li>
+        <li><a href="#paso-a-paso">Diseñar un filtro paso a paso</a></li>
+        <li><a href="#resultados">Leer los resultados</a></li>
+        <li><a href="#simular">Simular el netlist</a></li>
+        <li><a href="#armar">Armar el circuito</a></li>
+        <li><a href="#mensajes">Mensajes de error y avisos</a></li>
+        <li><a href="#windows">Versión para Windows y línea de comandos</a></li>
+        <li><a href="#preguntas">Preguntas frecuentes</a></li>
+      </ol>
+
+      <h2 id="que-es"><span class="num">1</span>Qué es SOFIA</h2>
+      <p>
+        SOFIA Filter Studio diseña filtros activos a partir de su especificación. Le das el tipo de filtro, las
+        frecuencias y cuánto rizo y atenuación aceptas, y SOFIA:
+      </p>
+      <ul>
+        <li>calcula el <b>orden mínimo</b> que cumple la especificación y sus polos;</li>
+        <li>reparte el filtro en <b>etapas</b> de segundo orden (y una de primero si el orden es impar);</li>
+        <li>elige la <b>topología</b> de cada etapa: Sallen-Key, MFB, Tow-Thomas o Antoniou;</li>
+        <li>calcula las <b>resistencias y capacitores</b> y los redondea a valores comerciales;</li>
+        <li>dibuja la <b>respuesta en frecuencia</b> con la especificación marcada;</li>
+        <li>genera el <b>netlist SPICE</b>, con el modelo del amplificador operacional incluido, para simularlo en LTspice o ngspice.</li>
+      </ul>
+      <p>
+        Es una reescritura en Python del SOFIA original (C++ Builder). El cálculo se verificó con un banco de casos
+        simulados en SPICE: con resistencias E96 y el modelo real del TL082, las 40 combinaciones de tipo de filtro,
+        aproximación y topología cumplen la especificación.
+      </p>
+
+      <h3>Dónde usarla</h3>
+      <table>
+        <thead><tr><th>Versión</th><th>Cómo se abre</th><th>Necesita</th></tr></thead>
+        <tbody>
+          <tr><td><b>Navegador</b></td><td>romeruu-dev.github.io/SOFIA/app</td><td>Internet la primera vez (descarga unos 6 MB). Funciona en computadora y celular.</td></tr>
+          <tr><td><b>Windows</b></td><td>SOFIA-Filter-Studio.exe, en la sección Releases del repositorio</td><td>Nada: es un solo archivo y funciona sin internet.</td></tr>
+          <tr><td><b>Python</b></td><td><code>sofia-gui</code> o <code>sofia</code> (línea de comandos)</td><td>Python 3.11 o más reciente; la ventana usa PySide6.</td></tr>
+        </tbody>
+      </table>
+      <p class="note">
+        Las tres versiones usan el mismo motor de cálculo y dan exactamente los mismos resultados. Este manual muestra
+        la versión del navegador; la de escritorio tiene la misma pantalla, con <i>Guardar netlist…</i> en lugar de
+        <i>Descargar netlist</i>.
+      </p>
+    </section>
+
+    <section class="page">
+      <h2 id="pantalla"><span class="num">2</span>Un vistazo a la pantalla</h2>
+      <p>A la izquierda está lo que pides; a la derecha, lo que SOFIA diseña. Todo se recalcula al momento.</p>
+      <figure class="callouts">
+        <img src="../../web/img/app-pasabajas.webp" alt="Pantalla principal de SOFIA con un pasa bajas Butterworth de orden 8." />
+        <span class="badge" style="left: 23.0%; top: 9.8%">1</span>
+        <span class="badge" style="left: 23.0%; top: 45.9%">2</span>
+        <span class="badge" style="left: 23.0%; top: 72.4%">3</span>
+        <span class="badge" style="left: 60.0%; top: 1.9%">4</span>
+        <span class="badge" style="left: 68.4%; top: 1.9%">5</span>
+        <span class="badge" style="left: 40.0%; top: 30.0%">6</span>
+        <span class="badge" style="left: 80.2%; top: 10.5%">7</span>
+        <span class="badge" style="left: 52.5%; top: 59.6%">8</span>
+      </figure>
+      <ol class="legend">
+        <li><b>Tipo de filtro y aproximación.</b> Pasa bajas, pasa altas, pasa banda o rechaza banda; Butterworth o Chebyshev.</li>
+        <li><b>Especificación.</b> Frecuencias de paso y de rechazo, rizo máximo y atenuación mínima.</li>
+        <li><b>Circuito.</b> Topología, amplificador operacional, capacitor base y opciones avanzadas.</li>
+        <li><b>Resumen.</b> Tipo, aproximación y orden del filtro; número de etapas, topologías, opamp con su alimentación y avisos.</li>
+        <li><b>Acciones.</b> Copiar el enlace del diseño, copiar el netlist o descargarlo.</li>
+        <li><b>Respuesta en frecuencia.</b> La curva diseñada y, en rojo, las zonas que la especificación prohíbe.</li>
+        <li><b>Vista de la gráfica.</b> <i>Completa</i> muestra toda la curva; <i>Banda de paso</i> amplía la parte de arriba para ver el rizo.</li>
+        <li><b>Pestañas de resultados.</b> Etapas con sus componentes, netlist, avisos y detalles del cálculo.</li>
+      </ol>
+    </section>
+
+    <section class="page">
+      <h2 id="paso-a-paso"><span class="num">3</span>Diseñar un filtro paso a paso</h2>
+      <p>
+        Como ejemplo diseñaremos un pasa bajas que deje pasar hasta 1 kHz con no más de 1 dB de caída, y que atenúe al
+        menos 40 dB a partir de 2 kHz. Son los valores con los que abre la app.
+      </p>
+
+      <h3>3.1 Elige el tipo de filtro y la aproximación</h3>
+      <table>
+        <thead><tr><th>Tipo</th><th>Qué hace</th><th>Frecuencias que pide</th></tr></thead>
+        <tbody>
+          <tr><td><b>Pasa bajas</b></td><td>Pasa lo que está debajo de Fp y atenúa arriba de Fs.</td><td>Fp &lt; Fs</td></tr>
+          <tr><td><b>Pasa altas</b></td><td>Pasa lo que está arriba de Fp y atenúa debajo de Fs.</td><td>Fs &lt; Fp</td></tr>
+          <tr><td><b>Pasa banda</b></td><td>Pasa entre Fp1 y Fp2; atenúa fuera de Fs1–Fs2.</td><td>Fs1 &lt; Fp1 &lt; Fp2 &lt; Fs2</td></tr>
+          <tr><td><b>Rechaza banda</b></td><td>Atenúa entre Fs1 y Fs2; pasa fuera de Fp1–Fp2.</td><td>Fp1 &lt; Fs1 &lt; Fs2 &lt; Fp2</td></tr>
+        </tbody>
+      </table>
+      <p>
+        <b>Butterworth</b> tiene la banda de paso más plana posible. <b>Chebyshev</b> permite un rizo dentro de la banda
+        de paso a cambio de un corte más abrupto: para la misma especificación suele necesitar menos etapas. En el
+        ejemplo, Butterworth pide orden 8 y Chebyshev orden 5.
+      </p>
+      <p class="note">
+        Al cambiar entre pasa bajas y pasa altas, SOFIA intercambia Fp y Fs para que la especificación siga siendo
+        válida. Los filtros de banda recuerdan sus propias frecuencias.
+      </p>
+
+      <h3>3.2 Escribe la especificación</h3>
+      <table>
+        <thead><tr><th>Campo</th><th>Significado</th></tr></thead>
+        <tbody>
+          <tr><td><b>Fp</b> (Fp1, Fp2)</td><td>Borde de la banda de paso: hasta ahí la caída no puede pasar del rizo máximo.</td></tr>
+          <tr><td><b>Fs</b> (Fs1, Fs2)</td><td>Borde de la banda de rechazo: desde ahí la atenuación debe ser al menos As.</td></tr>
+          <tr><td><b>Rizo máximo (Ap)</b></td><td>Caída máxima permitida dentro de la banda de paso, en dB (por ejemplo 1 dB).</td></tr>
+          <tr><td><b>Atenuación mínima (As)</b></td><td>Atenuación exigida en la banda de rechazo, en dB (por ejemplo 40 dB). Debe ser mayor que Ap.</td></tr>
+        </tbody>
+      </table>
+      <p>Los campos aceptan notación de ingeniería, con punto o coma decimal y con o sin la unidad:</p>
+      <table class="compact">
+        <thead><tr><th>Prefijo</th><th>p</th><th>n</th><th>u o µ</th><th>m</th><th>k</th><th>M o meg</th></tr></thead>
+        <tbody>
+          <tr><td>Multiplica por</td><td>10<sup>−12</sup></td><td>10<sup>−9</sup></td><td>10<sup>−6</sup></td><td>10<sup>−3</sup></td><td>10<sup>3</sup></td><td>10<sup>6</sup></td></tr>
+        </tbody>
+      </table>
+      <p>
+        Ejemplos válidos: <code>1k</code>, <code>1.5k</code>, <code>2 kHz</code>, <code>10n</code>, <code>0,1u</code>,
+        <code>1e-8</code>. Si algo no se entiende, el campo se marca en rojo y arriba aparece qué corregir.
+      </p>
+    </section>
+
+    <section class="flow">
+      <h3>3.3 Elige el circuito</h3>
+      <p>
+        <b>Topología.</b> Con <i>Automática (recomendada)</i>, SOFIA elige la de cada etapa según su Q y el tipo de
+        filtro. Puedes forzar una; si no puede realizar alguna etapa, esa etapa usa Tow-Thomas y aparece un aviso.
+      </p>
+      <table>
+        <thead><tr><th>Topología</th><th>Opamps por etapa</th><th>La automática la usa para</th></tr></thead>
+        <tbody>
+          <tr><td><b>Sallen-Key</b></td><td>1</td><td>Pasa bajas y pasa altas con Q ≤ 1.2, y la etapa de primer orden.</td></tr>
+          <tr><td><b>Antoniou (GIC)</b></td><td>3</td><td>Pasa bajas y pasa altas con Q entre 1.2 y 4.</td></tr>
+          <tr><td><b>MFB</b> (realimentación múltiple)</td><td>1</td><td>Pasa banda con Q ≤ 3.</td></tr>
+          <tr><td><b>Tow-Thomas</b></td><td>3</td><td>Rechaza banda, pasa banda con Q &gt; 3 y cualquier etapa con Q &gt; 4.</td></tr>
+        </tbody>
+      </table>
+
+      <p><b>Amplificador operacional.</b> Cada modelo trae su macro-modelo SPICE, que se copia dentro del netlist.</p>
+      <table>
+        <thead><tr><th>Opamp</th><th>Alimentación</th><th>Comentario</th></tr></thead>
+        <tbody>
+          <tr><td><b>TL082</b></td><td>15 V</td><td>Entrada JFET, uso general. Buena opción para audio.</td></tr>
+          <tr><td><b>LM324</b></td><td>5 V</td><td>El único que funciona con 5 V. Para filtros de baja frecuencia.</td></tr>
+          <tr><td><b>uA741</b></td><td>15 V</td><td>Clásico; ancho de banda bajo.</td></tr>
+          <tr><td><b>LM318</b></td><td>15 V</td><td>Más rápido que el TL082.</td></tr>
+          <tr><td><b>LM7171, LM6171</b></td><td>15 V</td><td>Alta velocidad (100–200 MHz). Con MFB, Tow-Thomas o Antoniou la app avisa que conviene otra opción.</td></tr>
+          <tr><td><b>LM6164, LM6165</b></td><td>15 V</td><td>Descompensados: solo son estables con ganancia ≥ 5 y ≥ 25. En estas etapas oscilan; la app lo avisa.</td></tr>
+        </tbody>
+      </table>
+      <p>
+        Todos los netlists usan una sola fuente con tierra virtual a la mitad: 15 V con tierra virtual en 7.5 V
+        (LM324: 5 V y 2.5 V).
+      </p>
+
+      <p>
+        <b>Capacitor base.</b> Es el punto de partida (10 nF por defecto). Con la opción <i>Ajustar el capacitor de cada
+        etapa</i> activada, SOFIA prueba los valores E12 cercanos y elige, para cada etapa, el que deja las resistencias
+        más cerca de valores comerciales y en un rango práctico.
+      </p>
+      <p><b>Opciones avanzadas.</b></p>
+      <ul>
+        <li>
+          <b>Serie de resistencias comerciales:</b> E96 (1 %), E48 (2 %), E24 (5 %) o E12 (10 %). Cada posición usa un
+          solo resistor de la serie. E96 es la recomendada: con E24 los filtros de banda de Q alto pueden salirse de la
+          especificación, y la app avisa cuando alguna resistencia se redondea más de 1 %.
+        </li>
+        <li><b>Ajustar el capacitor de cada etapa:</b> activado por defecto. Desactívalo si quieres que todas las etapas usen exactamente el capacitor base.</li>
+      </ul>
+    </section>
+
+    <section class="page">
+      <h2 id="resultados"><span class="num">4</span>Leer los resultados</h2>
+
+      <h3>4.1 Resumen</h3>
+      <p>
+        Arriba aparece el filtro diseñado (por ejemplo <i>Pasa bajas Butterworth de orden 8</i>) y unas etiquetas con el
+        número de etapas, las topologías usadas, el opamp con su alimentación y cuántos avisos hay. <i>Sin avisos</i> en
+        verde significa que no se detectó ningún problema práctico.
+      </p>
+
+      <h3>4.2 La gráfica</h3>
+      <p>
+        La curva azul es la respuesta del diseño. Las zonas rojas son lo que la especificación prohíbe: debajo de −Ap en
+        la banda de paso y arriba de −As en la banda de rechazo. Si la curva no toca ninguna zona roja, el diseño cumple.
+      </p>
+      <table>
+        <thead><tr><th>Para…</th><th>Con mouse</th><th>En celular o tableta</th></tr></thead>
+        <tbody>
+          <tr><td>Acercar o alejar</td><td>Rueda, alrededor del cursor</td><td>Pellizcar con dos dedos</td></tr>
+          <tr><td>Zoom solo en dB</td><td>Shift + rueda</td><td>—</td></tr>
+          <tr><td>Zoom solo en frecuencia</td><td>Ctrl + rueda</td><td>—</td></tr>
+          <tr><td>Mover la vista</td><td>Arrastrar</td><td>Arrastrar con un dedo</td></tr>
+          <tr><td>Leer un punto</td><td>Pasar el cursor sobre la curva</td><td>Tocar la gráfica</td></tr>
+          <tr><td>Volver a ver todo</td><td>Doble clic</td><td>Botón <i>Completa</i></td></tr>
+        </tbody>
+      </table>
+      <figure>
+        <div class="crop" style="--x: 0.286; --y: 0.099; --w: 0.703; --h: 0.48">
+          <img src="../../web/img/app-banda-de-paso.webp" alt="" />
+        </div>
+        <figcaption>Vista <i>Banda de paso</i> de un pasa banda Chebyshev: el rizo queda arriba de la línea de −1 dB.</figcaption>
+      </figure>
+
+      <h3>4.3 Etapas</h3>
+      <p>
+        Cada tarjeta es una etapa del circuito, en el orden en que se conectan (la salida de la etapa 1 entra a la 2, y
+        así). Muestra su topología, su orden, la frecuencia natural <b>f0</b>, el <b>Q</b> y la ganancia, y la lista de
+        componentes: los capacitores y cada resistor con su valor comercial y, entre paréntesis, cuánto se aleja del
+        valor ideal calculado.
+      </p>
+      <figure class="medium">
+        <div class="crop" style="--x: 0.295; --y: 0.645; --w: 0.46; --h: 0.285">
+          <img src="../../web/img/app-pasabanda.webp" alt="" />
+        </div>
+        <figcaption>Etapas Tow-Thomas de un pasa banda Chebyshev de orden 8, con resistencias E96.</figcaption>
+      </figure>
+    </section>
+
+    <section class="flow">
+      <h3>4.4 Netlist</h3>
+      <p>
+        Es el circuito completo en formato SPICE. <i>Descargar netlist</i> lo guarda como archivo <code>.cir</code> con
+        un nombre que describe el filtro; <i>Copiar netlist</i> lo copia al portapapeles. Contiene:
+      </p>
+      <ul>
+        <li>comentarios con el tipo de filtro, la aproximación, el orden y épsilon;</li>
+        <li>las fuentes: <code>Vin</code> (entrada, con la tierra virtual de DC y 1 V de AC), <code>VTIERRA</code> y <code>VCC</code>, y una carga de 100 kΩ en la salida <code>OUT</code>;</li>
+        <li>cada etapa, comentada, con sus opamps, resistores y capacitores;</li>
+        <li>el modelo del opamp, copiado dentro del archivo, así que no hace falta buscarlo;</li>
+        <li><code>.nodeset</code>, que ayuda a SPICE a encontrar el punto de operación correcto, y el barrido <code>.ac</code> que cubre de una década abajo a una década arriba de las frecuencias del filtro.</li>
+      </ul>
+      <figure class="medium narrow">
+        <div class="crop" style="--x: 0.286; --y: 0.592; --w: 0.4; --h: 0.358">
+          <img src="../../web/img/app-netlist.webp" alt="" />
+        </div>
+        <figcaption>Inicio del netlist de un pasa banda: fuentes, tierra virtual y carga.</figcaption>
+      </figure>
+
+      <h3>4.5 Avisos</h3>
+      <p>
+        Explican lo que puede fallar al armar o simular el circuito y qué hacer. La pestaña muestra cuántos hay. La
+        sección <a href="#mensajes">7</a> los lista todos.
+      </p>
+      <figure>
+        <div class="crop" style="--x: 0.286; --y: 0.592; --w: 0.703; --h: 0.2">
+          <img src="../../web/img/app-avisos.webp" alt="" />
+        </div>
+        <figcaption>Aviso con el LM6164, que es descompensado y oscilaría en estas etapas.</figcaption>
+      </figure>
+
+      <h3>4.6 Detalles</h3>
+      <p>
+        Muestra el orden; el rizo y la atenuación que realmente tiene el diseño, con su margen frente a lo que pediste;
+        épsilon; la selectividad; la alimentación; los opamps adecuados para esa frecuencia, y los polos en rad/s. En
+        filtros de banda también aparecen la frecuencia central y el ancho de banda.
+      </p>
+      <p class="note">
+        El orden se redondea hacia arriba, así que casi siempre sobra selectividad. SOFIA la reparte como margen entre
+        las dos bandas: por ejemplo, el pasa bajas del ejemplo queda con 0.787 dB de rizo (pediste 1 dB) y 41.15 dB de
+        atenuación (pediste 40 dB). Ese margen absorbe el redondeo de los componentes.
+      </p>
+
+      <h3>4.7 Compartir un diseño</h3>
+      <p>
+        En la versión del navegador, el botón <b>Enlace</b> copia un link con el tipo de filtro, la especificación y el
+        circuito. Quien lo abra verá exactamente el mismo diseño. Sirve para mandar un ejercicio o pedir una revisión.
+      </p>
+    </section>
+
+    <section class="page">
+      <h2 id="simular"><span class="num">5</span>Simular el netlist</h2>
+      <h3>En LTspice</h3>
+      <ol class="steps">
+        <li>Descarga el netlist con <i>Descargar netlist</i> (en Windows: <i>Guardar netlist…</i>).</li>
+        <li>En LTspice abre <i>File › Open</i>, cambia el tipo de archivo a <i>Netlists</i> (o <i>All files</i>) y elige el <code>.cir</code>.</li>
+        <li>Presiona <i>Run</i>. Si la ventana de la gráfica abre vacía, haz clic derecho en ella, elige <i>Add Traces</i> y selecciona <code>V(out)</code>.</li>
+        <li>LTspice muestra la magnitud en dB y la fase. Usa los cursores para medir el rizo y la atenuación en los bordes Fp y Fs.</li>
+      </ol>
+      <h3>En ngspice</h3>
+      <pre>ngspice filtro.cir
+run
+plot vdb(out)</pre>
+      <h3>Qué revisar</h3>
+      <ul>
+        <li>
+          La ganancia en la banda de paso no siempre es 0 dB: las etapas Sallen-Key y Antoniou pueden tener ganancia.
+          Mide el rizo y la atenuación <b>respecto al nivel de la banda de paso</b>. Los filtros pasa banda están
+          normalizados para dar 0 dB al centro.
+        </li>
+        <li>
+          La simulación usa el modelo real del opamp, así que a frecuencias altas puede diferir un poco de la gráfica de
+          la app, que es la respuesta ideal. Si la diferencia es grande, prueba un opamp más rápido (LM318).
+        </li>
+      </ul>
+
+      <h2 id="armar"><span class="num">6</span>Armar el circuito</h2>
+      <ul>
+        <li>
+          <b>Alimentación.</b> El netlist usa una fuente única de 15 V (5 V con LM324) y una tierra virtual ideal a la
+          mitad. En la placa, haz la tierra virtual con un divisor de dos resistencias iguales y un capacitor, de
+          preferencia con un seguidor de voltaje, o usa una fuente doble (±7.5 V) y conecta a tierra lo que en el netlist
+          es <code>VREF</code>.
+        </li>
+        <li>
+          <b>Entrada.</b> En la simulación la entrada trae la tierra virtual como nivel de DC. Con fuente única, acopla la
+          señal con un capacitor y polariza la entrada a la tierra virtual.
+        </li>
+        <li>
+          <b>Componentes.</b> Usa resistencias de película metálica de la serie elegida (E96: 1 %) y capacitores de
+          película o cerámicos C0G/NP0. Las etapas de Q alto son las más sensibles a la tolerancia.
+        </li>
+        <li><b>Desacoplo.</b> Pon un capacitor de 100 nF entre la alimentación y tierra junto a cada opamp.</li>
+        <li><b>Orden de las etapas.</b> Conéctalas en el orden en que aparecen (etapa 1 primero), que es el orden del netlist que simulaste.</li>
+      </ul>
+    </section>
+
+    <section class="page">
+      <h2 id="mensajes"><span class="num">7</span>Mensajes de error y avisos</h2>
+      <h3>Errores en la especificación</h3>
+      <p>Aparecen en una franja roja arriba de la gráfica; el campo con el problema se marca en rojo.</p>
+      <table>
+        <thead><tr><th>Mensaje</th><th>Qué hacer</th></tr></thead>
+        <tbody>
+          <tr><td>… no es un número válido</td><td>Revisa el campo: solo número, prefijo (k, n…) y, si quieres, la unidad.</td></tr>
+          <tr><td>unidad '…' no reconocida</td><td>La unidad no corresponde al campo (por ejemplo F en una frecuencia).</td></tr>
+          <tr><td>En un pasa bajas, Fs debe ser mayor que Fp</td><td>Fs es donde empieza la atenuación: debe quedar arriba de Fp (en pasa altas, abajo).</td></tr>
+          <tr><td>Se necesita Fs1 &lt; Fp1 &lt; Fp2 &lt; Fs2</td><td>En pasa banda, la banda de paso va dentro de la de rechazo (en rechaza banda, al revés).</td></tr>
+          <tr><td>La atenuación mínima debe ser mayor que el rizo máximo</td><td>As tiene que ser mayor que Ap.</td></tr>
+          <tr><td>… debe ser mayor que cero</td><td>Frecuencias, rizo y capacitor deben ser positivos.</td></tr>
+        </tbody>
+      </table>
+      <h3>Avisos del diseño</h3>
+      <table>
+        <thead><tr><th>Aviso</th><th>Qué significa</th></tr></thead>
+        <tbody>
+          <tr><td>El LM6164 / LM6165 es descompensado…</td><td>Va a oscilar con las ganancias de estas etapas. Usa LM6171, LM7171 o LM318.</td></tr>
+          <tr><td>El LM7171 / LM6171 es un opamp de 100-200 MHz…</td><td>Con MFB, Tow-Thomas o Antoniou su simulación transitoria no se estabiliza. Usa Sallen-Key o un opamp más lento.</td></tr>
+          <tr><td>Etapas Sallen-Key con Q mayor a 10</td><td>Muy sensibles a la tolerancia. Tow-Thomas o MFB son más robustas.</td></tr>
+          <tr><td>… no puede realizar una etapa …; esta etapa usa Tow-Thomas</td><td>La topología que forzaste no sirve para ese tipo de etapa; SOFIA la cambió solo en esa etapa.</td></tr>
+          <tr><td>La etapa N redondea resistencias hasta X %</td><td>La serie elegida queda lejos de los valores ideales. Usa E96.</td></tr>
+          <tr><td>Resistencias menores a 10 Ω o mayores a 1 MΩ</td><td>Cambia el capacitor base al valor que sugiere el aviso.</td></tr>
+          <tr><td>La corriente de polarización … agrega unos X mV de offset</td><td>Resistencias grandes con un opamp de corriente de entrada alta. Un capacitor base más grande lo reduce.</td></tr>
+          <tr><td>Q muy sensible, ganancia recortada o limitada</td><td>La etapa no alcanza exactamente el Q pedido con esa topología; prueba Automática o Tow-Thomas.</td></tr>
+        </tbody>
+      </table>
+
+    </section>
+
+    <section class="page">
+      <h2 id="windows"><span class="num">8</span>Versión para Windows y línea de comandos</h2>
+      <p>
+        Descarga <code>SOFIA-Filter-Studio.exe</code> de la sección <i>Releases</i> del repositorio y ábrelo con doble
+        clic; no se instala. La ventana es la misma que la del navegador. Atajos: <b>Ctrl+S</b> guarda el netlist y
+        <b>Ctrl+Shift+C</b> lo copia.
+      </p>
+      <p>
+        El mismo .exe funciona como línea de comandos si le pasas opciones; como no abre consola, usa <code>--netlist-out</code> para obtener el archivo. En Python, después de
+        <code>pip install -e ".[gui]"</code>, los comandos son <code>sofia</code> y <code>sofia-gui</code>:
+      </p>
+      <pre>sofia --kind lowpass --approx butterworth --fp 1000 --fs 2000 \
+      --ap 1 --as 40 --topology auto --opamp TL082 --netlist-out filtro.cir</pre>
+      <table>
+        <thead><tr><th>Opción</th><th>Valores</th></tr></thead>
+        <tbody>
+          <tr><td><code>--kind</code></td><td>lowpass, highpass, bandpass, bandstop</td></tr>
+          <tr><td><code>--approx</code></td><td>butterworth, chebyshev</td></tr>
+          <tr><td><code>--fp --fs</code></td><td>Bordes en Hz (pasa bajas y pasa altas)</td></tr>
+          <tr><td><code>--fp1 --fp2 --fs1 --fs2</code></td><td>Bordes en Hz (filtros de banda)</td></tr>
+          <tr><td><code>--ap --as</code></td><td>Rizo máximo y atenuación mínima en dB</td></tr>
+          <tr><td><code>--topology</code></td><td>auto, sallen_key, mfb, tow_thomas, antoniou (por defecto sallen_key)</td></tr>
+          <tr><td><code>--opamp</code></td><td>TL082, LM324, uA741, LM318, LM7171, LM6171, LM6164, LM6165</td></tr>
+          <tr><td><code>--cap</code></td><td>Capacitor base en faradios (por defecto 1e-8)</td></tr>
+          <tr><td><code>--resistor-series</code></td><td>E96, E48, E24, E12 (por defecto E96)</td></tr>
+          <tr><td><code>--netlist-out</code></td><td>Archivo donde guardar el netlist</td></tr>
+          <tr><td><code>--inline-model</code></td><td>Copia el modelo del opamp dentro del netlist (el .exe siempre lo hace)</td></tr>
+        </tbody>
+      </table>
+      <p class="note">
+        En la línea de comandos los valores van en notación científica (<code>1e-8</code>), no con prefijos. El
+        resultado completo (orden, polos, etapas y componentes) se imprime en JSON.
+      </p>
+
+      <h2 id="preguntas"><span class="num">9</span>Preguntas frecuentes</h2>
+      <dl class="faq">
+        <dt>¿Por qué me sale un orden más alto del que esperaba?</dt>
+        <dd>Es el mínimo entero que cumple Ap y As. Si quieres menos etapas, prueba Chebyshev o relaja la especificación (más rizo, menos atenuación o bandas más separadas).</dd>
+        <dt>¿Por qué los resultados no son iguales a los del SOFIA original?</dt>
+        <dd>El original tenía errores de cálculo y de circuito (fuente de 5 V para todos los opamps, MFB con entradas invertidas, etapas impares con resistencias de 0 Ω, entre otros): ninguno de los 12 casos del banco cumplía la especificación. La versión nueva cumple los 12. La lista está en <code>docs/correcciones.md</code>.</dd>
+        <dt>¿La versión del navegador funciona sin internet?</dt>
+        <dd>Necesita internet la primera vez; después el navegador la guarda. El ejecutable para Windows funciona siempre sin conexión.</dd>
+        <dt>¿La gráfica de la app es una simulación?</dt>
+        <dd>No: es la respuesta ideal del diseño, calculada con sus polos. Para ver el efecto del opamp real, simula el netlist.</dd>
+        <dt>¿Puedo usar resistencias de 5 %?</dt>
+        <dd>Sí, eligiendo E24. Los pasa bajas y pasa altas suelen seguir cumpliendo; los filtros de banda de Q alto pueden salirse de la especificación. La app avisa cuando el redondeo pasa de 1 %.</dd>
+      </dl>
+    </section>
+  </body>
+</html>

@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SOFIA Filter Studio</title>
+    <meta
+      name="description"
+      content="Diseño de filtros activos Butterworth y Chebyshev (Sallen-Key, MFB, Tow-Thomas, Antoniou) con netlist SPICE, directo en el navegador."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f6fed'/%3E%3Cpath d='M12 46h6c6 0 7-28 12-28h4c5 0 6 28 12 28h6' fill='none' stroke='white' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script type="module" src="app.js"></script>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <header class="brand">
+          <svg viewBox="0 0 64 64" aria-hidden="true">
+            <rect width="64" height="64" rx="14" fill="var(--accent)" />
+            <path
+              d="M12 46h6c6 0 7-28 12-28h4c5 0 6 28 12 28h6"
+              fill="none"
+              stroke="white"
+              stroke-width="5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <div>
+            <h1>SOFIA</h1>
+            <p>Diseño de filtros activos</p>
+          </div>
+        </header>
+
+        <section class="card">
+          <h2 class="card-title"><span class="step">1</span>¿Qué filtro necesitas?</h2>
+          <div class="kinds" id="kinds" role="radiogroup" aria-label="Tipo de filtro"></div>
+          <span class="label" id="approx-label">Aproximación</span>
+          <div class="segments" id="approximations" role="radiogroup" aria-labelledby="approx-label"></div>
+        </section>
+
+        <section class="card">
+          <h2 class="card-title"><span class="step">2</span>Especificación</h2>
+          <div id="single-spec" class="row">
+            <label class="field">
+              <span>Frecuencia de paso Fp</span>
+              <span class="input"><input id="fp" autocomplete="off" spellcheck="false" /><span class="unit">Hz</span></span>
+            </label>
+            <label class="field">
+              <span>Frecuencia de rechazo Fs</span>
+              <span class="input"><input id="fs" autocomplete="off" spellcheck="false" /><span class="unit">Hz</span></span>
+            </label>
+          </div>
+          <div id="band-spec" hidden>
+            <p class="group-label">Banda de paso</p>
+            <div class="row">
+              <label class="field">
+                <span>Fp1</span>
+                <span class="input"><input id="fp1" autocomplete="off" spellcheck="false" /><span class="unit">Hz</span></span>
+              </label>
+              <label class="field">
+                <span>Fp2</span>
+                <span class="input"><input id="fp2" autocomplete="off" spellcheck="false" /><span class="unit">Hz</span></span>
+              </label>
+            </div>
+            <p class="group-label">Banda de rechazo</p>
+            <div class="row">
+              <label class="field">
+                <span>Fs1</span>
+                <span class="input"><input id="fs1" autocomplete="off" spellcheck="false" /><span class="unit">Hz</span></span>
+              </label>
+              <label class="field">
+                <span>Fs2</span>
+                <span class="input"><input id="fs2" autocomplete="off" spellcheck="false" /><span class="unit">Hz</span></span>
+              </label>
+            </div>
+          </div>
+          <p class="hint" id="spec-hint"></p>
+          <div class="row">
+            <label class="field" title="Caída máxima permitida dentro de la banda de paso.">
+              <span>Rizo máximo (Ap)</span>
+              <span class="input"><input id="ap" autocomplete="off" spellcheck="false" /><span class="unit">dB</span></span>
+            </label>
+            <label class="field" title="Atenuación mínima exigida en la banda de rechazo.">
+              <span>Atenuación mínima (As)</span>
+              <span class="input"><input id="as" autocomplete="off" spellcheck="false" /><span class="unit">dB</span></span>
+            </label>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2 class="card-title"><span class="step">3</span>Circuito</h2>
+          <label class="field" title="Automática elige por etapa según su Q y el tipo de filtro.">
+            <span>Topología</span>
+            <select id="topology"></select>
+          </label>
+          <label class="field">
+            <span>Amplificador operacional</span>
+            <select id="opamp"></select>
+          </label>
+          <label class="field">
+            <span>Capacitor base</span>
+            <span class="input"><input id="cap" autocomplete="off" spellcheck="false" /><span class="unit">F</span></span>
+          </label>
+          <p class="hint">Punto de partida; cada etapa lo ajusta si es necesario. Acepta 10n, 4.7k, 1.5M o 1e-8.</p>
+          <details class="advanced">
+            <summary>Opciones avanzadas</summary>
+            <label class="field">
+              <span>Serie de resistencias comerciales</span>
+              <select id="series"></select>
+            </label>
+            <p class="hint">Un solo resistor comercial por posición. E96 mantiene el filtro dentro de la especificación.</p>
+            <label class="check"><input type="checkbox" id="auto_cap" /> Ajustar el capacitor de cada etapa</label>
+          </details>
+        </section>
+
+        <footer class="links">
+          <span id="version">SOFIA Filter Studio</span> ·
+          <a href="../">Inicio</a> ·
+          <a href="../SOFIA-manual.pdf">Manual (PDF)</a> ·
+          <a href="https://github.com/ROMERUU-dev/SOFIA/releases">Versión para Windows</a> ·
+          <a href="https://github.com/ROMERUU-dev/SOFIA">Código</a>
+        </footer>
+      </aside>
+
+      <main class="results">
+        <div class="results-header">
+          <div class="titles">
+            <h2 id="headline">Preparando…</h2>
+            <div class="chips" id="chips"></div>
+          </div>
+          <div class="actions">
+            <button class="button" id="share" type="button" title="Copia un enlace que abre este mismo diseño">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7" /><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7" /></svg>
+              Enlace
+            </button>
+            <button class="button" id="copy" type="button" disabled>Copiar netlist</button>
+            <button class="button primary" id="save" type="button" disabled>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12" /><path d="m7 10 5 5 5-5" /><path d="M5 21h14" /></svg>
+              Descargar netlist
+            </button>
+          </div>
+        </div>
+
+        <div class="banner error" id="error" role="alert" hidden></div>
+
+        <section class="card plot-card">
+          <div class="plot-head">
+            <h3>Respuesta en frecuencia</h3>
+            <p id="plot-hint">Zonas rojas: fuera de la especificación. Rueda: zoom · arrastrar: mover · doble clic: ver todo.</p>
+            <div class="toggle" id="view">
+              <button type="button" aria-pressed="true" data-passband="0" title="Toda la respuesta, hasta donde llega la atenuación">Completa</button>
+              <button type="button" aria-pressed="false" data-passband="1" title="Acercamiento a la parte superior para ver el rizo">Banda de paso</button>
+            </div>
+          </div>
+          <div class="plot-wrap">
+            <canvas id="plot" aria-label="Gráfica de la respuesta en frecuencia"></canvas>
+            <div class="loading" id="loading">
+              <div class="spinner"></div>
+              <strong id="loading-title">Preparando el motor de cálculo</strong>
+              <span id="loading-text">La primera vez descarga unos 6 MB; después abre al instante.</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="card tabs-card">
+          <nav class="tabs" role="tablist">
+            <button type="button" role="tab" aria-selected="true" data-panel="stages">Etapas</button>
+            <button type="button" role="tab" aria-selected="false" data-panel="netlist">Netlist</button>
+            <button type="button" role="tab" aria-selected="false" data-panel="warnings" id="warnings-tab">Avisos</button>
+            <button type="button" role="tab" aria-selected="false" data-panel="details">Detalles</button>
+          </nav>
+          <div class="panel" role="tabpanel" id="panel-stages"><div class="stages" id="stages"></div></div>
+          <div class="panel" role="tabpanel" id="panel-netlist" hidden><pre class="netlist" id="netlist"></pre></div>
+          <div class="panel" role="tabpanel" id="panel-warnings" hidden></div>
+          <div class="panel" role="tabpanel" id="panel-details" hidden></div>
+        </section>
+
+        <div class="status" id="status" aria-live="polite"></div>
+      </main>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <noscript><p style="padding: 16px">SOFIA necesita JavaScript para funcionar.</p></noscript>
+  </body>
+</html>

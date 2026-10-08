@@ -1,7 +1,11 @@
-"""Assemble the web version (static site for GitHub Pages).
+"""Assemble the web site (static, for GitHub Pages).
 
-The page runs the same Python package in the browser with Pyodide: this script copies ``web/`` and
-packs ``src/sofia_filter_studio`` (without the Qt interface) plus the opamp models into a zip.
+    /                   presentation page (web/index.html)
+    /app/               the designer; runs the same Python package in the browser with Pyodide
+    /SOFIA-manual.pdf   user manual (docs/manual/, rebuilt with scripts/build_manual.py)
+
+This script copies ``web/`` and packs ``src/sofia_filter_studio`` (without the Qt interface) plus the
+opamp models into a zip for the app.
 
     python scripts/build_web.py            # writes _site/
     python -m http.server -d _site 8000    # then open http://localhost:8000
@@ -23,7 +27,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from sofia_filter_studio.forms import options  # noqa: E402
 
-WEB_FILES = ("index.html", "style.css", "app.js", "plot.js", "worker.js")
+MANUAL = ROOT / "docs" / "manual" / "SOFIA-manual.pdf"
 
 
 def bundle_files() -> list[Path]:
@@ -45,17 +49,19 @@ def bundle_bytes() -> bytes:
 
 
 def build(out_dir: Path) -> Path:
+    if not MANUAL.exists():
+        raise SystemExit(f"Falta {MANUAL.relative_to(ROOT)}: generalo con python scripts/build_manual.py")
     if out_dir.exists():
         shutil.rmtree(out_dir)
-    out_dir.mkdir(parents=True)
-    for name in WEB_FILES:
-        shutil.copy2(ROOT / "web" / name, out_dir / name)
+    shutil.copytree(ROOT / "web", out_dir, ignore=shutil.ignore_patterns("*.md"))
+    shutil.copy2(MANUAL, out_dir / MANUAL.name)
+    app_dir = out_dir / "app"
     data = bundle_bytes()
     # Content hash in the name: browsers and the Pages cache never serve an old package.
     bundle = f"sofia-{hashlib.sha256(data).hexdigest()[:10]}.zip"
-    (out_dir / bundle).write_bytes(data)
+    (app_dir / bundle).write_bytes(data)
     page_options = options() | {"bundle": bundle}
-    (out_dir / "options.json").write_text(json.dumps(page_options, ensure_ascii=False, indent=1), encoding="utf-8")
+    (app_dir / "options.json").write_text(json.dumps(page_options, ensure_ascii=False, indent=1), encoding="utf-8")
     return out_dir
 
 
@@ -64,7 +70,7 @@ def main() -> None:
     parser.add_argument("--out", type=Path, default=ROOT / "_site", help="output folder (default: _site)")
     args = parser.parse_args()
     out_dir = build(args.out.absolute())
-    files = sorted(path.name for path in out_dir.iterdir())
+    files = sorted(path.relative_to(out_dir).as_posix() for path in out_dir.rglob("*") if path.is_file())
     print(f"Sitio listo en {out_dir}: {', '.join(files)}")
 
 

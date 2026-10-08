@@ -32,15 +32,20 @@ powershell -ExecutionPolicy Bypass -File packaging\windows\build_exe.ps1
 
 El resultado queda en `dist\SOFIA-Filter-Studio.exe`.
 
-## Version web
+## Sitio web
 
-`web/` es la misma interfaz en una pagina estatica: el paquete de Python corre en el navegador con
-[Pyodide](https://pyodide.org), asi que el calculo es identico al de la version de escritorio y no hay
-servidor. La primera visita descarga unos 6 MB (el interprete de Python); despues el navegador lo guarda.
-El enlace de la pagina lleva el diseno actual, de modo que se puede compartir un filtro con un link.
+[romeruu-dev.github.io/SOFIA](https://romeruu-dev.github.io/SOFIA/) tiene tres partes:
+
+- `/`: pagina de presentacion (`web/index.html`, `web/landing.css`, capturas en `web/img/`).
+- `/app/`: la misma interfaz en una pagina estatica (`web/app/`). El paquete de Python corre en el
+  navegador con [Pyodide](https://pyodide.org), asi que el calculo es identico al de la version de
+  escritorio y no hay servidor. La primera visita descarga unos 6 MB; despues el navegador lo guarda. El
+  enlace de la app lleva el diseno actual, de modo que se puede compartir un filtro con un link.
+- `/SOFIA-manual.pdf`: manual de uso. La fuente es `docs/manual/manual.html`; el PDF se regenera con
+  `python scripts/build_manual.py` (necesita Edge o Chrome) y se guarda en el repositorio.
 
 El flujo `.github/workflows/pages.yml` corre las pruebas, arma el sitio y lo publica en GitHub Pages en
-cada push a `main` (en Settings > Pages, la fuente debe ser "GitHub Actions"). Para probarla en local:
+cada push a `main` (en Settings > Pages, la fuente debe ser "GitHub Actions"). Para probarlo en local:
 
 ```bash
 python scripts/build_web.py
@@ -54,7 +59,9 @@ y abrir `http://localhost:8000`.
 - `docs/legacy_analysis.md`: analisis funcional y tecnico del software original
 - `src/sofia_filter_studio/`: nueva implementacion (`forms.py`: validacion y vista que comparten
   la ventana de escritorio y la pagina web)
-- `web/`: version web (HTML, CSS y JavaScript; el calculo lo hace el paquete de Python con Pyodide)
+- `web/`: sitio web: presentacion en la raiz y la app en `web/app/` (el calculo lo hace el paquete de
+  Python con Pyodide)
+- `docs/manual/`: manual de uso (HTML fuente y el PDF generado)
 - `resources/models/`: modelos `.cir` heredados para migracion
 - `tests/`: pruebas base del motor de calculo
 
