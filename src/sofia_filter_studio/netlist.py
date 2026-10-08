@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
 
 from .models import DesignInputs, DesignResult, FilterKind, Stage, Topology
@@ -30,7 +31,15 @@ MODEL_SUBCKT_MAP = {
 DEFAULT_SUPPLY_V = 15.0
 SUPPLY_VOLTAGE_MAP = {"LM324": 5.0}
 
-MODELS_DIR = Path(__file__).absolute().parents[2] / "resources" / "models"
+def _models_dir() -> Path:
+    # Inside a PyInstaller bundle the models travel next to the extracted package.
+    bundle = getattr(sys, "_MEIPASS", None)
+    if bundle:
+        return Path(bundle) / "resources" / "models"
+    return Path(__file__).absolute().parents[2] / "resources" / "models"
+
+
+MODELS_DIR = _models_dir()
 
 
 def model_path_for(inputs: DesignInputs) -> Path:
@@ -94,7 +103,21 @@ def _stage_ports(stage: Stage, total_stages: int) -> tuple[str, str]:
     return stage_input, stage_output
 
 
-def render_netlist(inputs: DesignInputs, result: DesignResult, netlist_path: Path | None = None) -> str:
+def model_text_for(inputs: DesignInputs) -> str:
+    return (MODELS_DIR / MODEL_FILE_MAP[inputs.opamp.value]).read_text(encoding="latin-1")
+
+
+def render_netlist(
+    inputs: DesignInputs,
+    result: DesignResult,
+    netlist_path: Path | None = None,
+    inline_model: bool = False,
+) -> str:
+    """Render the SPICE netlist.
+
+    With ``inline_model`` the op amp subcircuit is embedded instead of referenced with ``.include``,
+    so the file opens anywhere (this is what the original SOFIA editor did by pasting the model).
+    """
     supply = supply_voltage_for(inputs)
     vref = supply / 2
     lines: list[str] = []
@@ -104,7 +127,8 @@ def render_netlist(inputs: DesignInputs, result: DesignResult, netlist_path: Pat
     lines.append(f"* Approximation: {inputs.approximation.value}")
     lines.append(f"* Filter order: {result.order}")
     lines.append(f"* Epsilon: {result.epsilon:.8f}")
-    lines.append(f'.include "{_include_path(inputs, netlist_path)}"')
+    if not inline_model:
+        lines.append(f'.include "{_include_path(inputs, netlist_path)}"')
     lines.append("")
     lines.append(f"* polarizacion de tierra virtual: fuente unica de {supply:g} V, tierra virtual en {vref:g} V")
     lines.append(f"Vin IN 0 DC {vref:g} AC 1")
@@ -126,6 +150,11 @@ def render_netlist(inputs: DesignInputs, result: DesignResult, netlist_path: Pat
             stage_lines.append("")
         lines.extend(stage_lines)
         lines.extend(_nodeset_lines(stage_lines, vref))
+
+    if inline_model:
+        lines.append(f"* Modelo del opamp {inputs.opamp.value} ({MODEL_FILE_MAP[inputs.opamp.value]})")
+        lines.extend(model_text_for(inputs).strip().splitlines())
+        lines.append("")
 
     f_start, f_stop = ac_sweep_limits(inputs)
     lines.append(f".ac dec 100 {f_start:.6g} {f_stop:.6g}")

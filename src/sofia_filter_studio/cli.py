@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 
 from .design import design_filter, format_result
@@ -28,6 +29,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--fs1", type=float, help="Lower stopband edge for band filters.")
     parser.add_argument("--fs2", type=float, help="Upper stopband edge for band filters.")
     parser.add_argument("--netlist-out", type=Path, help="Optional path to save the generated SPICE netlist.")
+    parser.add_argument(
+        "--inline-model",
+        action="store_true",
+        help="Embed the op amp model in the netlist instead of using .include (always on in the Windows executable).",
+    )
     return parser
 
 
@@ -62,7 +68,9 @@ def main() -> int:
     result = design_filter(inputs)
     print(format_result(result))
     if args.netlist_out:
-        args.netlist_out.write_text(render_netlist(inputs, result, args.netlist_out), encoding="utf-8")
+        # A frozen executable unpacks its models to a temporary folder, so an .include would dangle.
+        inline = args.inline_model or getattr(sys, "frozen", False)
+        args.netlist_out.write_text(render_netlist(inputs, result, args.netlist_out, inline_model=inline), encoding="utf-8")
         print(f"Netlist written to {args.netlist_out}")
     return 0
 

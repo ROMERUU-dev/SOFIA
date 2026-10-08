@@ -15,6 +15,20 @@ Esta base ya deja resueltos los puntos que mas penalizaban al sistema anterior:
 - generacion inicial de netlists SPICE con comentarios estructurados
 - preservacion de modelos SPICE heredados en `resources/models/`
 
+## Ejecutable para Windows
+
+En [Releases](https://github.com/ROMERUU-dev/SOFIA/releases) esta `SOFIA-Filter-Studio.exe`: un solo
+archivo, no necesita Python. Al abrirlo muestra la ventana de diseno; el netlist que guarda ya trae el
+modelo del opamp incluido, asi que se abre directo en LTspice o ngspice.
+
+Para generarlo desde el codigo (requiere Python 3.11+ de python.org, con tkinter):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File packaging\windows\build_exe.ps1
+```
+
+El resultado queda en `dist\SOFIA-Filter-Studio.exe`.
+
 ## Estructura
 
 - `docs/legacy_analysis.md`: analisis funcional y tecnico del software original

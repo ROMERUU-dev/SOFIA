@@ -5,6 +5,7 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
+from .. import __version__
 from ..design import design_filter
 from ..models import Approximation, DesignInputs, FilterKind, FilterSpec, OpAmpModel, ResistorSeries, Topology
 from ..netlist import render_netlist
@@ -13,7 +14,7 @@ from ..netlist import render_netlist
 class SofiaApp:
     def __init__(self, root: tk.Tk) -> None:
         self.root = root
-        self.root.title("SOFIA Filter Studio")
+        self.root.title(f"SOFIA Filter Studio {__version__}")
         self.root.geometry("1100x760")
         self._build_state()
         self._build_layout()
@@ -151,7 +152,8 @@ class SofiaApp:
         try:
             inputs = self._build_inputs()
             result = design_filter(inputs)
-            netlist = render_netlist(inputs, result)
+            # Self-contained netlist (model embedded) so the saved file opens anywhere.
+            netlist = render_netlist(inputs, result, inline_model=True)
         except Exception as exc:
             messagebox.showerror("Calculation error", str(exc))
             return
@@ -160,7 +162,6 @@ class SofiaApp:
         self.result_text.insert(tk.END, json.dumps(result.as_dict(), indent=2, default=str))
         self.netlist_text.delete("1.0", tk.END)
         self.netlist_text.insert(tk.END, netlist)
-        self._last_design = (inputs, result, netlist.strip())
 
     def save_netlist(self) -> None:
         netlist = self.netlist_text.get("1.0", tk.END).strip()
@@ -174,10 +175,6 @@ class SofiaApp:
         )
         if not path:
             return
-        last = getattr(self, "_last_design", None)
-        if last is not None and last[2] == netlist:
-            # Unedited netlist: re-render so the model include is relative to the chosen folder.
-            netlist = render_netlist(last[0], last[1], Path(path)).strip()
         Path(path).write_text(netlist + "\n", encoding="utf-8")
         messagebox.showinfo("Saved", f"Netlist saved to {path}")
 

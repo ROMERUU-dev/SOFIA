@@ -235,6 +235,19 @@ class DesignFilterTests(unittest.TestCase):
         self.assertIn(" LM7171B/NS", netlist)
         self.assertNotIn(" LM7171\n", netlist)
 
+    def test_inline_model_makes_a_self_contained_netlist(self) -> None:
+        inputs = DesignInputs(
+            kind=FilterKind.LOWPASS,
+            approximation=Approximation.BUTTERWORTH,
+            spec=FilterSpec(passband_hz=1_000, stopband_hz=2_000),
+            passband_ripple_db=1,
+            stopband_attenuation_db=40,
+        )
+        netlist = render_netlist(inputs, design_filter(inputs), inline_model=True)
+        self.assertNotIn(".include", netlist)
+        self.assertIn(".subckt TL082", netlist)
+        self.assertLess(netlist.index(".ends"), netlist.index(".ac "))
+
     def test_ac_sweep_covers_the_specified_bands(self) -> None:
         inputs = DesignInputs(
             kind=FilterKind.BANDSTOP,
