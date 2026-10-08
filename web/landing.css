@@ -273,11 +273,6 @@ h1 .accent {
   margin-top: 32px;
 }
 
-.meta {
-  margin: 18px 0 0;
-  color: var(--muted);
-  font-size: 14px;
-}
 
 .window {
   margin: 0;
@@ -370,14 +365,6 @@ h1 .accent {
   border-bottom: 1px solid var(--border);
 }
 
-.kicker {
-  margin: 0 0 8px;
-  color: var(--accent-text);
-  font-weight: 700;
-  font-size: 14px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
 
 h2 {
   margin: 0 0 40px;
@@ -408,20 +395,6 @@ h3 {
   text-decoration: underline;
 }
 
-.features {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
-
-.feature {
-  padding: 26px;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  background: var(--surface);
-}
-
-.feature svg,
 .download svg {
   width: 40px;
   height: 40px;
@@ -436,7 +409,6 @@ h3 {
   stroke-linejoin: round;
 }
 
-.feature p,
 .step-card p,
 .download p {
   margin: 0;
@@ -659,12 +631,7 @@ pre.mini.code {
   border: 1px solid var(--border);
   border-radius: 12px;
   background: var(--surface);
-  color: var(--muted);
   font-size: 15.5px;
-}
-
-.fixes li b {
-  color: var(--text);
 }
 
 .fixes li::before {
@@ -771,35 +738,11 @@ details p {
   color: var(--muted);
 }
 
-/* Closing and footer ------------------------------------------------------------------------- */
-.closing {
-  padding: 88px 0;
-  text-align: center;
-  background: var(--accent);
-  color: #fff;
-}
+/* Footer ------------------------------------------------------------------------- */
 
-.closing h2 {
-  margin: 0 auto 12px;
-}
 
-.closing p {
-  margin: 0 0 28px;
-  font-size: 18px;
-  opacity: 0.9;
-}
 
-.closing .button.primary {
-  background: #fff;
-  border-color: #fff;
-  color: #1e4fbf;
-}
 
-.closing .button.primary:hover {
-  background: #eaf1fe;
-  border-color: #eaf1fe;
-  color: #1e4fbf;
-}
 
 .footer {
   padding: 28px 0;
@@ -851,7 +794,6 @@ details p {
     border-top: 1px solid var(--border);
   }
 
-  .features,
   .steps,
   .downloads {
     grid-template-columns: 1fr 1fr;
@@ -900,7 +842,6 @@ details p {
   }
 
   .stats-grid,
-  .features,
   .steps,
   .downloads {
     grid-template-columns: 1fr;
