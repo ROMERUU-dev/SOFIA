@@ -14,4 +14,4 @@
 
 | Netlist | Veredicto | Diagnostico | Ganancia (dB) | Rizo (dB) / limite | Atenuacion (dB) / minimo | Opamp ideal |
 | --- | --- | --- | --- | --- | --- | --- |
-| modern | `cumple` | `funciona` | 0.04 | 0.999 / 1 | 42.49 / 40 | `cumple_con_tolerancia` |
+| modern | `cumple` | `funciona` | 0.03 | 0.813 / 1 | 41.44 / 40 | `cumple` |

@@ -12,85 +12,55 @@ VTIERRA VREF 0 7.5V
 VCC VCC 0 DC 15
 RLOAD OUT 0 100k
 
-* Stage 1: bandpass, f0=1192.14472 Hz, Q=10.10489, order=2
+* Stage 1: bandpass, f0=1211.09328 Hz, Q=7.44782, order=2
 * Stage input: IN
 * Stage output: 11
-* Equal-C, equal-R Sallen-Key band-pass with K = 4 - sqrt(2)/Q and center gain K/(4 - K).
-* Q = 10.10 makes this Sallen-Key band-pass very sensitive to resistor tolerance and op amp bandwidth; MFB or Tow-Thomas is more robust.
-* Input divider R1a/R1b (Thevenin = R1) scales the peak gain from 27.58 to 4.113.
-* Stage capacitor auto-tuned from 1.000e-08 F to 1.000e-06 F.
+* Sallen-Key pasa banda de componentes iguales: K = 4 - sqrt(2)/Q y ganancia al centro K/(4 - K).
+* Con Q = 7.45 este Sallen-Key pasa banda es muy sensible a la tolerancia de las resistencias y al ancho de banda del opamp; MFB o Tow-Thomas son más robustos.
+* Divisor de entrada R1a/R1b (Thevenin = R1) que lleva la ganancia pico de 20.07 a 3.334.
+* Capacitor de la etapa ajustado de 1.000e-08 F a 5.600e-09 F.
 Xao11 31 41 VCC 0 11 TL082
-* R1a: parallel array for target 1265.964263 ohm
-r31_1 IN 21 1300.000000
-r31_2 IN 21 47000.000000
-* R1b: series array for target 221.894423 ohm
-r61_1 21 r61_MID1 1.800000
-r61_2 r61_MID1 VREF 220.000000
-c11 21 VREF 1.000000000e-06
-c21 21 31 1.000000000e-06
-* R2: parallel array for target 188.801808 ohm
-r41_1 21 11 300.000000
-r41_2 21 11 510.000000
-* R3: parallel array for target 188.801808 ohm
-r51_1 31 VREF 300.000000
-r51_2 31 VREF 510.000000
-r11 41 VREF 10000.000000
-* Rf: series array for target 28600.466316 ohm
-r21_1 41 r21_MID1 1600.000000
-r21_2 r21_MID1 11 27000.000000
+r31 IN 21 200000.000000
+r61 21 VREF 40200.000000
+c11 21 VREF 5.600000000e-09
+c21 21 31 5.600000000e-09
+r41 21 11 33200.000000
+r51 31 VREF 33200.000000
+r11 41 VREF 2000.000000
+r21 41 11 5620.000000
 
-* Stage 2: bandpass, f0=979.79590 Hz, Q=4.95677, order=2
+* Stage 2: bandpass, f0=979.79590 Hz, Q=3.64181, order=2
 * Stage input: 11
 * Stage output: 12
-* Equal-C, equal-R Sallen-Key band-pass with K = 4 - sqrt(2)/Q and center gain K/(4 - K).
-* Input divider R1a/R1b (Thevenin = R1) scales the peak gain from 13.02 to 1.000.
-* Stage capacitor auto-tuned from 1.000e-08 F to 1.000e-06 F.
+* Sallen-Key pasa banda de componentes iguales: K = 4 - sqrt(2)/Q y ganancia al centro K/(4 - K).
+* Divisor de entrada R1a/R1b (Thevenin = R1) que lleva la ganancia pico de 9.30 a 1.000.
+* Capacitor de la etapa ajustado de 1.000e-08 F a 1.200e-08 F.
 Xao12 32 42 VCC 0 12 TL082
-* R1a: parallel array for target 2990.927345 ohm
-r32_1 11 22 3000.000000
-r32_2 11 22 910000.000000
-* R1b: series array for target 248.832106 ohm
-r62_1 22 r62_MID1 9.100000
-r62_2 r62_MID1 VREF 240.000000
-c12 22 VREF 1.000000000e-06
-c22 22 32 1.000000000e-06
-* R2: parallel array for target 229.720373 ohm
-r42_1 22 12 390.000000
-r42_2 22 12 560.000000
-* R3: parallel array for target 229.720373 ohm
-r52_1 32 VREF 390.000000
-r52_2 32 VREF 560.000000
-r12 42 VREF 10000.000000
-* Rf: series array for target 27146.904682 ohm
-r22_1 42 r22_MID1 150.000000
-r22_2 r22_MID1 12 27000.000000
+r32 11 22 178000.000000
+r62 22 VREF 21500.000000
+c12 22 VREF 1.200000000e-08
+c22 22 32 1.200000000e-08
+r42 22 12 19100.000000
+r52 32 VREF 19100.000000
+r12 42 VREF 1210.000000
+r22 42 12 3160.000000
 
-* Stage 3: bandpass, f0=805.27136 Hz, Q=10.10489, order=2
+* Stage 3: bandpass, f0=792.67222 Hz, Q=7.44782, order=2
 * Stage input: 12
 * Stage output: OUT
-* Equal-C, equal-R Sallen-Key band-pass with K = 4 - sqrt(2)/Q and center gain K/(4 - K).
-* Q = 10.10 makes this Sallen-Key band-pass very sensitive to resistor tolerance and op amp bandwidth; MFB or Tow-Thomas is more robust.
-* Input divider R1a/R1b (Thevenin = R1) scales the peak gain from 27.58 to 4.113.
-* Stage capacitor auto-tuned from 1.000e-08 F to 1.000e-06 F.
+* Sallen-Key pasa banda de componentes iguales: K = 4 - sqrt(2)/Q y ganancia al centro K/(4 - K).
+* Con Q = 7.45 este Sallen-Key pasa banda es muy sensible a la tolerancia de las resistencias y al ancho de banda del opamp; MFB o Tow-Thomas son más robustos.
+* Divisor de entrada R1a/R1b (Thevenin = R1) que lleva la ganancia pico de 20.07 a 3.334.
+* Capacitor de la etapa ajustado de 1.000e-08 F a 2.700e-08 F.
 Xao13 33 43 VCC 0 OUT TL082
-* R1a: series array for target 1874.166516 ohm
-r33_1 12 r33_MID1 75.000000
-r33_2 r33_MID1 23 1800.000000
-* R1b: parallel array for target 328.498292 ohm
-r63_1 23 VREF 330.000000
-r63_2 23 VREF 75000.000000
-c13 23 VREF 1.000000000e-06
-c23 23 33 1.000000000e-06
-* R2: parallel array for target 279.507121 ohm
-r43_1 23 OUT 510.000000
-r43_2 23 OUT 620.000000
-* R3: parallel array for target 279.507121 ohm
-r53_1 33 VREF 510.000000
-r53_2 33 VREF 620.000000
-r13 43 VREF 10000.000000
-* Rf: series array for target 28600.466316 ohm
-r23_1 43 r23_MID1 1600.000000
-r23_2 r23_MID1 OUT 27000.000000
+r33 12 23 63400.000000
+r63 23 VREF 12700.000000
+c13 23 VREF 2.700000000e-08
+c23 23 33 2.700000000e-08
+r43 23 OUT 10500.000000
+r53 33 VREF 10500.000000
+r13 43 VREF 2000.000000
+r23 43 OUT 5620.000000
 
 * punto de operacion inicial en la tierra virtual
 .nodeset V(11)=7.5 V(12)=7.5 V(OUT)=7.5

@@ -12,77 +12,57 @@ VTIERRA VREF 0 7.5V
 VCC VCC 0 DC 15
 RLOAD OUT 0 100k
 
-* Stage 1: highpass, f0=1838.03346 Hz, Q=2.56292, order=2
+* Stage 1: highpass, f0=1807.90393 Hz, Q=2.56292, order=2
 * Stage input: IN
 * Stage output: 11
-* Equal-C, equal-R Sallen-Key synthesis derived from the legacy gain/Q relation Av = 3 - 1/Q.
+* Sallen-Key de componentes iguales con la relación del legado Av = 3 - 1/Q.
+* Capacitor de la etapa ajustado de 1.000e-07 F a 3.300e-08 F.
 Xao11 31 41 VCC 0 11 TL082
-c11 IN 21 1.000000000e-07
-c21 21 31 1.000000000e-07
-* R1: parallel array for target 865.897965 ohm
-r31_1 21 11 910.000000
-r31_2 21 11 18000.000000
-* R2: parallel array for target 865.897965 ohm
-r41_1 31 VREF 910.000000
-r41_2 31 VREF 18000.000000
-r11 41 VREF 10000.000000
-* Rf: series array for target 16098.193560 ohm
-r21_1 41 r21_MID1 100.000000
-r21_2 r21_MID1 11 16000.000000
+c11 IN 21 3.300000000e-08
+c21 21 31 3.300000000e-08
+r31 21 11 2670.000000
+r41 31 VREF 2670.000000
+r11 41 VREF 1870.000000
+r21 41 11 3010.000000
 
-* Stage 2: highpass, f0=1838.03346 Hz, Q=0.89998, order=2
+* Stage 2: highpass, f0=1807.90393 Hz, Q=0.89998, order=2
 * Stage input: 11
 * Stage output: 12
-* Equal-C, equal-R Sallen-Key synthesis derived from the legacy gain/Q relation Av = 3 - 1/Q.
+* Sallen-Key de componentes iguales con la relación del legado Av = 3 - 1/Q.
+* Capacitor de la etapa ajustado de 1.000e-07 F a 3.300e-08 F.
 Xao12 32 42 VCC 0 12 TL082
-c12 11 22 1.000000000e-07
-c22 22 32 1.000000000e-07
-* R1: parallel array for target 865.897965 ohm
-r32_1 22 12 910.000000
-r32_2 22 12 18000.000000
-* R2: parallel array for target 865.897965 ohm
-r42_1 32 VREF 910.000000
-r42_2 32 VREF 18000.000000
-r12 42 VREF 10000.000000
-* Rf: parallel array for target 8888.595340 ohm
-r22_1 42 12 16000.000000
-r22_2 42 12 20000.000000
+c12 11 22 3.300000000e-08
+c22 22 32 3.300000000e-08
+r32 22 12 2670.000000
+r42 32 VREF 2670.000000
+r12 42 VREF 2610.000000
+r22 42 12 2320.000000
 
-* Stage 3: highpass, f0=1838.03346 Hz, Q=0.60134, order=2
+* Stage 3: highpass, f0=1807.90393 Hz, Q=0.60134, order=2
 * Stage input: 12
 * Stage output: 13
-* Equal-C, equal-R Sallen-Key synthesis derived from the legacy gain/Q relation Av = 3 - 1/Q.
+* Sallen-Key de componentes iguales con la relación del legado Av = 3 - 1/Q.
+* Capacitor de la etapa ajustado de 1.000e-07 F a 3.300e-08 F.
 Xao13 33 43 VCC 0 13 TL082
-c13 12 23 1.000000000e-07
-c23 23 33 1.000000000e-07
-* R1: parallel array for target 865.897965 ohm
-r33_1 23 13 910.000000
-r33_2 23 13 18000.000000
-* R2: parallel array for target 865.897965 ohm
-r43_1 33 VREF 910.000000
-r43_2 33 VREF 18000.000000
-r13 43 VREF 10000.000000
-* Rf: series array for target 3370.607754 ohm
-r23_1 43 r23_MID1 68.000000
-r23_2 r23_MID1 13 3300.000000
+c13 12 23 3.300000000e-08
+c23 23 33 3.300000000e-08
+r33 23 13 2670.000000
+r43 33 VREF 2670.000000
+r13 43 VREF 3400.000000
+r23 43 13 1150.000000
 
-* Stage 4: highpass, f0=1838.03346 Hz, Q=0.50980, order=2
+* Stage 4: highpass, f0=1807.90393 Hz, Q=0.50980, order=2
 * Stage input: 13
 * Stage output: OUT
-* Equal-C, equal-R Sallen-Key synthesis derived from the legacy gain/Q relation Av = 3 - 1/Q.
+* Sallen-Key de componentes iguales con la relación del legado Av = 3 - 1/Q.
+* Capacitor de la etapa ajustado de 1.000e-07 F a 3.300e-08 F.
 Xao14 34 44 VCC 0 OUT TL082
-c14 13 24 1.000000000e-07
-c24 24 34 1.000000000e-07
-* R1: parallel array for target 865.897965 ohm
-r34_1 24 OUT 910.000000
-r34_2 24 OUT 18000.000000
-* R2: parallel array for target 865.897965 ohm
-r44_1 34 VREF 910.000000
-r44_2 34 VREF 18000.000000
-r14 44 VREF 10000.000000
-* Rf: parallel array for target 384.294392 ohm
-r24_1 44 OUT 390.000000
-r24_2 44 OUT 27000.000000
+c14 13 24 3.300000000e-08
+c24 24 34 3.300000000e-08
+r34 24 OUT 2670.000000
+r44 34 VREF 2670.000000
+r14 44 VREF 1020.000000
+r24 44 OUT 39.200000
 
 * punto de operacion inicial en la tierra virtual
 .nodeset V(11)=7.5 V(12)=7.5 V(13)=7.5 V(OUT)=7.5

@@ -1,10 +1,11 @@
 # Correcciones encontradas con el banco de pruebas
 
 El banco ahora simula cada netlist con SPICE (LTspice XVII en Windows) y lo revisa contra su
-especificacion. Con la version de GitHub (`dad1156`) solo **1 de 12** casos cumplia; despues de estas
-correcciones **10 de 12** cumplen con el modelo real del opamp y **12 de 12** con opamp ideal (los 2
-restantes son limitaciones del TL082, ver al final). El SOFIA original no cumple en ninguno (ver la
-seccion del legado mas abajo).
+especificacion. Con la version de GitHub (`dad1156`) solo **1 de 12** casos cumplia; con las correcciones
+y el margen de diseno **12 de 12** cumplen con el modelo real del opamp y un solo resistor E96 por
+posicion. El SOFIA original no cumple en ninguno (ver la seccion del legado mas abajo). La columna
+"Python despues" de esta tabla es la primera ronda de correcciones; la seccion "Resistencias sencillas y
+margen de diseno" describe la ronda final.
 
 | Caso | Python antes | Python despues | SOFIA original |
 | --- | --- | --- | --- |
@@ -79,6 +80,43 @@ seccion del legado mas abajo).
     en simulacion transitoria oscilan a 15-105 MHz en todas las topologias. LM7171 y LM6171 no asientan en
     MFB / Tow-Thomas. El diseno ahora lo avisa en `warnings`.
 
+## Resistencias sencillas y margen de diseno
+
+Se quitaron los arreglos serie/paralelo: cada posicion usa un solo resistor comercial (los arreglos
+quedan como opcion `--resistor-arrays` de la CLI). Sin otros cambios eso habria roto la especificacion:
+con un solo resistor E24 y opamp ideal solo 5 de 40 combinaciones cumplian (13 de 40 con E48), porque el
+diseno quedaba exactamente en el borde (rizo = Ap). Para compensarlo:
+
+22. **Margen de diseno.** El orden se redondea hacia arriba; esa selectividad sobrante ahora se reparte
+    entre las dos bandas (media geometrica): en Butterworth se mueve la frecuencia de corte y en Chebyshev
+    se usa un rizo de diseno menor al pedido. Ejemplo: pasa bajas de orden 8 con Ap = 1 dB queda con
+    0.79 dB de rizo y 41.2 dB de atenuacion. Los margenes se ven en la pestana Detalles.
+23. **Capacitor E12 por etapa.** La busqueda automatica prueba todos los valores E12 (no solo decadas)
+    y elige el que deja las resistencias mas cerca de valores comerciales.
+24. **Pareja Rf/Rg ajustada.** En Sallen-Key (y en el amplificador de salida de Antoniou) la ganancia
+    solo depende de Rf/Rg, asi que ambos se eligen de la serie para que el cociente sea exacto; antes Rg
+    era siempre 10 kohm y el error de Rf se iba directo al Q.
+25. **Serie E96 (1 %)**, la misma que la opcion "1% of Tolerance" del SOFIA original, ahora por defecto.
+    Con E12/E24/E48 el diseno avisa cuando alguna etapa redondea mas de 1 %.
+
+Resultado con un solo resistor E96 por posicion y el modelo real del TL082: **40 de 40** combinaciones
+(5 topologias x 4 tipos x 2 aproximaciones) cumplen, y **12 de 12** casos del banco (incluidos 006 y 007,
+que antes fallaban por el TL082). Con E24 cumplen 25 de 40: los pasa banda y rechaza banda de Q alto
+necesitan resistencias de 1 %.
+
+Ademas se verifico que cada netlist realiza la funcion de transferencia disenada: con valores exactos y
+opamp ideal, 120 netlists (todas las combinaciones a 100 Hz, 1 kHz y 50 kHz) coinciden con la respuesta
+calculada a partir de los polos con un error maximo de 0.0009 dB (`tests/test_simulation.py`).
+
+## Interfaz
+
+26. **Fp y Fs intercambiados tras pasar por un filtro de banda.** Al ir de pasa bajas a pasa banda y
+    luego a pasa altas, los valores de Fp/Fs seguian siendo los del pasa bajas y el diseno marcaba error
+    (y al volver a pasa bajas quedaban al reves). Ahora se recuerda para cual filtro se escribieron y se
+    intercambian solo cuando hace falta.
+27. **Validacion compartida.** La ventana de escritorio y la pagina web validan con el mismo codigo
+    (`forms.py`), con los mismos mensajes.
+
 ## Errores en SOFIA original (Sofia.exe, Version3.5)
 
 El banco captura `legacy.cir` corriendo el `Sofia.exe` original con `scripts/legacy_capture.py` (mismos
@@ -124,8 +162,8 @@ cambios. La version en Python ya funciona correctamente en todos esos puntos.
 
 ## Limitaciones que quedan (no son errores de diseno)
 
-- **006, Sallen-Key pasa banda con Q = 10 y TL082:** rizo de 1.22 dB contra 1 dB. Con opamp ideal cumple.
-  El Sallen-Key pasa banda es muy sensible con Q alto; el programa ahora lo avisa y sugiere MFB o
-  Tow-Thomas.
-- **007, Tow-Thomas rechaza banda con TL082:** la ganancia sube +0.5 dB cerca de 16 kHz por el ancho de
-  banda de 3 MHz del TL082. Con opamp ideal cumple.
+- Los casos 006 (Sallen-Key pasa banda con Q = 10) y 007 (Tow-Thomas rechaza banda arriba de 15 kHz) eran
+  sensibles al ancho de banda del TL082; con el margen de diseno ahora cumplen, pero siguen siendo los mas
+  cercanos al limite. El programa avisa cuando un Sallen-Key pasa banda tiene Q alto.
+- Con resistencias de 5 % (E24) los filtros de banda con Q alto pueden salirse de la especificacion; el
+  programa lo avisa y sugiere E96.

@@ -112,11 +112,14 @@ def render_netlist(
     result: DesignResult,
     netlist_path: Path | None = None,
     inline_model: bool = False,
+    exact_values: bool = False,
 ) -> str:
     """Render the SPICE netlist.
 
     With ``inline_model`` the op amp subcircuit is embedded instead of referenced with ``.include``,
     so the file opens anywhere (this is what the original SOFIA editor did by pasting the model).
+    With ``exact_values`` every resistor gets its ideal (target) value instead of the commercial one;
+    used to verify that the circuit realizes the designed transfer function.
     """
     supply = supply_voltage_for(inputs)
     vref = supply / 2
@@ -146,7 +149,7 @@ def render_netlist(
         stage_lines: list[str] = []
         for stage in result.stages:
             stage_lines.append(_stage_comment(stage, inputs.kind))
-            stage_lines.extend(_render_stage_template(inputs, stage, total_stages))
+            stage_lines.extend(_render_stage_template(inputs, stage, total_stages, exact_values))
             stage_lines.append("")
         lines.extend(stage_lines)
         lines.extend(_nodeset_lines(stage_lines, vref))
@@ -190,11 +193,12 @@ def _nodeset_lines(stage_lines: list[str], vref: float, per_line: int = 8) -> li
 class _StageWriter:
     """Small helper that emits the element lines of one stage with legacy-style names."""
 
-    def __init__(self, inputs: DesignInputs, stage: Stage) -> None:
+    def __init__(self, inputs: DesignInputs, stage: Stage, exact_values: bool = False) -> None:
         self.inputs = inputs
         self.stage = stage
         self.realization = stage.realization
         self.subckt = subckt_name_for(inputs)
+        self.exact_values = exact_values
         self.lines: list[str] = []
 
     def node(self, prefix: int) -> str:
@@ -209,13 +213,17 @@ class _StageWriter:
 
     def res(self, number: int, node_a: str, node_b: str, key: str) -> None:
         network = self.realization.resistor_networks[key]
-        self.lines.extend(_format_resistor_network(key, node_a, node_b, f"r{number}{self.stage.index}", network))
+        name = f"r{number}{self.stage.index}"
+        if self.exact_values:
+            self.lines.append(f"{name} {node_a} {node_b} {network.target_ohms:.6f}")
+            return
+        self.lines.extend(_format_resistor_network(key, node_a, node_b, name, network))
 
     def has(self, key: str) -> bool:
         return key in self.realization.resistor_networks or key in self.realization.capacitor_values_f
 
 
-def _render_stage_template(inputs: DesignInputs, stage: Stage, total_stages: int) -> list[str]:
+def _render_stage_template(inputs: DesignInputs, stage: Stage, total_stages: int, exact_values: bool = False) -> list[str]:
     realization = stage.realization
     stage_input, stage_output = _stage_ports(stage, total_stages)
     lines = [f"* Stage input: {stage_input}", f"* Stage output: {stage_output}"]
@@ -225,7 +233,7 @@ def _render_stage_template(inputs: DesignInputs, stage: Stage, total_stages: int
     for note in realization.notes:
         lines.append(f"* {note}")
 
-    writer = _StageWriter(inputs, stage)
+    writer = _StageWriter(inputs, stage, exact_values)
     topology = realization.topology
     if stage.order == 1:
         if topology in {Topology.MFB, Topology.TOW_THOMAS}:

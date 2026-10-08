@@ -8,12 +8,12 @@
 
 - `legacy_netlist_present`: `pass`
 - `modern_netlist_present`: `pass`
-- `order_and_q`: `pass`
-- `component_prefix_counts`: `review`
+- `order_and_q`: `review`
+- `component_prefix_counts`: `pass`
 
 ## Simulacion contra especificacion
 
 | Netlist | Veredicto | Diagnostico | Ganancia (dB) | Rizo (dB) / limite | Atenuacion (dB) / minimo | Opamp ideal |
 | --- | --- | --- | --- | --- | --- | --- |
-| modern | `cumple_con_tolerancia` | `funciona` | 16.17 | 1.041 / 1 | 45.30 / 40 | `cumple_con_tolerancia` |
+| modern | `cumple` | `funciona` | 15.67 | 0.781 / 1 | 42.75 / 40 | `cumple` |
 | legacy | `error_simulacion` | `no_simula` | | | | |

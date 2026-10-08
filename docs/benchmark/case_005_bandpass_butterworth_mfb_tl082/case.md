@@ -3,7 +3,7 @@
 ## Estado
 
 - estado: `needs_review`
-- nuevo: `cumple_con_tolerancia`
+- nuevo: `cumple`
 - legado: `no_cumple`
 
 ## Objetivo
@@ -20,8 +20,8 @@ Comparar un bandpass butterworth en mfb con TL082 entre SOFIA original y la vers
 - topology: mfb
 - opamp: TL082
 - cap: 1e-8
-- resistor_series: E24
-- allow_resistor_arrays: True
+- resistor_series: E96
+- allow_resistor_arrays: False
 - auto_stage_capacitor: True
 
 ## Salida legado
@@ -39,18 +39,18 @@ Comparar un bandpass butterworth en mfb con TL082 entre SOFIA original y la vers
 - archivo JSON: `result.json`
 - archivo netlist: `generated.cir`
 - orden: 8
-- Q por etapa: [5.5403, 2.2493, 2.2493, 5.5403]
-- simulacion: `cumple_con_tolerancia` (funciona): rizo 1.04 dB (limite 1), atenuacion 38.2 dB (minimo 30), ganancia 0.0 dB; con opamp ideal rizo 1.04 dB, atenuacion 38.2 dB
+- Q por etapa: [4.9582, 2.0028, 2.0028, 4.9582]
+- simulacion: `cumple` (funciona): rizo 0.45 dB (limite 1), atenuacion 34.0 dB (minimo 30), ganancia 0.1 dB; con opamp ideal rizo 0.44 dB, atenuacion 34.0 dB
 - avisos: ninguno
 
 ## Comparacion
 
 - archivo automatico: `comparison.json`
-- orden y Q: distintos (legado {'order': 8, 'q': [2.65968075231494, 2.65968085213198, 6.51431517730633, 6.51431656006484]}, nuevo {'order': 8, 'q': [2.2493261279277985, 2.249326127927799, 5.540290374054127, 5.540290374054127]})
+- orden y Q: distintos (legado {'order': 8, 'q': [2.65968075231494, 2.65968085213198, 6.51431517730633, 6.51431656006484]}, nuevo {'order': 8, 'q': [2.00277895077042, 2.00277895077042, 4.958225532239518, 4.958225532239518]})
 - topologia: misma peticion (mfb)
 - opamp: TL082; el legado alimenta con 5 V y tierra virtual de 2.5 V, el nuevo con 15 V / 7.5 V
-- resistencias: el legado redondea cada una a un valor de 5%; el nuevo usa arreglos serie/paralelo E24 de hasta 2 resistencias
-- capacitores: el legado usa el capacitor pedido; el nuevo lo ajusta por decadas segun el rango de resistencias
+- resistencias: el legado redondea cada una a un valor de 5%; el nuevo usa un solo resistor E96 (1%) por posicion, con margen de diseno y capacitor E12 elegido para que las resistencias caigan cerca de valores comerciales
+- capacitores: el legado usa el capacitor pedido; el nuevo elige un valor E12 por etapa
 - netlist: estructura distinta (nodos y conteo de componentes no coinciden), ver `comparison.md`
 - comportamiento esperado: cumplir rizo <= ap y atenuacion >= as en la simulacion AC
 

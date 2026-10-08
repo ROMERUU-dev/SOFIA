@@ -1,5 +1,5 @@
 # Builds dist\SOFIA-Filter-Studio.exe (single file, GUI) with PyInstaller.
-# Requires a full Python 3.11+ with tkinter (python.org installer). Run from the repo root:
+# Requires Python 3.11+ (python.org installer). Run from the repo root:
 #   powershell -ExecutionPolicy Bypass -File packaging\windows\build_exe.ps1
 param(
     [string]$Python = "python"
@@ -13,9 +13,8 @@ if (-not (Test-Path (Join-Path $venv "Scripts\python.exe"))) {
     & $Python -m venv $venv
 }
 $py = Join-Path $venv "Scripts\python.exe"
-& $py -m pip install --quiet --disable-pip-version-check pyinstaller
-& $py -c "import tkinter" 2>$null
-if ($LASTEXITCODE -ne 0) { throw "This Python has no tkinter; install Python from python.org." }
+& $py -m pip install --quiet --disable-pip-version-check pyinstaller "PySide6-Essentials>=6.7"
+if ($LASTEXITCODE -ne 0) { throw "Could not install the build requirements." }
 
 # Absolute paths: PyInstaller resolves relative ones against --specpath.
 & $py -m PyInstaller --noconfirm --clean --onefile --windowed `

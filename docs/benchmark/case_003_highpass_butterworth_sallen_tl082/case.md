@@ -20,8 +20,8 @@ Comparar un highpass butterworth en sallen_key con TL082 entre SOFIA original y 
 - topology: sallen_key
 - opamp: TL082
 - cap: 1e-7
-- resistor_series: E24
-- allow_resistor_arrays: True
+- resistor_series: E96
+- allow_resistor_arrays: False
 - auto_stage_capacitor: True
 
 ## Salida legado
@@ -40,7 +40,7 @@ Comparar un highpass butterworth en sallen_key con TL082 entre SOFIA original y 
 - archivo netlist: `generated.cir`
 - orden: 8
 - Q por etapa: [2.5629, 0.9, 0.6013, 0.5098]
-- simulacion: `cumple` (funciona): rizo 0.98 dB (limite 1), atenuacion 42.2 dB (minimo 40), ganancia 16.7 dB; con opamp ideal rizo 1.00 dB, atenuacion 42.3 dB
+- simulacion: `cumple` (funciona): rizo 0.77 dB (limite 1), atenuacion 41.0 dB (minimo 40), ganancia 16.7 dB; con opamp ideal rizo 0.78 dB, atenuacion 41.1 dB
 - avisos: ninguno
 
 ## Comparacion
@@ -49,8 +49,8 @@ Comparar un highpass butterworth en sallen_key con TL082 entre SOFIA original y 
 - orden y Q: iguales
 - topologia: misma peticion (sallen_key)
 - opamp: TL082; el legado alimenta con 5 V y tierra virtual de 2.5 V, el nuevo con 15 V / 7.5 V
-- resistencias: el legado redondea cada una a un valor de 5%; el nuevo usa arreglos serie/paralelo E24 de hasta 2 resistencias
-- capacitores: el legado usa el capacitor pedido; el nuevo lo ajusta por decadas segun el rango de resistencias
+- resistencias: el legado redondea cada una a un valor de 5%; el nuevo usa un solo resistor E96 (1%) por posicion, con margen de diseno y capacitor E12 elegido para que las resistencias caigan cerca de valores comerciales
+- capacitores: el legado usa el capacitor pedido; el nuevo elige un valor E12 por etapa
 - netlist: estructura distinta (nodos y conteo de componentes no coinciden), ver `comparison.md`
 - comportamiento esperado: cumplir rizo <= ap y atenuacion >= as en la simulacion AC
 

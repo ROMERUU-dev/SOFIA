@@ -101,14 +101,6 @@ def _section_from_pole_group(index: int, group: tuple[complex, ...]) -> Stage:
     )
 
 
-def _prototype_poles(order: int, approximation: Approximation, epsilon: float) -> list[complex]:
-    if approximation is Approximation.BUTTERWORTH:
-        return _butterworth_poles(order)
-    if approximation is Approximation.CHEBYSHEV_I:
-        return _chebyshev_poles(order, epsilon)
-    raise ValueError(f"Unsupported approximation: {approximation}")
-
-
 def _low_high_ratios(inputs: DesignInputs) -> tuple[float, float]:
     wp = float(inputs.spec.passband_hz)
     ws = float(inputs.spec.stopband_hz)
@@ -175,21 +167,42 @@ def _estimate_order(inputs: DesignInputs, epsilon: float) -> tuple[int, dict[str
     }
 
 
-def _scale_prototype_poles(inputs: DesignInputs, order: int, epsilon: float, poles: list[complex]) -> list[complex]:
+def _normalized_prototype(inputs: DesignInputs, order: int, epsilon: float, ratio: float) -> tuple[list[complex], dict[str, float]]:
+    """Low-pass prototype normalized to the passband edge (Omega = 1).
+
+    Rounding the order up leaves excess selectivity; it is split between both bands (geometric middle)
+    so the design keeps margin on ripple and attenuation instead of sitting exactly on the passband edge.
+    That margin is what absorbs commercial component values.
+    """
+    stop_epsilon = math.sqrt(10 ** (inputs.stopband_attenuation_db / 10) - 1)
+    if inputs.approximation is Approximation.BUTTERWORTH:
+        # -Ap exactly at Omega = 1 needs this cutoff; -As exactly at Omega = ratio needs the other one.
+        passband_cutoff = epsilon ** (-1 / order)
+        stopband_cutoff = ratio * stop_epsilon ** (-1 / order)
+        cutoff = math.sqrt(passband_cutoff * max(passband_cutoff, stopband_cutoff))
+        poles = [cutoff * pole for pole in _butterworth_poles(order)]
+        ripple = 10 * math.log10(1 + cutoff ** (-2 * order))
+        attenuation = 10 * math.log10(1 + (ratio / cutoff) ** (2 * order))
+        return poles, {"design_cutoff": cutoff, "design_ripple_db": ripple, "design_attenuation_db": attenuation}
+    if inputs.approximation is Approximation.CHEBYSHEV_I:
+        # Smallest ripple that still reaches As at Omega = ratio, then halfway (geometrically) to the spec.
+        minimum_epsilon = stop_epsilon / math.cosh(order * math.acosh(ratio))
+        design_epsilon = min(epsilon, math.sqrt(minimum_epsilon * epsilon))
+        poles = _chebyshev_poles(order, design_epsilon)
+        ripple = 10 * math.log10(1 + design_epsilon**2)
+        attenuation = 10 * math.log10(1 + (design_epsilon * math.cosh(order * math.acosh(ratio))) ** 2)
+        return poles, {"design_epsilon": design_epsilon, "design_ripple_db": ripple, "design_attenuation_db": attenuation}
+    raise ValueError(f"Unsupported approximation: {inputs.approximation}")
+
+
+def _scale_prototype_poles(inputs: DesignInputs, poles: list[complex]) -> list[complex]:
     if inputs.kind in {FilterKind.LOWPASS, FilterKind.HIGHPASS}:
         wp = 2 * math.pi * float(inputs.spec.passband_hz)
-        if inputs.approximation is Approximation.BUTTERWORTH:
-            omega_c = wp / (epsilon ** (1 / order)) if inputs.kind is FilterKind.LOWPASS else wp * (epsilon ** (1 / order))
-        else:
-            omega_c = wp
         if inputs.kind is FilterKind.LOWPASS:
-            return [omega_c * pole for pole in poles]
-        return [omega_c / pole for pole in poles]
+            return [wp * pole for pole in poles]
+        return [wp / pole for pole in poles]
 
     omega_0, bandwidth, _ = _bandpass_bandstop_terms(inputs)
-    if inputs.approximation is Approximation.BUTTERWORTH:
-        # Normalize the prototype so its -Ap point (not its -3 dB point) lands on the band edges.
-        poles = [pole * epsilon ** (-1 / order) for pole in poles]
     transformed: list[complex] = []
     for pole in poles:
         if inputs.kind is FilterKind.BANDPASS:
@@ -205,8 +218,9 @@ def design_filter(inputs: DesignInputs) -> DesignResult:
     inputs.validate()
     epsilon = _epsilon(inputs.passband_ripple_db)
     prototype_order, summary = _estimate_order(inputs, epsilon)
-    prototype_poles = _prototype_poles(prototype_order, inputs.approximation, epsilon)
-    poles = _scale_prototype_poles(inputs, prototype_order, epsilon, prototype_poles)
+    prototype_poles, margins = _normalized_prototype(inputs, prototype_order, epsilon, summary["ratio"])
+    summary.update(margins)
+    poles = _scale_prototype_poles(inputs, prototype_poles)
     is_band = inputs.kind in {FilterKind.BANDPASS, FilterKind.BANDSTOP}
     order = prototype_order * 2 if is_band else prototype_order
     stages = [
@@ -223,8 +237,6 @@ def design_filter(inputs: DesignInputs) -> DesignResult:
         for stage in stages:
             stage.gain_reference_hz = summary["center_frequency_hz"]
     warnings: list[str] = []
-    if inputs.topology is not Topology.OTA and any(stage.q is not None and stage.q > 10 for stage in stages):
-        warnings.append("At least one section has high Q; a Tow-Thomas or MFB realization may be safer than unity-gain Sallen-Key.")
     summary.update(
         {
             "kind": inputs.kind,
@@ -237,6 +249,10 @@ def design_filter(inputs: DesignInputs) -> DesignResult:
         }
     )
     synthesize_stage_realizations(inputs, stages)
+    if any(
+        stage.q is not None and stage.q > 10 and stage.realization.topology is Topology.SALLEN_KEY for stage in stages
+    ):
+        warnings.append("Hay etapas Sallen-Key con Q mayor a 10; Tow-Thomas o MFB son más robustas para ese Q.")
     for stage in stages:
         warnings.extend(practical_notes_for_stage(inputs, stage))
     warnings.extend(stability_warnings(inputs, {stage.realization.topology for stage in stages}))

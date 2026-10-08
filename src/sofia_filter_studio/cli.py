@@ -18,8 +18,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--topology", choices=[item.value for item in Topology], default=Topology.SALLEN_KEY.value)
     parser.add_argument("--opamp", choices=[item.value for item in OpAmpModel], default=OpAmpModel.TL082.value)
     parser.add_argument("--cap", type=float, default=10e-9, help="Stage capacitor in farads.")
-    parser.add_argument("--resistor-series", choices=[item.value for item in ResistorSeries], default=ResistorSeries.E24.value)
-    parser.add_argument("--no-resistor-arrays", action="store_true", help="Disable series/parallel commercial resistor fitting.")
+    parser.add_argument("--resistor-series", choices=[item.value for item in ResistorSeries], default=ResistorSeries.E96.value)
+    parser.add_argument(
+        "--resistor-arrays",
+        action="store_true",
+        help="Allow series/parallel combinations of commercial resistors (by default each position uses one resistor).",
+    )
+    # Accepted for compatibility with older scripts; single resistors are now the default.
+    parser.add_argument("--no-resistor-arrays", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--max-network-size", type=int, default=2, help="Maximum number of resistors per commercial network.")
     parser.add_argument("--no-auto-stage-capacitor", action="store_true", help="Disable automatic capacitor retuning per stage.")
     parser.add_argument("--fp", type=float, help="Passband edge for lowpass/highpass.")
@@ -61,7 +67,7 @@ def main() -> int:
         opamp=OpAmpModel(args.opamp),
         stage_capacitor_f=args.cap,
         resistor_series=ResistorSeries(args.resistor_series),
-        allow_resistor_arrays=not args.no_resistor_arrays,
+        allow_resistor_arrays=args.resistor_arrays and not args.no_resistor_arrays,
         max_resistors_per_network=args.max_network_size,
         auto_stage_capacitor=not args.no_auto_stage_capacitor,
     )

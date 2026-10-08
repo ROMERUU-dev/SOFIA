@@ -3,7 +3,7 @@
 ## Estado
 
 - estado: `needs_review`
-- nuevo: `cumple_con_tolerancia`
+- nuevo: `cumple`
 - legado: `error_simulacion`
 
 ## Objetivo
@@ -20,8 +20,8 @@ Comparar un lowpass chebyshev en sallen_key con TL082 entre SOFIA original y la 
 - topology: sallen_key
 - opamp: TL082
 - cap: 1e-7
-- resistor_series: E24
-- allow_resistor_arrays: True
+- resistor_series: E96
+- allow_resistor_arrays: False
 - auto_stage_capacitor: True
 
 ## Salida legado
@@ -42,18 +42,18 @@ Fatal Error: R13: Resistance must not be zero.
 - archivo JSON: `result.json`
 - archivo netlist: `generated.cir`
 - orden: 5
-- Q por etapa: [5.5564, 1.3988]
-- simulacion: `cumple_con_tolerancia` (funciona): rizo 1.02 dB (limite 1), atenuacion 45.3 dB (minimo 40), ganancia 16.2 dB; con opamp ideal rizo 1.02 dB, atenuacion 45.3 dB
+- Q por etapa: [4.7062, 1.2126]
+- simulacion: `cumple` (funciona): rizo 0.76 dB (limite 1), atenuacion 42.8 dB (minimo 40), ganancia 15.7 dB; con opamp ideal rizo 0.75 dB, atenuacion 42.8 dB
 - avisos: ninguno
 
 ## Comparacion
 
 - archivo automatico: `comparison.json`
-- orden y Q: iguales
+- orden y Q: distintos (legado {'order': 5, 'q': [1.39879200547903, 5.55644115215602]}, nuevo {'order': 5, 'q': [1.2125908920247528, 4.706248062374639]})
 - topologia: misma peticion (sallen_key)
 - opamp: TL082; el legado alimenta con 5 V y tierra virtual de 2.5 V, el nuevo con 15 V / 7.5 V
-- resistencias: el legado redondea cada una a un valor de 5%; el nuevo usa arreglos serie/paralelo E24 de hasta 2 resistencias
-- capacitores: el legado usa el capacitor pedido; el nuevo lo ajusta por decadas segun el rango de resistencias
+- resistencias: el legado redondea cada una a un valor de 5%; el nuevo usa un solo resistor E96 (1%) por posicion, con margen de diseno y capacitor E12 elegido para que las resistencias caigan cerca de valores comerciales
+- capacitores: el legado usa el capacitor pedido; el nuevo elige un valor E12 por etapa
 - netlist: estructura distinta (nodos y conteo de componentes no coinciden), ver `comparison.md`
 - comportamiento esperado: cumplir rizo <= ap y atenuacion >= as en la simulacion AC
 

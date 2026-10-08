@@ -7,11 +7,14 @@ Esta base ya deja resueltos los puntos que mas penalizaban al sistema anterior:
 - arquitectura separada entre dominio, CLI y GUI
 - compatibilidad multiplataforma con Python 3.11+ en Windows, Linux y macOS
 - entrada moderna por linea de comandos
-- GUI inicial de escritorio con `tkinter`
+- interfaz de escritorio con PySide6: calculo en vivo, grafica de respuesta con la especificacion marcada,
+  etapas con sus componentes comerciales y exportacion del netlist
 - calculo de orden, epsilon, polos y etapas para Butterworth y Chebyshev I
 - soporte para filtros `lowpass`, `highpass`, `bandpass` y `bandstop`
-- sintesis inicial por etapa con ajuste de resistencias a series comerciales
-- opcion de arreglos resistivos serie/paralelo para aproximar mejor valores objetivo
+- sintesis por etapa con un solo resistor comercial por posicion (E12, E24, E48 o E96; E96 por defecto)
+- margen de diseno: el orden extra se reparte entre banda de paso y de rechazo, y el capacitor de cada
+  etapa se elige de la serie E12 para que las resistencias caigan cerca de valores comerciales
+- arreglos serie/paralelo solo como opcion de la linea de comandos (`--resistor-arrays`)
 - generacion inicial de netlists SPICE con comentarios estructurados
 - preservacion de modelos SPICE heredados en `resources/models/`
 
@@ -21,7 +24,7 @@ En [Releases](https://github.com/ROMERUU-dev/SOFIA/releases) esta `SOFIA-Filter-
 archivo, no necesita Python. Al abrirlo muestra la ventana de diseno; el netlist que guarda ya trae el
 modelo del opamp incluido, asi que se abre directo en LTspice o ngspice.
 
-Para generarlo desde el codigo (requiere Python 3.11+ de python.org, con tkinter):
+Para generarlo desde el codigo (requiere Python 3.11+ de python.org):
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File packaging\windows\build_exe.ps1
@@ -29,10 +32,29 @@ powershell -ExecutionPolicy Bypass -File packaging\windows\build_exe.ps1
 
 El resultado queda en `dist\SOFIA-Filter-Studio.exe`.
 
+## Version web
+
+`web/` es la misma interfaz en una pagina estatica: el paquete de Python corre en el navegador con
+[Pyodide](https://pyodide.org), asi que el calculo es identico al de la version de escritorio y no hay
+servidor. La primera visita descarga unos 6 MB (el interprete de Python); despues el navegador lo guarda.
+El enlace de la pagina lleva el diseno actual, de modo que se puede compartir un filtro con un link.
+
+El flujo `.github/workflows/pages.yml` corre las pruebas, arma el sitio y lo publica en GitHub Pages en
+cada push a `main` (en Settings > Pages, la fuente debe ser "GitHub Actions"). Para probarla en local:
+
+```bash
+python scripts/build_web.py
+python -m http.server -d _site 8000
+```
+
+y abrir `http://localhost:8000`.
+
 ## Estructura
 
 - `docs/legacy_analysis.md`: analisis funcional y tecnico del software original
-- `src/sofia_filter_studio/`: nueva implementacion
+- `src/sofia_filter_studio/`: nueva implementacion (`forms.py`: validacion y vista que comparten
+  la ventana de escritorio y la pagina web)
+- `web/`: version web (HTML, CSS y JavaScript; el calculo lo hace el paquete de Python con Pyodide)
 - `resources/models/`: modelos `.cir` heredados para migracion
 - `tests/`: pruebas base del motor de calculo
 
@@ -41,7 +63,7 @@ El resultado queda en `dist\SOFIA-Filter-Studio.exe`.
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -e .
+pip install -e ".[gui]"
 sofia --kind lowpass --approx butterworth --fp 1000 --fs 2000 --ap 1 --as 40
 sofia-gui
 ```

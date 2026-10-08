@@ -1,2 +1,2 @@
 Legado: Butterworth rechaza banda sin escalar por epsilon (algoritmos.cpp:257-307): los bordes de banda caen a -3 dB en lugar de -1 dB; con opamp ideal el rizo es de ~4.5 dB. Ademas fuente de 5 V.
-Nuevo: `no_cumple` (limitacion_del_opamp): rizo 1.52 dB (limite 1), atenuacion 46.0 dB (minimo 40), ganancia 0.5 dB; con opamp ideal rizo 1.02 dB, atenuacion 45.6 dB
+Nuevo: `cumple` (funciona): rizo 0.85 dB (limite 1), atenuacion 43.2 dB (minimo 40), ganancia 0.2 dB; con opamp ideal rizo 0.82 dB, atenuacion 43.2 dB

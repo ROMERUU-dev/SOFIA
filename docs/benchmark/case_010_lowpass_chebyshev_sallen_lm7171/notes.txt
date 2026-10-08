@@ -1,2 +1,2 @@
 Legado: Orden impar: la etapa de primer orden sale con resistencias de 0 ohm (`r13`, `r23`) porque sus valores solo se calculan con el flujo del Integrador, que no corre al elegir Sallen-Key. SPICE rechaza el netlist.
-Nuevo: `cumple_con_tolerancia` (funciona): rizo 1.04 dB (limite 1), atenuacion 45.3 dB (minimo 40), ganancia 16.2 dB; con opamp ideal rizo 1.02 dB, atenuacion 45.3 dB
+Nuevo: `cumple` (funciona): rizo 0.78 dB (limite 1), atenuacion 42.8 dB (minimo 40), ganancia 15.7 dB; con opamp ideal rizo 0.75 dB, atenuacion 42.8 dB

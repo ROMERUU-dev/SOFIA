@@ -3,55 +3,55 @@
   "epsilon": 0.5088471399095875,
   "poles": [
     {
-      "real": -1333.8044950719047,
-      "imag": 6705.488012849965
+      "real": -1356.0329434033567,
+      "imag": 6817.237968995353
     },
     {
-      "real": -3798.353841808873,
-      "imag": 5684.638248293762
+      "real": -3861.6551070461514,
+      "imag": 5779.375286631889
     },
     {
-      "real": -5684.638248293762,
-      "imag": 3798.3538418088747
+      "real": -5779.375286631889,
+      "imag": 3861.655107046153
     },
     {
-      "real": -6705.488012849965,
-      "imag": 1333.8044950719077
+      "real": -6817.237968995353,
+      "imag": 1356.0329434033597
     },
     {
-      "real": -6705.488012849965,
-      "imag": -1333.8044950719059
+      "real": -6817.237968995353,
+      "imag": -1356.0329434033579
     },
     {
-      "real": -5684.638248293763,
-      "imag": -3798.353841808873
+      "real": -5779.37528663189,
+      "imag": -3861.6551070461514
     },
     {
-      "real": -3798.3538418088747,
-      "imag": -5684.6382482937615
+      "real": -3861.655107046153,
+      "imag": -5779.375286631888
     },
     {
-      "real": -1333.8044950719081,
-      "imag": -6705.488012849965
+      "real": -1356.0329434033602,
+      "imag": -6817.237968995353
     }
   ],
   "stages": [
     {
       "index": 1,
-      "natural_frequency_hz": 1088.1194736627365,
-      "q": 2.5629154477415037,
+      "natural_frequency_hz": 1106.253471252432,
+      "q": 2.5629154477415046,
       "order": 2,
       "poles": [
         {
-          "real": -1333.8044950719047,
-          "imag": 6705.488012849965
+          "real": -1356.0329434033567,
+          "imag": 6817.237968995353
         },
         {
-          "real": -1333.8044950719081,
-          "imag": -6705.488012849965
+          "real": -1356.0329434033602,
+          "imag": -6817.237968995353
         }
       ],
-      "damping_hz": 424.5631570177669,
+      "damping_hz": 431.63869187619366,
       "zero_frequency_hz": null,
       "gain_reference_hz": null,
       "realization": {
@@ -60,70 +60,68 @@
         "kind": "lowpass",
         "gain": 1.0,
         "resistor_targets_ohms": {
-          "R1": 214.5069724216078,
-          "R2": 214.5069724216078,
-          "R3": 178.09743204580948
+          "R1": 243.554542822625,
+          "R2": 243.554542822625,
+          "R3": 220.50732739749864
         },
         "capacitor_values_f": {
-          "C1": 5.6e-06,
-          "C2": 1e-07
+          "C1": 4.7e-06,
+          "C2": 8.199999999999999e-08
         },
         "resistor_networks": {
           "R1": {
             "label": "R1",
-            "target_ohms": 214.5069724216078,
-            "realized_ohms": 214.2857142857143,
-            "connection": "parallel",
+            "target_ohms": 243.554542822625,
+            "realized_ohms": 243.00000000000003,
+            "connection": "single",
             "parts_ohms": [
-              240.0,
-              2000.0
+              243.00000000000003
             ],
-            "relative_error": 0.0010314729325376687
+            "relative_error": 0.0022768732465352835
           },
           "R2": {
             "label": "R2",
-            "target_ohms": 214.5069724216078,
-            "realized_ohms": 214.2857142857143,
-            "connection": "parallel",
+            "target_ohms": 243.554542822625,
+            "realized_ohms": 243.00000000000003,
+            "connection": "single",
             "parts_ohms": [
-              240.0,
-              2000.0
+              243.00000000000003
             ],
-            "relative_error": 0.0010314729325376687
+            "relative_error": 0.0022768732465352835
           },
           "R3": {
             "label": "R3",
-            "target_ohms": 178.09743204580948,
-            "realized_ohms": 178.0,
-            "connection": "series",
+            "target_ohms": 220.50732739749864,
+            "realized_ohms": 221.0,
+            "connection": "single",
             "parts_ohms": [
-              18.0,
-              160.0
+              221.0
             ],
-            "relative_error": 0.0005470715927247208
+            "relative_error": 0.0022342686218913676
           }
         },
         "notes": [
-          "MFB low-pass with unity DC gain: C1 is the next E12 value above 8*Q^2*C2 and R1..R3 solve w0 and Q exactly."
+          "MFB pasa bajas con ganancia 1 en DC: C1 es el siguiente valor E12 arriba de 8*Q^2*C2 y R1..R3 dan w0 y Q exactos.",
+          "Capacitor de la etapa ajustado de 1.000e-07 F a 8.200e-08 F."
         ]
       }
     },
     {
       "index": 2,
-      "natural_frequency_hz": 1088.1194736627367,
-      "q": 0.899976223136416,
+      "natural_frequency_hz": 1106.253471252432,
+      "q": 0.8999762231364159,
       "order": 2,
       "poles": [
         {
-          "real": -3798.353841808873,
-          "imag": 5684.638248293762
+          "real": -3861.6551070461514,
+          "imag": 5779.375286631889
         },
         {
-          "real": -3798.3538418088747,
-          "imag": -5684.6382482937615
+          "real": -3861.655107046153,
+          "imag": -5779.375286631888
         }
       ],
-      "damping_hz": 1209.0535790719466,
+      "damping_hz": 1229.2029976049146,
       "zero_frequency_hz": null,
       "gain_reference_hz": null,
       "realization": {
@@ -132,71 +130,68 @@
         "kind": "lowpass",
         "gain": 1.0,
         "resistor_targets_ohms": {
-          "R1": 6362.363810510239,
-          "R2": 6362.363810510239,
-          "R3": 4944.9247365227275
+          "R1": 1050.7886867127415,
+          "R2": 1050.7886867127415,
+          "R3": 901.9094720754731
         },
         "capacitor_values_f": {
-          "C1": 6.8e-08,
-          "C2": 1e-08
+          "C1": 3.8999999999999997e-07,
+          "C2": 5.6e-08
         },
         "resistor_networks": {
           "R1": {
             "label": "R1",
-            "target_ohms": 6362.363810510239,
-            "realized_ohms": 6360.0,
-            "connection": "series",
+            "target_ohms": 1050.7886867127415,
+            "realized_ohms": 1050.0,
+            "connection": "single",
             "parts_ohms": [
-              160.0,
-              6200.0
+              1050.0
             ],
-            "relative_error": 0.000371530233202669
+            "relative_error": 0.0007505664294967268
           },
           "R2": {
             "label": "R2",
-            "target_ohms": 6362.363810510239,
-            "realized_ohms": 6360.0,
-            "connection": "series",
+            "target_ohms": 1050.7886867127415,
+            "realized_ohms": 1050.0,
+            "connection": "single",
             "parts_ohms": [
-              160.0,
-              6200.0
+              1050.0
             ],
-            "relative_error": 0.000371530233202669
+            "relative_error": 0.0007505664294967268
           },
           "R3": {
             "label": "R3",
-            "target_ohms": 4944.9247365227275,
-            "realized_ohms": 4942.459115687463,
-            "connection": "parallel",
+            "target_ohms": 901.9094720754731,
+            "realized_ohms": 909.0,
+            "connection": "single",
             "parts_ohms": [
-              5100.0,
-              160000.0
+              909.0
             ],
-            "relative_error": 0.0004986164535637083
+            "relative_error": 0.00786168473007627
           }
         },
         "notes": [
-          "MFB low-pass with unity DC gain: C1 is the next E12 value above 8*Q^2*C2 and R1..R3 solve w0 and Q exactly.",
-          "Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-08 F."
+          "MFB pasa bajas con ganancia 1 en DC: C1 es el siguiente valor E12 arriba de 8*Q^2*C2 y R1..R3 dan w0 y Q exactos.",
+          "Capacitor de la etapa ajustado de 1.000e-07 F a 5.600e-08 F."
         ]
       }
     },
     {
       "index": 3,
-      "natural_frequency_hz": 1088.1194736627367,
-      "q": 0.6013448869350453,
+      "natural_frequency_hz": 1106.253471252432,
+      "q": 0.6013448869350452,
       "order": 2,
       "poles": [
         {
-          "real": -5684.638248293762,
-          "imag": 3798.3538418088747
+          "real": -5779.375286631889,
+          "imag": 3861.655107046153
         },
         {
-          "real": -5684.638248293763,
-          "imag": -3798.353841808873
+          "real": -5779.37528663189,
+          "imag": -3861.6551070461514
         }
       ],
-      "damping_hz": 1809.4765538104107,
+      "damping_hz": 1839.6322897012096,
       "zero_frequency_hz": null,
       "gain_reference_hz": null,
       "realization": {
@@ -205,71 +200,68 @@
         "kind": "lowpass",
         "gain": 1.0,
         "resistor_targets_ohms": {
-          "R1": 7890.180702739937,
-          "R2": 7890.180702739937,
-          "R3": 8216.487676749068
+          "R1": 2317.1779875231405,
+          "R2": 2317.1779875231405,
+          "R3": 1908.647479417541
         },
         "capacitor_values_f": {
-          "C1": 3.3e-08,
-          "C2": 1e-08
+          "C1": 1.2e-07,
+          "C2": 3.9e-08
         },
         "resistor_networks": {
           "R1": {
             "label": "R1",
-            "target_ohms": 7890.180702739937,
-            "realized_ohms": 7890.0,
-            "connection": "series",
+            "target_ohms": 2317.1779875231405,
+            "realized_ohms": 2320.0,
+            "connection": "single",
             "parts_ohms": [
-              390.0,
-              7500.0
+              2320.0
             ],
-            "relative_error": 2.290223085442256e-05
+            "relative_error": 0.0012178660819560133
           },
           "R2": {
             "label": "R2",
-            "target_ohms": 7890.180702739937,
-            "realized_ohms": 7890.0,
-            "connection": "series",
+            "target_ohms": 2317.1779875231405,
+            "realized_ohms": 2320.0,
+            "connection": "single",
             "parts_ohms": [
-              390.0,
-              7500.0
+              2320.0
             ],
-            "relative_error": 2.290223085442256e-05
+            "relative_error": 0.0012178660819560133
           },
           "R3": {
             "label": "R3",
-            "target_ohms": 8216.487676749068,
-            "realized_ohms": 8216.0,
-            "connection": "series",
+            "target_ohms": 1908.647479417541,
+            "realized_ohms": 1910.0,
+            "connection": "single",
             "parts_ohms": [
-              16.0,
-              8200.0
+              1910.0
             ],
-            "relative_error": 5.9353432787075436e-05
+            "relative_error": 0.0007086277571129643
           }
         },
         "notes": [
-          "MFB low-pass with unity DC gain: C1 is the next E12 value above 8*Q^2*C2 and R1..R3 solve w0 and Q exactly.",
-          "Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-08 F."
+          "MFB pasa bajas con ganancia 1 en DC: C1 es el siguiente valor E12 arriba de 8*Q^2*C2 y R1..R3 dan w0 y Q exactos.",
+          "Capacitor de la etapa ajustado de 1.000e-07 F a 3.900e-08 F."
         ]
       }
     },
     {
       "index": 4,
-      "natural_frequency_hz": 1088.1194736627365,
+      "natural_frequency_hz": 1106.253471252432,
       "q": 0.5097955791041592,
       "order": 2,
       "poles": [
         {
-          "real": -6705.488012849965,
-          "imag": 1333.8044950719077
+          "real": -6817.237968995353,
+          "imag": 1356.0329434033597
         },
         {
-          "real": -6705.488012849965,
-          "imag": -1333.8044950719059
+          "real": -6817.237968995353,
+          "imag": -1356.0329434033579
         }
       ],
-      "damping_hz": 2134.423126177045,
+      "damping_hz": 2169.9942419987274,
       "zero_frequency_hz": null,
       "gain_reference_hz": null,
       "realization": {
@@ -278,52 +270,49 @@
         "kind": "lowpass",
         "gain": 1.0,
         "resistor_targets_ohms": {
-          "R1": 109830.66713450546,
-          "R2": 109830.66713450546,
-          "R3": 88540.26047933179
+          "R1": 3236.104833011958,
+          "R2": 3236.104833011958,
+          "R3": 1999.9996925533787
         },
         "capacitor_values_f": {
-          "C1": 2.2000000000000003e-09,
-          "C2": 1e-09
+          "C1": 8.199999999999999e-08,
+          "C2": 3.9e-08
         },
         "resistor_networks": {
           "R1": {
             "label": "R1",
-            "target_ohms": 109830.66713450546,
-            "realized_ohms": 109838.90294235123,
-            "connection": "parallel",
+            "target_ohms": 3236.104833011958,
+            "realized_ohms": 3240.0,
+            "connection": "single",
             "parts_ohms": [
-              110000.00000000001,
-              75000000.0
+              3240.0
             ],
-            "relative_error": 7.498641372792356e-05
+            "relative_error": 0.0012036590867845038
           },
           "R2": {
             "label": "R2",
-            "target_ohms": 109830.66713450546,
-            "realized_ohms": 109838.90294235123,
-            "connection": "parallel",
+            "target_ohms": 3236.104833011958,
+            "realized_ohms": 3240.0,
+            "connection": "single",
             "parts_ohms": [
-              110000.00000000001,
-              75000000.0
+              3240.0
             ],
-            "relative_error": 7.498641372792356e-05
+            "relative_error": 0.0012036590867845038
           },
           "R3": {
             "label": "R3",
-            "target_ohms": 88540.26047933179,
-            "realized_ohms": 88557.9475081097,
-            "connection": "parallel",
+            "target_ohms": 1999.9996925533787,
+            "realized_ohms": 2000.0,
+            "connection": "single",
             "parts_ohms": [
-              91000.0,
-              3300000.0
+              2000.0
             ],
-            "relative_error": 0.00019976255640274856
+            "relative_error": 1.5372333426276346e-07
           }
         },
         "notes": [
-          "MFB low-pass with unity DC gain: C1 is the next E12 value above 8*Q^2*C2 and R1..R3 solve w0 and Q exactly.",
-          "Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-09 F."
+          "MFB pasa bajas con ganancia 1 en DC: C1 es el siguiente valor E12 arriba de 8*Q^2*C2 y R1..R3 dan w0 y Q exactos.",
+          "Capacitor de la etapa ajustado de 1.000e-07 F a 3.900e-08 F."
         ]
       }
     }
@@ -331,12 +320,15 @@
   "summary": {
     "passband_hz": 1000.0,
     "ratio": 2.0,
+    "design_cutoff": 1.1062534712524321,
+    "design_ripple_db": 0.7873169070068329,
+    "design_attenuation_db": 41.14838927040018,
     "kind": "lowpass",
     "approximation": "butterworth",
     "topology": "mfb",
     "opamp": "uA741",
-    "resistor_series": "E24",
-    "allow_resistor_arrays": true,
+    "resistor_series": "E96",
+    "allow_resistor_arrays": false,
     "recommended_opamps": [
       "LM324",
       "LM318",

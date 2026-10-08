@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import math
 
-from .models import DesignInputs, FilterKind, ResistorNetwork, Stage, StageRealization, Topology
+from .models import DesignInputs, FilterKind, ResistorNetwork, ResistorSeries, Stage, StageRealization, Topology
 from .opamps import INPUT_BIAS_CURRENT_A, max_bias_safe_resistance
-from .resistors import fit_resistor_network
+from .resistors import fit_resistor_network, fit_resistor_ratio
 
 MIN_PRACTICAL_RESISTANCE = 100.0
 MAX_PRACTICAL_RESISTANCE = 1_000_000.0
@@ -17,7 +17,7 @@ SALLEN_KEY_MAX_GAIN_BP = 3.9
 SALLEN_KEY_BP_SENSITIVE_Q = 5.0
 
 # Realization notes that mean the stage deviates from the request; they are surfaced as warnings.
-COMPROMISE_MARKERS = ("cannot realize", "clamped", "clipped", "too low", "very sensitive")
+COMPROMISE_MARKERS = ("no puede realizar", "se limitó", "se recortó", "muy bajo", "muy sensible")
 
 # Topologies that can realize each section type. Band-stop needs a finite transmission zero,
 # which plain Sallen-Key and MFB sections cannot produce.
@@ -26,6 +26,21 @@ SUPPORTED_KINDS = {
     Topology.MFB: {FilterKind.LOWPASS, FilterKind.HIGHPASS, FilterKind.BANDPASS},
     Topology.TOW_THOMAS: set(FilterKind),
     Topology.ANTONIOU: set(FilterKind),
+}
+
+TOPOLOGY_NAMES = {
+    Topology.AUTO: "Automática",
+    Topology.SALLEN_KEY: "Sallen-Key",
+    Topology.MFB: "MFB",
+    Topology.TOW_THOMAS: "Tow-Thomas",
+    Topology.ANTONIOU: "Antoniou",
+    Topology.OTA: "OTA",
+}
+KIND_NAMES = {
+    FilterKind.LOWPASS: "pasa bajas",
+    FilterKind.HIGHPASS: "pasa altas",
+    FilterKind.BANDPASS: "pasa banda",
+    FilterKind.BANDSTOP: "rechaza banda",
 }
 
 
@@ -39,7 +54,7 @@ def practical_notes_for_stage(inputs: DesignInputs, stage: Stage) -> list[str]:
     if realization is None:
         return []
     notes = [
-        f"Stage {stage.index}: {note}"
+        f"Etapa {stage.index}: {note}"
         for note in realization.notes
         if any(marker in note for marker in COMPROMISE_MARKERS)
     ]
@@ -52,18 +67,23 @@ def practical_notes_for_stage(inputs: DesignInputs, stage: Stage) -> list[str]:
     if min_target < 10:
         factor = max(10, math.ceil(10 / max(min_target, 1e-12)))
         notes.append(
-            f"Stage {stage.index} requests resistors below 10 ohm. A capacitor near {base_cap / factor:.3e} F would move the design toward a saner range."
+            f"La etapa {stage.index} pide resistencias menores a 10 ohm. Un capacitor cercano a {base_cap / factor:.3e} F las llevaría a un rango práctico."
         )
     if max_target > MAX_PRACTICAL_RESISTANCE:
         factor = max(10, math.ceil(max_target / MAX_PRACTICAL_RESISTANCE))
         notes.append(
-            f"Stage {stage.index} requests resistors above 1 Mohm. A capacitor near {base_cap * factor:.3e} F would reduce noise and sensitivity."
+            f"La etapa {stage.index} pide resistencias mayores a 1 Mohm. Un capacitor cercano a {base_cap * factor:.3e} F reduciría ruido y sensibilidad."
+        )
+    worst_rounding = max((network.relative_error for network in realization.resistor_networks.values()), default=0.0)
+    if worst_rounding > 0.01 and inputs.resistor_series is not ResistorSeries.E96:
+        notes.append(
+            f"La etapa {stage.index} redondea resistencias hasta {worst_rounding * 100:.1f} % con la serie {inputs.resistor_series.value}; con E96 (1 %) el filtro se apega mejor a la especificación."
         )
     bias_limit = max_bias_safe_resistance(inputs.opamp)
     if bias_limit < max_target <= MAX_PRACTICAL_RESISTANCE:
         offset_mv = max_target * INPUT_BIAS_CURRENT_A[inputs.opamp] * 1e3
         notes.append(
-            f"Stage {stage.index} uses resistors up to {max_target:.0f} ohm; the {inputs.opamp.value} bias current adds about {offset_mv:.0f} mV of DC offset. A larger capacitor would lower it."
+            f"La etapa {stage.index} usa resistencias de hasta {max_target:.0f} ohm; la corriente de polarización del {inputs.opamp.value} agrega unos {offset_mv:.0f} mV de offset en DC. Un capacitor más grande lo reduce."
         )
     return notes
 
@@ -86,7 +106,7 @@ def _select_topology(inputs: DesignInputs, stage: Stage) -> tuple[Topology, str 
     supported = SUPPORTED_KINDS.get(topology)
     if supported is not None and stage.order == 2 and inputs.kind not in supported:
         return Topology.TOW_THOMAS, (
-            f"{topology.value} cannot realize a {inputs.kind.value} section; this stage uses tow_thomas instead."
+            f"{TOPOLOGY_NAMES[topology]} no puede realizar una etapa {KIND_NAMES[inputs.kind]}; esta etapa usa Tow-Thomas."
         )
     return topology, None
 
@@ -106,17 +126,26 @@ def _auto_topology(inputs: DesignInputs, stage: Stage) -> Topology:
     return Topology.TOW_THOMAS
 
 
+def _capacitor_candidates(base: float) -> list[float]:
+    """E12 capacitor values from base/100 to base*100 (the auto-tuning search space)."""
+    first = math.floor(math.log10(base)) - 2
+    return [value * 10 ** decade for decade in range(first, first + 5) for value in E12_CAPACITORS]
+
+
 def _optimize_stage_realization(inputs: DesignInputs, stage: Stage, topology: Topology) -> StageRealization:
-    candidates = [inputs.stage_capacitor_f * factor for factor in (0.01, 0.1, 1.0, 10.0, 100.0)]
+    # Every E12 capacitor value is tried, so the resistors can land close to commercial values.
+    candidates = _capacitor_candidates(inputs.stage_capacitor_f)
     max_resistance = _max_resistance(inputs)
     scored: list[tuple[float, float, StageRealization]] = []
     for capacitor in candidates:
         realization = _synthesize_for_topology(inputs, stage, topology, capacitor)
-        scored.append((_score_realization(realization, max_resistance), capacitor, realization))
+        # Tiny preference for values near the requested capacitor when the fits are equally good.
+        closeness = 0.01 * abs(math.log10(capacitor / inputs.stage_capacitor_f))
+        scored.append((_score_realization(realization, max_resistance) + closeness, capacitor, realization))
     scored.sort(key=lambda item: item[0])
     _, capacitor, best = scored[0]
     if abs(capacitor - inputs.stage_capacitor_f) > 1e-30:
-        best.notes.append(f"Stage capacitor auto-tuned from {inputs.stage_capacitor_f:.3e} F to {capacitor:.3e} F.")
+        best.notes.append(f"Capacitor de la etapa ajustado de {inputs.stage_capacitor_f:.3e} F a {capacitor:.3e} F.")
     return best
 
 
@@ -213,7 +242,7 @@ def _synthesize_first_order_follower(inputs: DesignInputs, stage: Stage, topolog
         1.0,
         {"R1": target_r},
         {"C1": capacitor},
-        ["First-order passive RC section buffered by a voltage follower."],
+        ["Sección RC pasiva de primer orden con seguidor de voltaje."],
     )
 
 
@@ -227,8 +256,22 @@ def _synthesize_first_order_inverting(inputs: DesignInputs, stage: Stage, topolo
         -1.0,
         {"R1": target_r, "R2": target_r},
         {"C1": capacitor},
-        ["First-order inverting active section with unity gain, R1 = R2 = 1/(C*w0)."],
+        ["Sección activa inversora de primer orden con ganancia unitaria, R1 = R2 = 1/(C*w0)."],
     )
+
+
+def _gain_resistor_targets(inputs: DesignInputs, gain: float) -> dict[str, float]:
+    """Rg/Rf targets of a non-inverting gain K = 1 + Rf/Rg.
+
+    With single commercial resistors both are picked from the series so their ratio is accurate
+    (Sallen-Key Q depends on K through 1/(3 - K)); with arrays Rg stays at 10 kohm.
+    """
+    if inputs.allow_resistor_arrays:
+        return {"Rg": SALLEN_KEY_RG, "Rf": SALLEN_KEY_RG * (gain - 1)}
+    # Keep the pair inside the op amp's bias-current budget (high-Ib parts want a few kohm).
+    high = min(100e3, _max_resistance(inputs) / max(1.0, gain - 1))
+    rg, _ = fit_resistor_ratio(gain - 1, inputs.resistor_series, low_ohms=min(1e3, high / 10), high_ohms=high)
+    return {"Rg": rg, "Rf": rg * (gain - 1)}
 
 
 def _synthesize_sallen_key(inputs: DesignInputs, stage: Stage, topology: Topology, capacitor: float) -> StageRealization:
@@ -241,10 +284,10 @@ def _synthesize_sallen_key(inputs: DesignInputs, stage: Stage, topology: Topolog
         gain = 4 - math.sqrt(2) / q
         max_gain = SALLEN_KEY_MAX_GAIN_BP
         targets = {"R1": r_target, "R2": r_target, "R3": r_target}
-        notes.append("Equal-C, equal-R Sallen-Key band-pass with K = 4 - sqrt(2)/Q and center gain K/(4 - K).")
+        notes.append("Sallen-Key pasa banda de componentes iguales: K = 4 - sqrt(2)/Q y ganancia al centro K/(4 - K).")
         if q > SALLEN_KEY_BP_SENSITIVE_Q:
             notes.append(
-                f"Q = {q:.2f} makes this Sallen-Key band-pass very sensitive to resistor tolerance and op amp bandwidth; MFB or Tow-Thomas is more robust."
+                f"Con Q = {q:.2f} este Sallen-Key pasa banda es muy sensible a la tolerancia de las resistencias y al ancho de banda del opamp; MFB o Tow-Thomas son más robustos."
             )
     else:
         # Equal-R, equal-C low-pass/high-pass with the legacy gain/Q relation K = 3 - 1/Q.
@@ -252,16 +295,15 @@ def _synthesize_sallen_key(inputs: DesignInputs, stage: Stage, topology: Topolog
         gain = 3 - 1 / q
         max_gain = SALLEN_KEY_MAX_GAIN_LP_HP
         targets = {"R1": r_target, "R2": r_target}
-        notes.append("Equal-C, equal-R Sallen-Key synthesis derived from the legacy gain/Q relation Av = 3 - 1/Q.")
+        notes.append("Sallen-Key de componentes iguales con la relación del legado Av = 3 - 1/Q.")
     if gain < 1:
         gain = 1.0
-        notes.append("Requested Q is below the equal-component Sallen-Key region; the stage was clamped to unity gain and its Q will be off.")
+        notes.append("El Q pedido queda debajo de la región de Sallen-Key de componentes iguales; la etapa se limitó a ganancia 1 y su Q no será exacto.")
     if gain > max_gain:
         gain = max_gain
-        notes.append(f"Requested Q needs a gain above {max_gain}; the gain was clipped and the realized Q will be lower.")
+        notes.append(f"El Q pedido necesita una ganancia mayor a {max_gain}; la ganancia se recortó y el Q real será menor.")
     if gain - 1 > 1e-9:
-        targets["Rg"] = SALLEN_KEY_RG
-        targets["Rf"] = SALLEN_KEY_RG * (gain - 1)
+        targets.update(_gain_resistor_targets(inputs, gain))
     stage_gain = gain
     if inputs.kind is FilterKind.BANDPASS:
         stage_gain = gain / (4 - gain)
@@ -273,7 +315,7 @@ def _synthesize_sallen_key(inputs: DesignInputs, stage: Stage, topology: Topolog
             r1 = targets.pop("R1")
             targets["R1a"] = r1 / attenuation
             targets["R1b"] = r1 / (1 - attenuation)
-            notes.append(f"Input divider R1a/R1b (Thevenin = R1) scales the peak gain from {stage_gain:.2f} to {target:.3f}.")
+            notes.append(f"Divisor de entrada R1a/R1b (Thevenin = R1) que lleva la ganancia pico de {stage_gain:.2f} a {target:.3f}.")
             stage_gain = target
     return _realization(inputs, stage, topology, stage_gain, targets, {"C1": capacitor, "C2": capacitor}, notes)
 
@@ -284,22 +326,22 @@ def _synthesize_tow_thomas(inputs: DesignInputs, stage: Stage, topology: Topolog
     base_r = 1 / (omega_0 * capacitor)
     targets = {"R": base_r, "Rq": q * base_r, "Rinv": base_r}
     capacitors = {"C1": capacitor, "C2": capacitor}
-    notes = ["Tow-Thomas synthesis anchored to the legacy relations R = 1/(C*w0) and Rq = Q*R."]
+    notes = ["Tow-Thomas con las relaciones del legado R = 1/(C*w0) y Rq = Q*R."]
     if inputs.kind is FilterKind.LOWPASS:
         targets["R1"] = base_r
-        notes.append("Low-pass output taken at the second integrator, DC gain -R/R1 = -1.")
+        notes.append("Salida pasa bajas en el segundo integrador, ganancia en DC -R/R1 = -1.")
     elif inputs.kind is FilterKind.BANDPASS:
         gain = _bandpass_peak_gain_target(stage)
         targets["R1"] = q * base_r / gain
-        notes.append("Band-pass output taken at the lossy integrator; R1 = Q*R/G = 1/(G*C*BW) sets the peak gain G.")
+        notes.append("Salida pasa banda en el integrador con pérdidas; R1 = Q*R/G = 1/(G*C*BW) fija la ganancia pico G.")
     elif inputs.kind is FilterKind.HIGHPASS:
         capacitors["Cff"] = capacitor
-        notes.append("High-pass realized with capacitive feed-forward into the lossy integrator, HF gain -1.")
+        notes.append("Pasa altas con alimentación directa capacitiva al integrador con pérdidas, ganancia en alta frecuencia -1.")
     else:
         notch_ratio = omega_0 / (2 * math.pi * stage.zero_frequency_hz)
         capacitors["Cff"] = capacitor
         targets["Rff"] = base_r * notch_ratio**2
-        notes.append("Band-stop realized with feed-forward Cff = C and Rff = R*(w0/wz)^2, placing the notch at the band center.")
+        notes.append("Rechaza banda con alimentación directa Cff = C y Rff = R*(w0/wz)^2; la muesca queda al centro de la banda.")
     return _realization(inputs, stage, topology, 1.0, targets, capacitors, notes)
 
 
@@ -319,13 +361,13 @@ def _synthesize_mfb(inputs: DesignInputs, stage: Stage, topology: Topology, capa
             gain = 2 * q * q
             r_input = 1 / (2 * q * omega_0 * capacitor)
             targets = {"R1": r_feedback, "R3": r_input}
-            notes.append("Q is too low for the requested center gain; the shunt resistor was removed and the peak gain is 2*Q^2.")
-        notes.append("MFB band-pass synthesis: R1 = 2Q/(C*w0) feedback, R3 = Q/(G*C*w0) input, R2 = Q/((2Q^2-G)*C*w0) shunt.")
+            notes.append("El Q es muy bajo para la ganancia pedida; se quitó la resistencia a tierra y la ganancia pico es 2*Q^2.")
+        notes.append("MFB pasa banda: R1 = 2Q/(C*w0) de realimentación, R3 = Q/(G*C*w0) de entrada, R2 = Q/((2Q^2-G)*C*w0) a tierra.")
         return _realization(inputs, stage, topology, gain, targets, {"C1": capacitor, "C2": capacitor}, notes)
 
     if inputs.kind is FilterKind.HIGHPASS:
         targets = {"R1": 1 / (3 * q * omega_0 * capacitor), "R2": 3 * q / (omega_0 * capacitor)}
-        notes.append("Equal-C MFB high-pass: R1 = 1/(3Q*C*w0) to ground, R2 = 3Q/(C*w0) feedback, HF gain -1.")
+        notes.append("MFB pasa altas de capacitores iguales: R1 = 1/(3Q*C*w0) a tierra, R2 = 3Q/(C*w0) de realimentación, ganancia en alta frecuencia -1.")
         return _realization(
             inputs, stage, topology, 1.0, targets, {"C1": capacitor, "C2": capacitor, "C3": capacitor}, notes
         )
@@ -347,7 +389,7 @@ def _synthesize_mfb(inputs: DesignInputs, stage: Stage, topology: Topology, capa
         spread = max(candidate.values()) / min(candidate.values())
         if best is None or spread < max(best.values()) / min(best.values()):
             best = candidate
-    notes.append("MFB low-pass with unity DC gain: C1 is the next E12 value above 8*Q^2*C2 and R1..R3 solve w0 and Q exactly.")
+    notes.append("MFB pasa bajas con ganancia 1 en DC: C1 es el siguiente valor E12 arriba de 8*Q^2*C2 y R1..R3 dan w0 y Q exactos.")
     return _realization(inputs, stage, topology, 1.0, best, {"C1": c1, "C2": c2}, notes)
 
 
@@ -358,7 +400,7 @@ def _synthesize_antoniou(inputs: DesignInputs, stage: Stage, topology: Topology,
     targets = {"R": base_r, "Rq": q * base_r}
     capacitors = {"C1": capacitor}
     notes = [
-        "Antoniou GIC resonator: L = C*R^2 with R = 1/(C*w0), Q set by Rq = Q*R, output buffered from the resonator node."
+        "Resonador GIC de Antoniou: L = C*R^2 con R = 1/(C*w0), Q fijado por Rq = Q*R, salida reforzada desde el nodo resonante."
     ]
     gain = 1.0
     if inputs.kind is FilterKind.BANDSTOP:
@@ -378,20 +420,19 @@ def _synthesize_antoniou(inputs: DesignInputs, stage: Stage, topology: Topology,
             targets["R5a"] = base_r / k
             targets["R5b"] = base_r / (1 - k)
             gain = 1 / k
-        notes.append("Band-stop zero placed at the band center by splitting the lifted resonator elements.")
+        notes.append("Cero de rechazo al centro de la banda repartiendo los elementos levantados del resonador.")
     else:
         capacitors["C2"] = capacitor
         targets["R5"] = base_r
         if inputs.kind is FilterKind.BANDPASS:
             gain = _bandpass_peak_gain_target(stage)
     if gain > 1 + 1e-6:
-        targets["Rg"] = SALLEN_KEY_RG
-        targets["Rf"] = SALLEN_KEY_RG * (gain - 1)
-        notes.append(f"Output buffer turned into a non-inverting amplifier with gain {gain:.3f}.")
+        targets.update(_gain_resistor_targets(inputs, gain))
+        notes.append(f"El seguidor de salida se convirtió en amplificador no inversor con ganancia {gain:.3f}.")
     return _realization(inputs, stage, topology, gain, targets, capacitors, notes)
 
 
 def _synthesize_generic_placeholder(inputs: DesignInputs, stage: Stage, topology: Topology, capacitor: float) -> StageRealization:
     omega_0 = 2 * math.pi * stage.natural_frequency_hz
     target_r = 1 / (omega_0 * capacitor)
-    return _realization(inputs, stage, topology, 1.0, {"R1": target_r}, {"C1": capacitor}, ["Generic placeholder synthesis."])
+    return _realization(inputs, stage, topology, 1.0, {"R1": target_r}, {"C1": capacitor}, ["Síntesis genérica de marcador."])

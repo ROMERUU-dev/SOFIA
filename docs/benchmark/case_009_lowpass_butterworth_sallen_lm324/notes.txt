@@ -1,2 +1,2 @@
 Legado: El LM324 si polariza con 5 V. Falla solo por el rizo (~1.55 dB): cada resistencia se redondea a un solo valor de 5% y `Ajuste` compara distancias truncadas con `abs()` entero.
-Nuevo: `cumple` (funciona): rizo 0.99 dB (limite 1), atenuacion 42.4 dB (minimo 40), ganancia 16.7 dB; con opamp ideal rizo 0.98 dB, atenuacion 42.2 dB
+Nuevo: `cumple` (funciona): rizo 0.84 dB (limite 1), atenuacion 41.7 dB (minimo 40), ganancia 16.8 dB; con opamp ideal rizo 0.86 dB, atenuacion 41.6 dB

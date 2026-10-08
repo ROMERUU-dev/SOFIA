@@ -61,7 +61,7 @@ class DesignFilterTests(unittest.TestCase):
                     self.assertIn("Xao13", netlist)
                     self.assertIn("VCC 0 OUT", netlist)
 
-    def test_butterworth_bandpass_edges_sit_at_the_ripple_point(self) -> None:
+    def test_butterworth_bandpass_keeps_margin_inside_the_spec(self) -> None:
         inputs = DesignInputs(
             kind=FilterKind.BANDPASS,
             approximation=Approximation.BUTTERWORTH,
@@ -84,8 +84,12 @@ class DesignFilterTests(unittest.TestCase):
             s = complex(0, 2 * math.pi * freq_hz)
             return 20 * math.log10(abs(response(s)) / abs(response(complex(0, center))))
 
-        self.assertAlmostEqual(gain_db(800), -1.0, delta=0.05)
-        self.assertAlmostEqual(gain_db(1_200), -1.0, delta=0.05)
+        # The excess order is split: band edges inside the 1 dB ripple, stopband edges past 30 dB.
+        for edge in (800, 1_200):
+            self.assertLess(gain_db(edge), 0.0)
+            self.assertGreater(gain_db(edge), -0.95)
+        for edge in (500, 2_000):
+            self.assertLess(gain_db(edge), -30.5)
 
     def test_chebyshev_highpass_has_negative_real_poles(self) -> None:
         inputs = DesignInputs(
@@ -157,7 +161,7 @@ class DesignFilterTests(unittest.TestCase):
             auto_stage_capacitor=False,
         )
         result = design_filter(inputs)
-        self.assertTrue(any("below 10 ohm" in warning for warning in result.warnings))
+        self.assertTrue(any("menores a 10 ohm" in warning for warning in result.warnings))
 
     def test_auto_topology_selects_non_sallen_for_high_q_bandpass(self) -> None:
         inputs = DesignInputs(
@@ -207,7 +211,9 @@ class DesignFilterTests(unittest.TestCase):
         self.assertIn("RLOAD OUT 0 100k", netlist)
         self.assertIn("Xao11", netlist)
         self.assertIn("Xao12 32 42 VCC 0 12 TL082", netlist)
-        self.assertIn("r32_1 11 22", netlist)
+        # One commercial resistor per position by default (no series/parallel arrays).
+        self.assertRegex(netlist, r"\nr32 11 22 \d")
+        self.assertNotIn("_MID", netlist)
 
     def test_netlist_keeps_5v_rail_for_lm324(self) -> None:
         inputs = DesignInputs(

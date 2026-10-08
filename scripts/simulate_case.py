@@ -273,6 +273,25 @@ def evaluate_response(
     }
 
 
+def simulated_response(
+    simulator: Path,
+    netlist: Path,
+    spec: dict[str, Any],
+    output_node: str = "OUT",
+    ideal_opamp: bool = False,
+) -> tuple[list[float], list[float]]:
+    """AC sweep of a netlist over the spec's range: (frequencies in Hz, gain in dB)."""
+    f_start, f_stop = sweep_limits(spec)
+    with tempfile.TemporaryDirectory(prefix="sofia_sim_") as tmp:
+        prepared = Path(tmp) / "case.cir"
+        prepare_netlist(netlist, prepared, f_start, f_stop, ideal_opamp)
+        raw, _ = run_simulator(simulator, prepared)
+        data = parse_ascii_raw(raw)
+    probe = f"v({output_node.lower()})"
+    freqs = [abs(value) for value in data["frequency"]]
+    return freqs, [20 * math.log10(max(abs(value), 1e-30)) for value in data[probe]]
+
+
 def simulate_netlist(
     simulator: Path,
     netlist: Path,

@@ -35,11 +35,11 @@ def stability_warnings(inputs: DesignInputs, topologies: set) -> list[str]:
     min_gain = MIN_STABLE_GAIN.get(inputs.opamp)
     if min_gain is not None:
         warnings.append(
-            f"{inputs.opamp.value} is decompensated (stable only for closed-loop gain >= {min_gain}); these filter sections run near unity gain and will oscillate. Use LM6171, LM7171 or LM318 instead."
+            f"El {inputs.opamp.value} es descompensado (solo es estable con ganancia de lazo cerrado >= {min_gain}); en estas etapas trabaja cerca de ganancia 1 y va a oscilar. Usa LM6171, LM7171 o LM318."
         )
     if inputs.opamp in HIGH_SPEED_MODELS and topologies & {Topology.MFB, Topology.TOW_THOMAS, Topology.ANTONIOU}:
         warnings.append(
-            f"{inputs.opamp.value} is a 100-200 MHz op amp; in capacitive-feedback sections (MFB, Tow-Thomas, Antoniou) its transient simulation does not settle, a sign of oscillation. Prefer Sallen-Key or a slower op amp (TL082, LM318) for this frequency range."
+            f"El {inputs.opamp.value} es un opamp de 100-200 MHz; en etapas con realimentación capacitiva (MFB, Tow-Thomas, Antoniou) su simulación transitoria no se estabiliza, señal de oscilación. Para este rango conviene Sallen-Key o un opamp más lento (TL082, LM318)."
         )
     return warnings
 

@@ -41,6 +41,7 @@ class ResistorSeries(StrEnum):
     E12 = "E12"
     E24 = "E24"
     E48 = "E48"
+    E96 = "E96"
 
 
 @dataclass(slots=True)
@@ -59,8 +60,9 @@ class DesignInputs:
     topology: Topology = Topology.SALLEN_KEY
     opamp: OpAmpModel = OpAmpModel.TL082
     stage_capacitor_f: float = 10e-9
-    resistor_series: ResistorSeries = ResistorSeries.E24
-    allow_resistor_arrays: bool = True
+    resistor_series: ResistorSeries = ResistorSeries.E96
+    # One commercial resistor per position; series/parallel arrays are opt-in.
+    allow_resistor_arrays: bool = False
     max_resistors_per_network: int = 2
     auto_stage_capacitor: bool = True
 

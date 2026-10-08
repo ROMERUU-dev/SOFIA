@@ -12,81 +12,57 @@ VTIERRA VREF 0 2.5V
 VCC VCC 0 DC 5
 RLOAD OUT 0 100k
 
-* Stage 1: lowpass, f0=1088.11947 Hz, Q=2.56292, order=2
+* Stage 1: lowpass, f0=1106.25347 Hz, Q=2.56292, order=2
 * Stage input: IN
 * Stage output: 11
-* Equal-C, equal-R Sallen-Key synthesis derived from the legacy gain/Q relation Av = 3 - 1/Q.
-* Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-09 F.
+* Sallen-Key de componentes iguales con la relación del legado Av = 3 - 1/Q.
+* Capacitor de la etapa ajustado de 1.000e-07 F a 2.700e-07 F.
 Xao11 31 41 VCC 0 11 LM324
-c11 31 VREF 1.000000000e-09
-c21 21 11 1.000000000e-09
-* R1: parallel array for target 146266.055285 ohm
-r31_1 IN 21 150000.000000
-r31_2 IN 21 5600000.000000
-* R2: parallel array for target 146266.055285 ohm
-r41_1 21 31 150000.000000
-r41_2 21 31 5600000.000000
-r11 41 VREF 10000.000000
-* Rf: series array for target 16098.193560 ohm
-r21_1 41 r21_MID1 100.000000
-r21_2 r21_MID1 11 16000.000000
+c11 31 VREF 2.700000000e-07
+c21 21 11 2.700000000e-07
+r31 IN 21 536.000000
+r41 21 31 536.000000
+r11 41 VREF 1870.000000
+r21 41 11 3010.000000
 
-* Stage 2: lowpass, f0=1088.11947 Hz, Q=0.89998, order=2
+* Stage 2: lowpass, f0=1106.25347 Hz, Q=0.89998, order=2
 * Stage input: 11
 * Stage output: 12
-* Equal-C, equal-R Sallen-Key synthesis derived from the legacy gain/Q relation Av = 3 - 1/Q.
-* Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-09 F.
+* Sallen-Key de componentes iguales con la relación del legado Av = 3 - 1/Q.
+* Capacitor de la etapa ajustado de 1.000e-07 F a 2.700e-07 F.
 Xao12 32 42 VCC 0 12 LM324
-c12 32 VREF 1.000000000e-09
-c22 22 12 1.000000000e-09
-* R1: parallel array for target 146266.055285 ohm
-r32_1 11 22 150000.000000
-r32_2 11 22 5600000.000000
-* R2: parallel array for target 146266.055285 ohm
-r42_1 22 32 150000.000000
-r42_2 22 32 5600000.000000
-r12 42 VREF 10000.000000
-* Rf: parallel array for target 8888.595340 ohm
-r22_1 42 12 16000.000000
-r22_2 42 12 20000.000000
+c12 32 VREF 2.700000000e-07
+c22 22 12 2.700000000e-07
+r32 11 22 536.000000
+r42 22 32 536.000000
+r12 42 VREF 2610.000000
+r22 42 12 2320.000000
 
-* Stage 3: lowpass, f0=1088.11947 Hz, Q=0.60134, order=2
+* Stage 3: lowpass, f0=1106.25347 Hz, Q=0.60134, order=2
 * Stage input: 12
 * Stage output: 13
-* Equal-C, equal-R Sallen-Key synthesis derived from the legacy gain/Q relation Av = 3 - 1/Q.
-* Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-09 F.
+* Sallen-Key de componentes iguales con la relación del legado Av = 3 - 1/Q.
+* Capacitor de la etapa ajustado de 1.000e-07 F a 2.700e-07 F.
 Xao13 33 43 VCC 0 13 LM324
-c13 33 VREF 1.000000000e-09
-c23 23 13 1.000000000e-09
-* R1: parallel array for target 146266.055285 ohm
-r33_1 12 23 150000.000000
-r33_2 12 23 5600000.000000
-* R2: parallel array for target 146266.055285 ohm
-r43_1 23 33 150000.000000
-r43_2 23 33 5600000.000000
-r13 43 VREF 10000.000000
-* Rf: series array for target 3370.607754 ohm
-r23_1 43 r23_MID1 68.000000
-r23_2 r23_MID1 13 3300.000000
+c13 33 VREF 2.700000000e-07
+c23 23 13 2.700000000e-07
+r33 12 23 536.000000
+r43 23 33 536.000000
+r13 43 VREF 3400.000000
+r23 43 13 1150.000000
 
-* Stage 4: lowpass, f0=1088.11947 Hz, Q=0.50980, order=2
+* Stage 4: lowpass, f0=1106.25347 Hz, Q=0.50980, order=2
 * Stage input: 13
 * Stage output: OUT
-* Equal-C, equal-R Sallen-Key synthesis derived from the legacy gain/Q relation Av = 3 - 1/Q.
-* Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-09 F.
+* Sallen-Key de componentes iguales con la relación del legado Av = 3 - 1/Q.
+* Capacitor de la etapa ajustado de 1.000e-07 F a 2.700e-07 F.
 Xao14 34 44 VCC 0 OUT LM324
-c14 34 VREF 1.000000000e-09
-c24 24 OUT 1.000000000e-09
-* R1: parallel array for target 146266.055285 ohm
-r34_1 13 24 150000.000000
-r34_2 13 24 5600000.000000
-* R2: parallel array for target 146266.055285 ohm
-r44_1 24 34 150000.000000
-r44_2 24 34 5600000.000000
-r14 44 VREF 10000.000000
-* Rf: parallel array for target 384.294392 ohm
-r24_1 44 OUT 390.000000
-r24_2 44 OUT 27000.000000
+c14 34 VREF 2.700000000e-07
+c24 24 OUT 2.700000000e-07
+r34 13 24 536.000000
+r44 24 34 536.000000
+r14 44 VREF 1020.000000
+r24 44 OUT 39.200000
 
 * punto de operacion inicial en la tierra virtual
 .nodeset V(11)=2.5 V(12)=2.5 V(13)=2.5 V(OUT)=2.5

@@ -1,7 +1,7 @@
 {
   "case_id": "case_011_bandpass_butterworth_sallen_tl082",
   "status": "needs_review",
-  "modern_spec": "cumple_con_tolerancia",
+  "modern_spec": "cumple",
   "legacy_spec": "no_cumple",
   "legacy_capture": {
     "status": "capturado_con_aviso",
@@ -37,12 +37,12 @@
   },
   "simulation": {
     "modern": {
-      "verdict": "cumple_con_tolerancia",
+      "verdict": "cumple",
       "diagnosis": "funciona",
-      "passband_gain_db": 0.0362,
-      "passband_ripple_db": 1.051,
+      "passband_gain_db": 0.8136,
+      "passband_ripple_db": 0.9597,
       "passband_ripple_limit_db": 1.0,
-      "stopband_attenuation_db": 49.5227,
+      "stopband_attenuation_db": 45.3982,
       "stopband_attenuation_required_db": 40.0,
       "ideal_opamp_verdict": "cumple"
     },
@@ -61,27 +61,30 @@
     "order": 8,
     "stage_count": 4,
     "stage_q": [
-      11.046098794569545,
-      4.552756393226116,
-      4.552756393226115,
-      11.046098794569543
+      9.667521376850477,
+      3.9784768844526477,
+      3.978476884452648,
+      9.667521376850479
     ],
     "stage_f0_hz": [
-      1110.49456409823,
-      1041.616762250117,
-      950.4455341726512,
-      891.4946835457256
+      1128.2434132987337,
+      1048.641916045441,
+      944.0782261817393,
+      877.4702234737267
     ],
     "summary": {
       "center_frequency_hz": 994.98743710662,
       "bandwidth_hz": 200.0,
       "ratio": 4.90625,
+      "design_cutoff": 1.3553583456404779,
+      "design_ripple_db": 0.36554899360673054,
+      "design_attenuation_db": 44.69579048692484,
       "kind": "bandpass",
       "approximation": "butterworth",
       "topology": "sallen_key",
       "opamp": "TL082",
-      "resistor_series": "E24",
-      "allow_resistor_arrays": true,
+      "resistor_series": "E96",
+      "allow_resistor_arrays": false,
       "recommended_opamps": [
         "LM324",
         "LM318",
@@ -94,17 +97,16 @@
       ]
     },
     "warnings": [
-      "At least one section has high Q; a Tow-Thomas or MFB realization may be safer than unity-gain Sallen-Key.",
-      "Stage 1: Q = 11.05 makes this Sallen-Key band-pass very sensitive to resistor tolerance and op amp bandwidth; MFB or Tow-Thomas is more robust.",
-      "Stage 4: Q = 11.05 makes this Sallen-Key band-pass very sensitive to resistor tolerance and op amp bandwidth; MFB or Tow-Thomas is more robust."
+      "Etapa 1: Con Q = 9.67 este Sallen-Key pasa banda es muy sensible a la tolerancia de las resistencias y al ancho de banda del opamp; MFB o Tow-Thomas son m\u00e1s robustos.",
+      "Etapa 4: Con Q = 9.67 este Sallen-Key pasa banda es muy sensible a la tolerancia de las resistencias y al ancho de banda del opamp; MFB o Tow-Thomas son m\u00e1s robustos."
     ]
   },
   "modern_netlist": {
     "present": true,
-    "component_count": 60,
+    "component_count": 40,
     "component_counts_by_prefix": {
       "V": 3,
-      "R": 45,
+      "R": 25,
       "X": 4,
       "C": 8
     },
@@ -163,121 +165,78 @@
         ]
       },
       {
-        "name": "r31_1",
+        "name": "r31",
         "kind": "R",
-        "line": "r31_1 IN 21 24000.000000",
+        "line": "r31 IN 21 13300.000000",
         "numeric_values": [
           21.0,
-          24000.0
+          13300.0
         ]
       },
       {
-        "name": "r31_2",
+        "name": "r61",
         "kind": "R",
-        "line": "r31_2 IN 21 820000.000000",
+        "line": "r61 21 VREF 1470.000000",
         "numeric_values": [
           21.0,
-          820000.0
-        ]
-      },
-      {
-        "name": "r61_1",
-        "kind": "R",
-        "line": "r61_1 21 r61_MID1 20.000000",
-        "numeric_values": [
-          21.0,
-          20.0
-        ]
-      },
-      {
-        "name": "r61_2",
-        "kind": "R",
-        "line": "r61_2 r61_MID1 VREF 2200.000000",
-        "numeric_values": [
-          2200.0
+          1470.0
         ]
       },
       {
         "name": "c11",
         "kind": "C",
-        "line": "c11 21 VREF 1.000000000e-07",
+        "line": "c11 21 VREF 1.500000000e-07",
         "numeric_values": [
           21.0,
-          1e-07
+          1.5e-07
         ]
       },
       {
         "name": "c21",
         "kind": "C",
-        "line": "c21 21 31 1.000000000e-07",
+        "line": "c21 21 31 1.500000000e-07",
         "numeric_values": [
           21.0,
           31.0,
-          1e-07
+          1.5e-07
         ]
       },
       {
-        "name": "r41_1",
+        "name": "r41",
         "kind": "R",
-        "line": "r41_1 21 r41_MID1 27.000000",
+        "line": "r41 21 11 1330.000000",
         "numeric_values": [
           21.0,
-          27.0
-        ]
-      },
-      {
-        "name": "r41_2",
-        "kind": "R",
-        "line": "r41_2 r41_MID1 11 2000.000000",
-        "numeric_values": [
           11.0,
-          2000.0
+          1330.0
         ]
       },
       {
-        "name": "r51_1",
+        "name": "r51",
         "kind": "R",
-        "line": "r51_1 31 r51_MID1 27.000000",
+        "line": "r51 31 VREF 1330.000000",
         "numeric_values": [
           31.0,
-          27.0
-        ]
-      },
-      {
-        "name": "r51_2",
-        "kind": "R",
-        "line": "r51_2 r51_MID1 VREF 2000.000000",
-        "numeric_values": [
-          2000.0
+          1330.0
         ]
       },
       {
         "name": "r11",
         "kind": "R",
-        "line": "r11 41 VREF 10000.000000",
+        "line": "r11 41 VREF 3570.000000",
         "numeric_values": [
           41.0,
-          10000.0
+          3570.0
         ]
       },
       {
-        "name": "r21_1",
+        "name": "r21",
         "kind": "R",
-        "line": "r21_1 41 11 30000.000000",
+        "line": "r21 41 11 10200.000000",
         "numeric_values": [
           41.0,
           11.0,
-          30000.0
-        ]
-      },
-      {
-        "name": "r21_2",
-        "kind": "R",
-        "line": "r21_2 41 11 680000.000000",
-        "numeric_values": [
-          41.0,
-          11.0,
-          680000.0
+          10200.0
         ]
       },
       {
@@ -292,127 +251,79 @@
         ]
       },
       {
-        "name": "r32_1",
+        "name": "r32",
         "kind": "R",
-        "line": "r32_1 11 22 240000.000000",
+        "line": "r32 11 22 16900.000000",
         "numeric_values": [
           11.0,
           22.0,
-          240000.0
+          16900.0
         ]
       },
       {
-        "name": "r32_2",
+        "name": "r62",
         "kind": "R",
-        "line": "r32_2 11 22 18000000.000000",
-        "numeric_values": [
-          11.0,
-          22.0,
-          18000000.0
-        ]
-      },
-      {
-        "name": "r62_1",
-        "kind": "R",
-        "line": "r62_1 22 VREF 24000.000000",
+        "line": "r62 22 VREF 2000.000000",
         "numeric_values": [
           22.0,
-          24000.0
-        ]
-      },
-      {
-        "name": "r62_2",
-        "kind": "R",
-        "line": "r62_2 22 VREF 2700000.000000",
-        "numeric_values": [
-          22.0,
-          2700000.0
+          2000.0
         ]
       },
       {
         "name": "c12",
         "kind": "C",
-        "line": "c12 22 VREF 1.000000000e-08",
+        "line": "c12 22 VREF 1.200000000e-07",
         "numeric_values": [
           22.0,
-          1e-08
+          1.2e-07
         ]
       },
       {
         "name": "c22",
         "kind": "C",
-        "line": "c22 22 32 1.000000000e-08",
+        "line": "c22 22 32 1.200000000e-07",
         "numeric_values": [
           22.0,
           32.0,
-          1e-08
+          1.2e-07
         ]
       },
       {
-        "name": "r42_1",
+        "name": "r42",
         "kind": "R",
-        "line": "r42_1 22 12 22000.000000",
-        "numeric_values": [
-          22.0,
-          12.0,
-          22000.0
-        ]
-      },
-      {
-        "name": "r42_2",
-        "kind": "R",
-        "line": "r42_2 22 12 1200000.000000",
+        "line": "r42 22 12 1780.000000",
         "numeric_values": [
           22.0,
           12.0,
-          1200000.0
+          1780.0
         ]
       },
       {
-        "name": "r52_1",
+        "name": "r52",
         "kind": "R",
-        "line": "r52_1 32 VREF 22000.000000",
+        "line": "r52 32 VREF 1780.000000",
         "numeric_values": [
           32.0,
-          22000.0
-        ]
-      },
-      {
-        "name": "r52_2",
-        "kind": "R",
-        "line": "r52_2 32 VREF 1200000.000000",
-        "numeric_values": [
-          32.0,
-          1200000.0
+          1780.0
         ]
       },
       {
         "name": "r12",
         "kind": "R",
-        "line": "r12 42 VREF 10000.000000",
+        "line": "r12 42 VREF 4020.000000",
         "numeric_values": [
           42.0,
-          10000.0
+          4020.0
         ]
       },
       {
-        "name": "r22_1",
+        "name": "r22",
         "kind": "R",
-        "line": "r22_1 42 12 27000.000000",
+        "line": "r22 42 12 10700.000000",
         "numeric_values": [
           42.0,
           12.0,
-          27000.0
-        ]
-      },
-      {
-        "name": "r22_2",
-        "kind": "R",
-        "line": "r22_2 42 12 6800000.000000",
-        "numeric_values": [
-          42.0,
-          12.0,
-          6800000.0
+          10700.0
         ]
       },
       {
@@ -427,41 +338,22 @@
         ]
       },
       {
-        "name": "r33_1",
+        "name": "r33",
         "kind": "R",
-        "line": "r33_1 12 23 27000.000000",
+        "line": "r33 12 23 22600.000000",
         "numeric_values": [
           12.0,
           23.0,
-          27000.0
+          22600.0
         ]
       },
       {
-        "name": "r33_2",
+        "name": "r63",
         "kind": "R",
-        "line": "r33_2 12 23 680000.000000",
-        "numeric_values": [
-          12.0,
-          23.0,
-          680000.0
-        ]
-      },
-      {
-        "name": "r63_1",
-        "kind": "R",
-        "line": "r63_1 23 VREF 2700.000000",
+        "line": "r63 23 VREF 2670.000000",
         "numeric_values": [
           23.0,
-          2700.0
-        ]
-      },
-      {
-        "name": "r63_2",
-        "kind": "R",
-        "line": "r63_2 23 VREF 75000.000000",
-        "numeric_values": [
-          23.0,
-          75000.0
+          2670.0
         ]
       },
       {
@@ -484,70 +376,41 @@
         ]
       },
       {
-        "name": "r43_1",
+        "name": "r43",
         "kind": "R",
-        "line": "r43_1 23 13 2400.000000",
+        "line": "r43 23 13 2370.000000",
         "numeric_values": [
           23.0,
           13.0,
-          2400.0
+          2370.0
         ]
       },
       {
-        "name": "r43_2",
+        "name": "r53",
         "kind": "R",
-        "line": "r43_2 23 13 180000.000000",
-        "numeric_values": [
-          23.0,
-          13.0,
-          180000.0
-        ]
-      },
-      {
-        "name": "r53_1",
-        "kind": "R",
-        "line": "r53_1 33 VREF 2400.000000",
+        "line": "r53 33 VREF 2370.000000",
         "numeric_values": [
           33.0,
-          2400.0
-        ]
-      },
-      {
-        "name": "r53_2",
-        "kind": "R",
-        "line": "r53_2 33 VREF 180000.000000",
-        "numeric_values": [
-          33.0,
-          180000.0
+          2370.0
         ]
       },
       {
         "name": "r13",
         "kind": "R",
-        "line": "r13 43 VREF 10000.000000",
+        "line": "r13 43 VREF 4020.000000",
         "numeric_values": [
           43.0,
-          10000.0
+          4020.0
         ]
       },
       {
-        "name": "r23_1",
+        "name": "r23",
         "kind": "R",
-        "line": "r23_1 43 13 27000.000000",
+        "line": "r23 43 13 10700.000000",
         "numeric_values": [
           43.0,
           13.0,
-          27000.0
-        ]
-      },
-      {
-        "name": "r23_2",
-        "kind": "R",
-        "line": "r23_2 43 13 6800000.000000",
-        "numeric_values": [
-          43.0,
-          13.0,
-          6800000.0
+          10700.0
         ]
       },
       {
@@ -561,122 +424,77 @@
         ]
       },
       {
-        "name": "r34_1",
+        "name": "r34",
         "kind": "R",
-        "line": "r34_1 13 24 30000.000000",
+        "line": "r34 13 24 14300.000000",
         "numeric_values": [
           13.0,
           24.0,
-          30000.0
+          14300.0
         ]
       },
       {
-        "name": "r34_2",
+        "name": "r64",
         "kind": "R",
-        "line": "r34_2 13 24 910000.000000",
-        "numeric_values": [
-          13.0,
-          24.0,
-          910000.0
-        ]
-      },
-      {
-        "name": "r64_1",
-        "kind": "R",
-        "line": "r64_1 24 r64_MID1 68.000000",
+        "line": "r64 24 VREF 1580.000000",
         "numeric_values": [
           24.0,
-          68.0
-        ]
-      },
-      {
-        "name": "r64_2",
-        "kind": "R",
-        "line": "r64_2 r64_MID1 VREF 2700.000000",
-        "numeric_values": [
-          2700.0
+          1580.0
         ]
       },
       {
         "name": "c14",
         "kind": "C",
-        "line": "c14 24 VREF 1.000000000e-07",
+        "line": "c14 24 VREF 1.800000000e-07",
         "numeric_values": [
           24.0,
-          1e-07
+          1.8e-07
         ]
       },
       {
         "name": "c24",
         "kind": "C",
-        "line": "c24 24 34 1.000000000e-07",
+        "line": "c24 24 34 1.800000000e-07",
         "numeric_values": [
           24.0,
           34.0,
-          1e-07
+          1.8e-07
         ]
       },
       {
-        "name": "r44_1",
+        "name": "r44",
         "kind": "R",
-        "line": "r44_1 24 OUT 2700.000000",
+        "line": "r44 24 OUT 1430.000000",
         "numeric_values": [
           24.0,
-          2700.0
+          1430.0
         ]
       },
       {
-        "name": "r44_2",
+        "name": "r54",
         "kind": "R",
-        "line": "r44_2 24 OUT 39000.000000",
-        "numeric_values": [
-          24.0,
-          39000.0
-        ]
-      },
-      {
-        "name": "r54_1",
-        "kind": "R",
-        "line": "r54_1 34 VREF 2700.000000",
+        "line": "r54 34 VREF 1430.000000",
         "numeric_values": [
           34.0,
-          2700.0
-        ]
-      },
-      {
-        "name": "r54_2",
-        "kind": "R",
-        "line": "r54_2 34 VREF 39000.000000",
-        "numeric_values": [
-          34.0,
-          39000.0
+          1430.0
         ]
       },
       {
         "name": "r14",
         "kind": "R",
-        "line": "r14 44 VREF 10000.000000",
+        "line": "r14 44 VREF 3570.000000",
         "numeric_values": [
           44.0,
-          10000.0
+          3570.0
         ]
       },
       {
-        "name": "r24_1",
+        "name": "r24",
         "kind": "R",
-        "line": "r24_1 44 OUT 30000.000000",
+        "line": "r24 44 OUT 10200.000000",
         "numeric_values": [
           44.0,
-          30000.0
-        ]
-      },
-      {
-        "name": "r24_2",
-        "kind": "R",
-        "line": "r24_2 44 OUT 680000.000000",
-        "numeric_values": [
-          44.0,
-          680000.0
+          10200.0
         ]
       }
     ]
@@ -792,10 +610,10 @@
       "modern": {
         "order": 8,
         "q": [
-          4.552756393226115,
-          4.552756393226116,
-          11.046098794569543,
-          11.046098794569545
+          3.9784768844526477,
+          3.978476884452648,
+          9.667521376850477,
+          9.667521376850479
         ]
       },
       "legacy": {
@@ -813,7 +631,7 @@
       "status": "review",
       "modern": {
         "V": 3,
-        "R": 45,
+        "R": 25,
         "X": 4,
         "C": 8
       },

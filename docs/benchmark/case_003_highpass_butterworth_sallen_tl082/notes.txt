@@ -1,2 +1,2 @@
 Legado: Ademas de la fuente de 5 V, el pasa altas Butterworth usa la frecuencia de corte del pasa bajas (`wo = 2*pi*wp/eps^(1/n)`, algoritmos.cpp:114); con opamp ideal el borde de banda queda ~5.6 dB abajo.
-Nuevo: `cumple` (funciona): rizo 0.98 dB (limite 1), atenuacion 42.2 dB (minimo 40), ganancia 16.7 dB; con opamp ideal rizo 1.00 dB, atenuacion 42.3 dB
+Nuevo: `cumple` (funciona): rizo 0.77 dB (limite 1), atenuacion 41.0 dB (minimo 40), ganancia 16.7 dB; con opamp ideal rizo 0.78 dB, atenuacion 41.1 dB

@@ -25,9 +25,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--topology", required=True)
     parser.add_argument("--opamp", default="TL082")
     parser.add_argument("--cap", default="1e-8")
-    parser.add_argument("--resistor-series", default="E24")
+    parser.add_argument("--resistor-series", default="E96")
     parser.add_argument("--max-network-size", default="2")
-    parser.add_argument("--no-resistor-arrays", action="store_true")
+    parser.add_argument("--resistor-arrays", action="store_true", help="Allow series/parallel resistor arrays.")
     parser.add_argument("--no-auto-stage-capacitor", action="store_true")
     parser.add_argument("--fp")
     parser.add_argument("--fs")
@@ -72,8 +72,8 @@ def build_cli_command(args: argparse.Namespace, case_dir: Path) -> list[str]:
         # Relative to ROOT (the CLI runs there) so command.txt/stdout.txt are portable.
         (case_dir / "generated.cir").relative_to(ROOT).as_posix(),
     ]
-    if args.no_resistor_arrays:
-        cmd.append("--no-resistor-arrays")
+    if args.resistor_arrays:
+        cmd.append("--resistor-arrays")
     if args.no_auto_stage_capacitor:
         cmd.append("--no-auto-stage-capacitor")
     for name in ("fp", "fs", "fp1", "fp2", "fs1", "fs2"):
@@ -102,7 +102,7 @@ def write_input_json(case_dir: Path, args: argparse.Namespace) -> None:
         "cap": args.cap,
         "resistor_series": args.resistor_series,
         "max_network_size": args.max_network_size,
-        "allow_resistor_arrays": not args.no_resistor_arrays,
+        "allow_resistor_arrays": args.resistor_arrays,
         "auto_stage_capacitor": not args.no_auto_stage_capacitor,
         "fp": args.fp,
         "fs": args.fs,

@@ -20,6 +20,7 @@ from sofia_filter_studio.models import (  # noqa: E402
     FilterKind,
     FilterSpec,
     OpAmpModel,
+    ResistorSeries,
     Topology,
 )
 from sofia_filter_studio.netlist import render_netlist  # noqa: E402
@@ -50,6 +51,7 @@ def _inputs(kind: FilterKind, approximation: Approximation, topology: Topology, 
         stopband_attenuation_db=a_stop,
         topology=topology,
         opamp=opamp,
+        resistor_series=ResistorSeries.E96,
     )
     return inputs, {"kind": kind.value, "ap": 1, "as": a_stop, **edges}
 
@@ -70,6 +72,27 @@ class SimulatedResponseTests(unittest.TestCase):
                         inputs, spec = _inputs(kind, approximation, topology, OpAmpModel.TL082)
                         result = self._simulate(inputs, spec, ideal=True)
                         self.assertIn(result["verdict"], PASSING, result)
+
+    def test_netlists_realize_the_designed_transfer_function(self) -> None:
+        # Exact (non-rounded) values and ideal op amps: the simulated circuit must match the poles/zeros
+        # the design computed, which catches any wrong connection or formula in the netlist writer.
+        from sofia_filter_studio.response import ideal_response_db
+
+        for topology in (Topology.SALLEN_KEY, Topology.MFB, Topology.TOW_THOMAS, Topology.ANTONIOU):
+            for kind in FilterKind:
+                for approximation in Approximation:
+                    with self.subTest(topology=topology.value, kind=kind.value, approximation=approximation.value):
+                        inputs, spec = _inputs(kind, approximation, topology, OpAmpModel.TL082)
+                        result = design_filter(inputs)
+                        with tempfile.TemporaryDirectory(prefix="sofia_test_") as tmp:
+                            path = Path(tmp) / "filter.cir"
+                            path.write_text(render_netlist(inputs, result, path, exact_values=True), encoding="utf-8")
+                            freqs, simulated = simulate_case.simulated_response(SIMULATOR, path, spec, ideal_opamp=True)
+                        ideal = ideal_response_db(inputs, result, freqs)
+                        passbands, _ = simulate_case.spec_bands(spec)
+                        reference = max(g for f, g in zip(freqs, simulated) if any(lo <= f <= hi for lo, hi in passbands))
+                        worst = max(abs((s - reference) - i) for s, i in zip(simulated, ideal) if i > -60)
+                        self.assertLess(worst, 0.05)
 
     def test_real_opamp_models_bias_and_meet_spec(self) -> None:
         # One low-pass per bundled model: catches wrong subcircuit names, bad rails and bias-current offsets.

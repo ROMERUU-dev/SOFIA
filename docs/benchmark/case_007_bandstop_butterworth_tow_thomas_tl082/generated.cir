@@ -12,128 +12,79 @@ VTIERRA VREF 0 7.5V
 VCC VCC 0 DC 15
 RLOAD OUT 0 100k
 
-* Stage 1: bandstop, f0=1451.14321 Hz, Q=3.26828, order=2
+* Stage 1: bandstop, f0=1408.70832 Hz, Q=3.50526, order=2
 * Stage input: IN
 * Stage output: 11
-* Tow-Thomas synthesis anchored to the legacy relations R = 1/(C*w0) and Rq = Q*R.
-* Band-stop realized with feed-forward Cff = C and Rff = R*(w0/wz)^2, placing the notch at the band center.
-* Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-09 F.
+* Tow-Thomas con las relaciones del legado R = 1/(C*w0) y Rq = Q*R.
+* Rechaza banda con alimentación directa Cff = C y Rff = R*(w0/wz)^2; la muesca queda al centro de la banda.
 Xao11 VREF 21 VCC 0 11 TL082
 Xao21 VREF 41 VCC 0 51 TL082
 Xao31 VREF 61 VCC 0 71 TL082
-c11 21 11 1.000000000e-09
-c21 41 51 1.000000000e-09
-* R: parallel array for target 109675.559137 ohm
-r21_1 71 21 110000.000000
-r21_2 71 21 36000000.000000
-* R: parallel array for target 109675.559137 ohm
-r31_1 11 41 110000.000000
-r31_2 11 41 36000000.000000
-* Rq: parallel array for target 358450.562452 ohm
-r41_1 21 11 360000.000000
-r41_2 21 11 82000000.000000
-* Rinv: parallel array for target 109675.559137 ohm
-r51_1 51 61 110000.000000
-r51_2 51 61 36000000.000000
-* Rinv: parallel array for target 109675.559137 ohm
-r61_1 61 71 110000.000000
-r61_2 61 71 36000000.000000
-c31 IN 21 1.000000000e-09
-* Rff: parallel array for target 240579.807520 ohm
-r71_1 IN 41 270000.000000
-r71_2 IN 41 2200000.000000
+c11 21 11 1.000000000e-07
+c21 41 51 1.000000000e-07
+r21 71 21 1130.000000
+r31 11 41 1130.000000
+r41 21 11 3920.000000
+r51 51 61 1130.000000
+r61 61 71 1130.000000
+c31 IN 21 1.000000000e-07
+r71 IN 41 2320.000000
 
-* Stage 2: bandstop, f0=1171.07841 Hz, Q=1.27568, order=2
+* Stage 2: bandstop, f0=1152.72231 Hz, Q=1.37923, order=2
 * Stage input: 11
 * Stage output: 12
-* Tow-Thomas synthesis anchored to the legacy relations R = 1/(C*w0) and Rq = Q*R.
-* Band-stop realized with feed-forward Cff = C and Rff = R*(w0/wz)^2, placing the notch at the band center.
+* Tow-Thomas con las relaciones del legado R = 1/(C*w0) y Rq = Q*R.
+* Rechaza banda con alimentación directa Cff = C y Rff = R*(w0/wz)^2; la muesca queda al centro de la banda.
+* Capacitor de la etapa ajustado de 1.000e-07 F a 8.200e-08 F.
 Xao12 VREF 22 VCC 0 12 TL082
 Xao22 VREF 42 VCC 0 52 TL082
 Xao32 VREF 62 VCC 0 72 TL082
-c12 22 12 1.000000000e-07
-c22 42 52 1.000000000e-07
-* R: series array for target 1359.046003 ohm
-r22_1 72 r22_MID1 160.000000
-r22_2 r22_MID1 22 1200.000000
-* R: series array for target 1359.046003 ohm
-r32_1 12 r32_MID1 160.000000
-r32_2 r32_MID1 42 1200.000000
-* Rq: parallel array for target 1733.713734 ohm
-r42_1 22 12 1800.000000
-r42_2 22 12 47000.000000
-* Rinv: series array for target 1359.046003 ohm
-r52_1 52 r52_MID1 160.000000
-r52_2 r52_MID1 62 1200.000000
-* Rinv: series array for target 1359.046003 ohm
-r62_1 62 r62_MID1 160.000000
-r62_2 r62_MID1 72 1200.000000
-c32 11 22 1.000000000e-07
-* Rff: parallel array for target 1941.488724 ohm
-r72_1 11 42 2000.000000
-r72_2 11 42 68000.000000
+c12 22 12 8.200000000e-08
+c22 42 52 8.200000000e-08
+r22 72 22 1690.000000
+r32 12 42 1690.000000
+r42 22 12 2320.000000
+r52 52 62 1690.000000
+r62 62 72 1690.000000
+c32 11 22 8.200000000e-08
+r72 11 42 2320.000000
 
-* Stage 3: bandstop, f0=819.75724 Hz, Q=1.27568, order=2
+* Stage 3: bandstop, f0=832.81116 Hz, Q=1.37923, order=2
 * Stage input: 12
 * Stage output: 13
-* Tow-Thomas synthesis anchored to the legacy relations R = 1/(C*w0) and Rq = Q*R.
-* Band-stop realized with feed-forward Cff = C and Rff = R*(w0/wz)^2, placing the notch at the band center.
-* Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-06 F.
+* Tow-Thomas con las relaciones del legado R = 1/(C*w0) y Rq = Q*R.
+* Rechaza banda con alimentación directa Cff = C y Rff = R*(w0/wz)^2; la muesca queda al centro de la banda.
 Xao13 VREF 23 VCC 0 13 TL082
 Xao23 VREF 43 VCC 0 53 TL082
 Xao33 VREF 63 VCC 0 73 TL082
-c13 23 13 1.000000000e-06
-c23 43 53 1.000000000e-06
-* R: parallel array for target 194.148872 ohm
-r23_1 73 23 200.000000
-r23_2 73 23 6800.000000
-* R: parallel array for target 194.148872 ohm
-r33_1 13 43 200.000000
-r33_2 13 43 6800.000000
-* Rq: parallel array for target 247.672681 ohm
-r43_1 23 13 270.000000
-r43_2 23 13 3000.000000
-* Rinv: parallel array for target 194.148872 ohm
-r53_1 53 63 200.000000
-r53_2 53 63 6800.000000
-* Rinv: parallel array for target 194.148872 ohm
-r63_1 63 73 200.000000
-r63_2 63 73 6800.000000
-c33 12 23 1.000000000e-06
-* Rff: series array for target 135.904600 ohm
-r73_1 12 r73_MID1 16.000000
-r73_2 r73_MID1 43 120.000000
+c13 23 13 1.000000000e-07
+c23 43 53 1.000000000e-07
+r23 73 23 1910.000000
+r33 13 43 1910.000000
+r43 23 13 2610.000000
+r53 53 63 1910.000000
+r63 63 73 1910.000000
+c33 12 23 1.000000000e-07
+r73 12 43 1370.000000
 
-* Stage 4: bandstop, f0=661.54739 Hz, Q=3.26828, order=2
+* Stage 4: bandstop, f0=681.47535 Hz, Q=3.50526, order=2
 * Stage input: 13
 * Stage output: OUT
-* Tow-Thomas synthesis anchored to the legacy relations R = 1/(C*w0) and Rq = Q*R.
-* Band-stop realized with feed-forward Cff = C and Rff = R*(w0/wz)^2, placing the notch at the band center.
-* Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-09 F.
+* Tow-Thomas con las relaciones del legado R = 1/(C*w0) y Rq = Q*R.
+* Rechaza banda con alimentación directa Cff = C y Rff = R*(w0/wz)^2; la muesca queda al centro de la banda.
+* Capacitor de la etapa ajustado de 1.000e-07 F a 1.800e-07 F.
 Xao14 VREF 24 VCC 0 OUT TL082
 Xao24 VREF 44 VCC 0 54 TL082
 Xao34 VREF 64 VCC 0 74 TL082
-c14 24 OUT 1.000000000e-09
-c24 44 54 1.000000000e-09
-* R: parallel array for target 240579.807520 ohm
-r24_1 74 24 270000.000000
-r24_2 74 24 2200000.000000
-* R: parallel array for target 240579.807520 ohm
-r34_1 OUT 44 270000.000000
-r34_2 OUT 44 2200000.000000
-* Rq: series array for target 786282.449784 ohm
-r44_1 24 r44_MID1 36000.000000
-r44_2 r44_MID1 OUT 750000.000000
-* Rinv: parallel array for target 240579.807520 ohm
-r54_1 54 64 270000.000000
-r54_2 54 64 2200000.000000
-* Rinv: parallel array for target 240579.807520 ohm
-r64_1 64 74 270000.000000
-r64_2 64 74 2200000.000000
-c34 13 24 1.000000000e-09
-* Rff: parallel array for target 109675.559137 ohm
-r74_1 13 44 110000.000000
-r74_2 13 44 36000000.000000
+c14 24 OUT 1.800000000e-07
+c24 44 54 1.800000000e-07
+r24 74 24 1300.000000
+r34 OUT 44 1300.000000
+r44 24 OUT 4530.000000
+r54 54 64 1300.000000
+r64 64 74 1300.000000
+c34 13 24 1.800000000e-07
+r74 13 44 634.000000
 
 * punto de operacion inicial en la tierra virtual
 .nodeset V(11)=7.5 V(51)=7.5 V(71)=7.5 V(12)=7.5 V(52)=7.5 V(72)=7.5 V(13)=7.5 V(53)=7.5

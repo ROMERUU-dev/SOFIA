@@ -3,287 +3,278 @@
   "epsilon": 0.5088471399095875,
   "poles": [
     {
-      "real": -253.54771857721266,
-      "imag": -5595.684955039884
+      "real": -285.1458921425136,
+      "imag": -5505.929267187212
     },
     {
-      "real": -315.8329134388616,
-      "imag": 6970.291399005655
+      "real": -366.63805338645204,
+      "imag": 7079.474908220287
     },
     {
-      "real": -655.8472384414551,
-      "imag": -5935.702417919228
+      "real": -745.4886143430941,
+      "imag": -5884.786888745104
     },
     {
-      "real": -718.759205524316,
-      "imag": 6505.083049935302
+      "real": -828.0570266899816,
+      "imag": 6536.570834274069
     },
     {
-      "real": -655.8472384414551,
-      "imag": 5935.702417919228
+      "real": -745.4886143430942,
+      "imag": 5884.786888745103
     },
     {
-      "real": -718.759205524316,
-      "imag": -6505.083049935302
+      "real": -828.0570266899817,
+      "imag": -6536.570834274068
     },
     {
-      "real": -253.5477185772131,
-      "imag": 5595.684955039884
+      "real": -285.1458921425141,
+      "imag": 5505.929267187212
     },
     {
-      "real": -315.83291343886214,
-      "imag": -6970.291399005655
+      "real": -366.63805338645267,
+      "imag": -7079.474908220287
     }
   ],
   "stages": [
     {
       "index": 1,
-      "natural_frequency_hz": 1110.49456409823,
-      "q": 11.046098794569545,
+      "natural_frequency_hz": 1128.2434132987337,
+      "q": 9.667521376850477,
       "order": 2,
       "poles": [
         {
-          "real": -315.8329134388616,
-          "imag": 6970.291399005655
+          "real": -366.63805338645204,
+          "imag": 7079.474908220287
         },
         {
-          "real": -315.83291343886214,
-          "imag": -6970.291399005655
+          "real": -366.63805338645267,
+          "imag": -7079.474908220287
         }
       ],
-      "damping_hz": 100.53273872981913,
+      "damping_hz": 116.70451704408823,
       "zero_frequency_hz": null,
       "gain_reference_hz": 994.98743710662,
       "realization": {
         "topology": "sallen_key",
         "stage_index": 1,
         "kind": "bandpass",
-        "gain": 2.6289025464067426,
+        "gain": 2.633793210068025,
         "resistor_targets_ohms": {
-          "R2": 2026.8363872816483,
-          "R3": 2026.8363872816483,
-          "Rg": 10000.0,
-          "Rf": 28719.71671748188,
-          "R1a": 23316.872717085174,
-          "R1b": 2219.793584590801
+          "R2": 1329.9676079720848,
+          "R3": 1329.9676079720848,
+          "Rg": 3570.0,
+          "Rf": 10187.76247697145,
+          "R1a": 13302.679391789045,
+          "R1b": 1477.7047180097477
         },
         "capacitor_values_f": {
-          "C1": 1e-07,
-          "C2": 1e-07
+          "C1": 1.5e-07,
+          "C2": 1.5e-07
         },
         "resistor_networks": {
           "R2": {
             "label": "R2",
-            "target_ohms": 2026.8363872816483,
-            "realized_ohms": 2027.0,
-            "connection": "series",
+            "target_ohms": 1329.9676079720848,
+            "realized_ohms": 1330.0,
+            "connection": "single",
             "parts_ohms": [
-              27.0,
-              2000.0
+              1330.0
             ],
-            "relative_error": 8.072319965162491e-05
+            "relative_error": 2.4355501382912896e-05
           },
           "R3": {
             "label": "R3",
-            "target_ohms": 2026.8363872816483,
-            "realized_ohms": 2027.0,
-            "connection": "series",
+            "target_ohms": 1329.9676079720848,
+            "realized_ohms": 1330.0,
+            "connection": "single",
             "parts_ohms": [
-              27.0,
-              2000.0
+              1330.0
             ],
-            "relative_error": 8.072319965162491e-05
+            "relative_error": 2.4355501382912896e-05
           },
           "Rg": {
             "label": "Rg",
-            "target_ohms": 10000.0,
-            "realized_ohms": 10000.0,
+            "target_ohms": 3570.0,
+            "realized_ohms": 3570.0,
             "connection": "single",
             "parts_ohms": [
-              10000.0
+              3570.0
             ],
             "relative_error": 0.0
           },
           "Rf": {
             "label": "Rf",
-            "target_ohms": 28719.71671748188,
-            "realized_ohms": 28732.394366197183,
-            "connection": "parallel",
+            "target_ohms": 10187.76247697145,
+            "realized_ohms": 10200.0,
+            "connection": "single",
             "parts_ohms": [
-              30000.0,
-              680000.0
+              10200.0
             ],
-            "relative_error": 0.0004414266630835824
+            "relative_error": 0.00120119830592954
           },
           "R1a": {
             "label": "R1a",
-            "target_ohms": 23316.872717085174,
-            "realized_ohms": 23317.535545023697,
-            "connection": "parallel",
+            "target_ohms": 13302.679391789045,
+            "realized_ohms": 13300.0,
+            "connection": "single",
             "parts_ohms": [
-              24000.0,
-              819999.9999999999
+              13300.0
             ],
-            "relative_error": 2.8426965595457475e-05
+            "relative_error": 0.00020141745208851383
           },
           "R1b": {
             "label": "R1b",
-            "target_ohms": 2219.793584590801,
-            "realized_ohms": 2220.0,
-            "connection": "series",
+            "target_ohms": 1477.7047180097477,
+            "realized_ohms": 1470.0,
+            "connection": "single",
             "parts_ohms": [
-              20.0,
-              2200.0
+              1470.0
             ],
-            "relative_error": 9.298856012195564e-05
+            "relative_error": 0.005213976727451221
           }
         },
         "notes": [
-          "Equal-C, equal-R Sallen-Key band-pass with K = 4 - sqrt(2)/Q and center gain K/(4 - K).",
-          "Q = 11.05 makes this Sallen-Key band-pass very sensitive to resistor tolerance and op amp bandwidth; MFB or Tow-Thomas is more robust.",
-          "Input divider R1a/R1b (Thevenin = R1) scales the peak gain from 30.24 to 2.629."
+          "Sallen-Key pasa banda de componentes iguales: K = 4 - sqrt(2)/Q y ganancia al centro K/(4 - K).",
+          "Con Q = 9.67 este Sallen-Key pasa banda es muy sensible a la tolerancia de las resistencias y al ancho de banda del opamp; MFB o Tow-Thomas son m\u00e1s robustos.",
+          "Divisor de entrada R1a/R1b (Thevenin = R1) que lleva la ganancia pico de 26.34 a 2.634.",
+          "Capacitor de la etapa ajustado de 1.000e-07 F a 1.500e-07 F."
         ]
       }
     },
     {
       "index": 2,
-      "natural_frequency_hz": 1041.616762250117,
-      "q": 4.552756393226116,
+      "natural_frequency_hz": 1048.641916045441,
+      "q": 3.9784768844526477,
       "order": 2,
       "poles": [
         {
-          "real": -718.759205524316,
-          "imag": 6505.083049935302
+          "real": -828.0570266899816,
+          "imag": 6536.570834274069
         },
         {
-          "real": -718.759205524316,
-          "imag": -6505.083049935302
+          "real": -828.0570266899817,
+          "imag": -6536.570834274068
         }
       ],
-      "damping_hz": 228.78816090399684,
+      "damping_hz": 263.57873791937624,
       "zero_frequency_hz": null,
       "gain_reference_hz": 994.98743710662,
       "realization": {
         "topology": "sallen_key",
         "stage_index": 2,
         "kind": "bandpass",
-        "gain": 1.0835275962954232,
+        "gain": 1.0838854134603118,
         "resistor_targets_ohms": {
-          "R2": 21608.626819047837,
-          "R3": 21608.626819047837,
-          "Rg": 10000.0,
-          "Rf": 26893.72011101395,
-          "R1a": 236863.99847262778,
-          "R1b": 23777.830539344905
+          "R2": 1788.6553677611082,
+          "R3": 1788.6553677611082,
+          "Rg": 4019.9999999999995,
+          "Rf": 10631.026378723827,
+          "R1a": 16919.484890042564,
+          "R1b": 2000.0970484640332
         },
         "capacitor_values_f": {
-          "C1": 1e-08,
-          "C2": 1e-08
+          "C1": 1.2e-07,
+          "C2": 1.2e-07
         },
         "resistor_networks": {
           "R2": {
             "label": "R2",
-            "target_ohms": 21608.626819047837,
-            "realized_ohms": 21603.927986906714,
-            "connection": "parallel",
+            "target_ohms": 1788.6553677611082,
+            "realized_ohms": 1780.0,
+            "connection": "single",
             "parts_ohms": [
-              22000.0,
-              1200000.0
+              1780.0
             ],
-            "relative_error": 0.00021745167707652342
+            "relative_error": 0.00483903602511326
           },
           "R3": {
             "label": "R3",
-            "target_ohms": 21608.626819047837,
-            "realized_ohms": 21603.927986906714,
-            "connection": "parallel",
+            "target_ohms": 1788.6553677611082,
+            "realized_ohms": 1780.0,
+            "connection": "single",
             "parts_ohms": [
-              22000.0,
-              1200000.0
+              1780.0
             ],
-            "relative_error": 0.00021745167707652342
+            "relative_error": 0.00483903602511326
           },
           "Rg": {
             "label": "Rg",
-            "target_ohms": 10000.0,
-            "realized_ohms": 10000.0,
+            "target_ohms": 4019.9999999999995,
+            "realized_ohms": 4019.9999999999995,
             "connection": "single",
             "parts_ohms": [
-              10000.0
+              4019.9999999999995
             ],
             "relative_error": 0.0
           },
           "Rf": {
             "label": "Rf",
-            "target_ohms": 26893.72011101395,
-            "realized_ohms": 26893.21810458474,
-            "connection": "parallel",
+            "target_ohms": 10631.026378723827,
+            "realized_ohms": 10700.0,
+            "connection": "single",
             "parts_ohms": [
-              27000.0,
-              6800000.0
+              10700.0
             ],
-            "relative_error": 1.8666306748897432e-05
+            "relative_error": 0.006487955049590655
           },
           "R1a": {
             "label": "R1a",
-            "target_ohms": 236863.99847262778,
-            "realized_ohms": 236842.10526315786,
-            "connection": "parallel",
+            "target_ohms": 16919.484890042564,
+            "realized_ohms": 16900.0,
+            "connection": "single",
             "parts_ohms": [
-              240000.0,
-              18000000.0
+              16900.0
             ],
-            "relative_error": 9.242945154639914e-05
+            "relative_error": 0.0011516243058931007
           },
           "R1b": {
             "label": "R1b",
-            "target_ohms": 23777.830539344905,
-            "realized_ohms": 23788.546255506608,
-            "connection": "parallel",
+            "target_ohms": 2000.0970484640332,
+            "realized_ohms": 2000.0,
+            "connection": "single",
             "parts_ohms": [
-              24000.0,
-              2700000.0
+              2000.0
             ],
-            "relative_error": 0.00045065996008223453
+            "relative_error": 4.8521877529732166e-05
           }
         },
         "notes": [
-          "Equal-C, equal-R Sallen-Key band-pass with K = 4 - sqrt(2)/Q and center gain K/(4 - K).",
-          "Input divider R1a/R1b (Thevenin = R1) scales the peak gain from 11.88 to 1.084.",
-          "Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-08 F."
+          "Sallen-Key pasa banda de componentes iguales: K = 4 - sqrt(2)/Q y ganancia al centro K/(4 - K).",
+          "Divisor de entrada R1a/R1b (Thevenin = R1) que lleva la ganancia pico de 10.25 a 1.084.",
+          "Capacitor de la etapa ajustado de 1.000e-07 F a 1.200e-07 F."
         ]
       }
     },
     {
       "index": 3,
-      "natural_frequency_hz": 950.4455341726512,
-      "q": 4.552756393226115,
+      "natural_frequency_hz": 944.0782261817393,
+      "q": 3.978476884452648,
       "order": 2,
       "poles": [
         {
-          "real": -655.8472384414551,
-          "imag": 5935.702417919228
+          "real": -745.4886143430941,
+          "imag": -5884.786888745104
         },
         {
-          "real": -655.8472384414551,
-          "imag": -5935.702417919228
+          "real": -745.4886143430942,
+          "imag": 5884.786888745103
         }
       ],
-      "damping_hz": 208.76265982225303,
+      "damping_hz": 237.29639598286215,
       "zero_frequency_hz": null,
       "gain_reference_hz": 994.98743710662,
       "realization": {
         "topology": "sallen_key",
         "stage_index": 3,
         "kind": "bandpass",
-        "gain": 1.0835275962954236,
+        "gain": 1.0838854134603109,
         "resistor_targets_ohms": {
-          "R2": 2368.142844031611,
-          "R3": 2368.142844031611,
-          "Rg": 10000.0,
-          "Rf": 26893.72011101395,
-          "R1a": 25958.511278338803,
-          "R1b": 2605.8712434567906
+          "R2": 2384.1147141968704,
+          "R3": 2384.1147141968704,
+          "Rg": 4019.9999999999995,
+          "Rf": 10631.026378723827,
+          "R1a": 22552.132518112703,
+          "R1b": 2665.947218794641
         },
         "capacitor_values_f": {
           "C1": 1e-07,
@@ -292,182 +283,173 @@
         "resistor_networks": {
           "R2": {
             "label": "R2",
-            "target_ohms": 2368.142844031611,
-            "realized_ohms": 2368.4210526315787,
-            "connection": "parallel",
+            "target_ohms": 2384.1147141968704,
+            "realized_ohms": 2370.0,
+            "connection": "single",
             "parts_ohms": [
-              2400.0,
-              180000.0
+              2370.0
             ],
-            "relative_error": 0.00011747965316749175
+            "relative_error": 0.005920316716649765
           },
           "R3": {
             "label": "R3",
-            "target_ohms": 2368.142844031611,
-            "realized_ohms": 2368.4210526315787,
-            "connection": "parallel",
+            "target_ohms": 2384.1147141968704,
+            "realized_ohms": 2370.0,
+            "connection": "single",
             "parts_ohms": [
-              2400.0,
-              180000.0
+              2370.0
             ],
-            "relative_error": 0.00011747965316749175
+            "relative_error": 0.005920316716649765
           },
           "Rg": {
             "label": "Rg",
-            "target_ohms": 10000.0,
-            "realized_ohms": 10000.0,
+            "target_ohms": 4019.9999999999995,
+            "realized_ohms": 4019.9999999999995,
             "connection": "single",
             "parts_ohms": [
-              10000.0
+              4019.9999999999995
             ],
             "relative_error": 0.0
           },
           "Rf": {
             "label": "Rf",
-            "target_ohms": 26893.72011101395,
-            "realized_ohms": 26893.21810458474,
-            "connection": "parallel",
+            "target_ohms": 10631.026378723827,
+            "realized_ohms": 10700.0,
+            "connection": "single",
             "parts_ohms": [
-              27000.0,
-              6800000.0
+              10700.0
             ],
-            "relative_error": 1.8666306748897432e-05
+            "relative_error": 0.006487955049590655
           },
           "R1a": {
             "label": "R1a",
-            "target_ohms": 25958.511278338803,
-            "realized_ohms": 25968.882602545968,
-            "connection": "parallel",
+            "target_ohms": 22552.132518112703,
+            "realized_ohms": 22599.999999999996,
+            "connection": "single",
             "parts_ohms": [
-              27000.0,
-              680000.0
+              22599.999999999996
             ],
-            "relative_error": 0.000399534630316756
+            "relative_error": 0.002122525745574108
           },
           "R1b": {
             "label": "R1b",
-            "target_ohms": 2605.8712434567906,
-            "realized_ohms": 2606.1776061776063,
-            "connection": "parallel",
+            "target_ohms": 2665.947218794641,
+            "realized_ohms": 2670.0,
+            "connection": "single",
             "parts_ohms": [
-              2700.0,
-              75000.0
+              2670.0
             ],
-            "relative_error": 0.00011756633087110595
+            "relative_error": 0.0015202030920895783
           }
         },
         "notes": [
-          "Equal-C, equal-R Sallen-Key band-pass with K = 4 - sqrt(2)/Q and center gain K/(4 - K).",
-          "Input divider R1a/R1b (Thevenin = R1) scales the peak gain from 11.88 to 1.084."
+          "Sallen-Key pasa banda de componentes iguales: K = 4 - sqrt(2)/Q y ganancia al centro K/(4 - K).",
+          "Divisor de entrada R1a/R1b (Thevenin = R1) que lleva la ganancia pico de 10.25 a 1.084."
         ]
       }
     },
     {
       "index": 4,
-      "natural_frequency_hz": 891.4946835457256,
-      "q": 11.046098794569543,
+      "natural_frequency_hz": 877.4702234737267,
+      "q": 9.667521376850479,
       "order": 2,
       "poles": [
         {
-          "real": -253.5477185772131,
-          "imag": 5595.684955039884
+          "real": -285.1458921425141,
+          "imag": 5505.929267187212
         },
         {
-          "real": -253.54771857721266,
-          "imag": -5595.684955039884
+          "real": -285.1458921425136,
+          "imag": -5505.929267187212
         }
       ],
-      "damping_hz": 80.70674544247242,
+      "damping_hz": 90.76475647365903,
       "zero_frequency_hz": null,
       "gain_reference_hz": 994.98743710662,
       "realization": {
         "topology": "sallen_key",
         "stage_index": 4,
         "kind": "bandpass",
-        "gain": 2.628902546406742,
+        "gain": 2.6337932100680264,
         "resistor_targets_ohms": {
-          "R2": 2524.7383208621463,
-          "R3": 2524.7383208621463,
-          "Rg": 10000.0,
-          "Rf": 28719.71671748188,
-          "R1a": 29044.772652046144,
-          "R1b": 2765.096365245765
+          "R2": 1425.0504399405659,
+          "R3": 1425.0504399405659,
+          "Rg": 3570.0,
+          "Rf": 10187.76247697145,
+          "R1a": 14253.722426039087,
+          "R1b": 1583.3496589536792
         },
         "capacitor_values_f": {
-          "C1": 1e-07,
-          "C2": 1e-07
+          "C1": 1.8e-07,
+          "C2": 1.8e-07
         },
         "resistor_networks": {
           "R2": {
             "label": "R2",
-            "target_ohms": 2524.7383208621463,
-            "realized_ohms": 2525.179856115108,
-            "connection": "parallel",
+            "target_ohms": 1425.0504399405659,
+            "realized_ohms": 1430.0,
+            "connection": "single",
             "parts_ohms": [
-              2700.0,
-              39000.0
+              1430.0
             ],
-            "relative_error": 0.0001748835708292373
+            "relative_error": 0.0034732525394964714
           },
           "R3": {
             "label": "R3",
-            "target_ohms": 2524.7383208621463,
-            "realized_ohms": 2525.179856115108,
-            "connection": "parallel",
+            "target_ohms": 1425.0504399405659,
+            "realized_ohms": 1430.0,
+            "connection": "single",
             "parts_ohms": [
-              2700.0,
-              39000.0
+              1430.0
             ],
-            "relative_error": 0.0001748835708292373
+            "relative_error": 0.0034732525394964714
           },
           "Rg": {
             "label": "Rg",
-            "target_ohms": 10000.0,
-            "realized_ohms": 10000.0,
+            "target_ohms": 3570.0,
+            "realized_ohms": 3570.0,
             "connection": "single",
             "parts_ohms": [
-              10000.0
+              3570.0
             ],
             "relative_error": 0.0
           },
           "Rf": {
             "label": "Rf",
-            "target_ohms": 28719.71671748188,
-            "realized_ohms": 28732.394366197183,
-            "connection": "parallel",
+            "target_ohms": 10187.76247697145,
+            "realized_ohms": 10200.0,
+            "connection": "single",
             "parts_ohms": [
-              30000.0,
-              680000.0
+              10200.0
             ],
-            "relative_error": 0.0004414266630835824
+            "relative_error": 0.00120119830592954
           },
           "R1a": {
             "label": "R1a",
-            "target_ohms": 29044.772652046144,
-            "realized_ohms": 29042.55319148936,
-            "connection": "parallel",
+            "target_ohms": 14253.722426039087,
+            "realized_ohms": 14300.0,
+            "connection": "single",
             "parts_ohms": [
-              30000.0,
-              910000.0
+              14300.0
             ],
-            "relative_error": 7.641514648336006e-05
+            "relative_error": 0.0032467009373195145
           },
           "R1b": {
             "label": "R1b",
-            "target_ohms": 2765.096365245765,
-            "realized_ohms": 2768.0,
-            "connection": "series",
+            "target_ohms": 1583.3496589536792,
+            "realized_ohms": 1580.0,
+            "connection": "single",
             "parts_ohms": [
-              68.0,
-              2700.0
+              1580.0
             ],
-            "relative_error": 0.0010501025536507915
+            "relative_error": 0.002115552262721759
           }
         },
         "notes": [
-          "Equal-C, equal-R Sallen-Key band-pass with K = 4 - sqrt(2)/Q and center gain K/(4 - K).",
-          "Q = 11.05 makes this Sallen-Key band-pass very sensitive to resistor tolerance and op amp bandwidth; MFB or Tow-Thomas is more robust.",
-          "Input divider R1a/R1b (Thevenin = R1) scales the peak gain from 30.24 to 2.629."
+          "Sallen-Key pasa banda de componentes iguales: K = 4 - sqrt(2)/Q y ganancia al centro K/(4 - K).",
+          "Con Q = 9.67 este Sallen-Key pasa banda es muy sensible a la tolerancia de las resistencias y al ancho de banda del opamp; MFB o Tow-Thomas son m\u00e1s robustos.",
+          "Divisor de entrada R1a/R1b (Thevenin = R1) que lleva la ganancia pico de 26.34 a 2.634.",
+          "Capacitor de la etapa ajustado de 1.000e-07 F a 1.800e-07 F."
         ]
       }
     }
@@ -476,12 +458,15 @@
     "center_frequency_hz": 994.98743710662,
     "bandwidth_hz": 200.0,
     "ratio": 4.90625,
+    "design_cutoff": 1.3553583456404779,
+    "design_ripple_db": 0.36554899360673054,
+    "design_attenuation_db": 44.69579048692484,
     "kind": "bandpass",
     "approximation": "butterworth",
     "topology": "sallen_key",
     "opamp": "TL082",
-    "resistor_series": "E24",
-    "allow_resistor_arrays": true,
+    "resistor_series": "E96",
+    "allow_resistor_arrays": false,
     "recommended_opamps": [
       "LM324",
       "LM318",
@@ -494,8 +479,7 @@
     ]
   },
   "warnings": [
-    "At least one section has high Q; a Tow-Thomas or MFB realization may be safer than unity-gain Sallen-Key.",
-    "Stage 1: Q = 11.05 makes this Sallen-Key band-pass very sensitive to resistor tolerance and op amp bandwidth; MFB or Tow-Thomas is more robust.",
-    "Stage 4: Q = 11.05 makes this Sallen-Key band-pass very sensitive to resistor tolerance and op amp bandwidth; MFB or Tow-Thomas is more robust."
+    "Etapa 1: Con Q = 9.67 este Sallen-Key pasa banda es muy sensible a la tolerancia de las resistencias y al ancho de banda del opamp; MFB o Tow-Thomas son m\u00e1s robustos.",
+    "Etapa 4: Con Q = 9.67 este Sallen-Key pasa banda es muy sensible a la tolerancia de las resistencias y al ancho de banda del opamp; MFB o Tow-Thomas son m\u00e1s robustos."
   ]
 }

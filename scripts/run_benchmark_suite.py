@@ -50,12 +50,12 @@ def case_args(case_dir: Path) -> list[str]:
         "--cap",
         str(payload.get("cap", "1e-8")),
         "--resistor-series",
-        payload.get("resistor_series", "E24"),
+        payload.get("resistor_series", "E96"),
         "--max-network-size",
         str(payload.get("max_network_size", "2")),
     ]
-    if not payload.get("allow_resistor_arrays", True):
-        args.append("--no-resistor-arrays")
+    if payload.get("allow_resistor_arrays", False):
+        args.append("--resistor-arrays")
     if not payload.get("auto_stage_capacitor", True):
         args.append("--no-auto-stage-capacitor")
     for name in ("fp", "fs", "fp1", "fp2", "fs1", "fs2"):
