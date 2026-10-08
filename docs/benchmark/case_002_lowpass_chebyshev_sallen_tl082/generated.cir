@@ -2,91 +2,63 @@
 * Topology request: sallen_key
 * Filter kind: lowpass
 * Approximation: chebyshev
-* Filter order: 8
+* Filter order: 5
 * Epsilon: 0.50884714
-.include "resources/models/TL082.cir"
+.include "../../../resources/models/TL082.cir"
 
-* polarizacion de tierra virtual
-Vin IN 0 DC 2.5 AC 1
-VTIERRA VREF 0 2.5V
-VCC VCC 0 DC 5
+* polarizacion de tierra virtual: fuente unica de 15 V, tierra virtual en 7.5 V
+Vin IN 0 DC 7.5 AC 1
+VTIERRA VREF 0 7.5V
+VCC VCC 0 DC 15
 RLOAD OUT 0 100k
 
-* Stage 1: lowpass, f0=997.06606 Hz, Q=14.24045, order=2
+* Stage 1: lowpass, f0=994.14028 Hz, Q=5.55644, order=2
 * Stage input: IN
-* Stage output: STAGE1_OUT
+* Stage output: 11
 * Equal-C, equal-R Sallen-Key synthesis derived from the legacy gain/Q relation Av = 3 - 1/Q.
-* Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-08 F.
+* Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-09 F.
 Xao11 31 41 VCC 0 11 TL082
-c11 31 VREF 1.000000000e-08
-c21 21 11 1.000000000e-08
-* R1: parallel array for target 15962.326762 ohm
-r311 IN 21 16000.000000
-r312 IN 21 6800000.000000
-* R2: parallel array for target 15962.326762 ohm
-r411 21 31 16000.000000
-r412 21 31 6800000.000000
+c11 31 VREF 1.000000000e-09
+c21 21 11 1.000000000e-09
+r31 IN 21 160000.000000
+r41 21 31 160000.000000
 r11 41 VREF 10000.000000
-* Rf: series array for target 19297.775051 ohm
-r211 41 r21_MID1 1300.000000
-r212 r21_MID1 11 18000.000000
+* Rf: series array for target 18200.286937 ohm
+r21_1 41 r21_MID1 200.000000
+r21_2 r21_MID1 11 18000.000000
 
-* Stage 2: lowpass, f0=850.61312 Hz, Q=4.26608, order=2
-* Stage input: STAGE1_OUT
-* Stage output: STAGE2_OUT
+* Stage 2: lowpass, f0=655.20829 Hz, Q=1.39879, order=2
+* Stage input: 11
+* Stage output: 12
 * Equal-C, equal-R Sallen-Key synthesis derived from the legacy gain/Q relation Av = 3 - 1/Q.
 Xao12 32 42 VCC 0 12 TL082
 c12 32 VREF 1.000000000e-07
 c22 22 12 1.000000000e-07
-* R1: parallel array for target 1871.061459 ohm
-r321 11 22 3600.000000
-r322 11 22 3900.000000
-* R2: parallel array for target 1871.061459 ohm
-r421 22 32 3600.000000
-r422 22 32 3900.000000
+* R1: series array for target 2429.074030 ohm
+r32_1 11 r32_MID1 30.000000
+r32_2 r32_MID1 22 2400.000000
+* R2: series array for target 2429.074030 ohm
+r42_1 22 r42_MID1 30.000000
+r42_2 r42_MID1 32 2400.000000
 r12 42 VREF 10000.000000
-* Rf: parallel array for target 17655.925801 ohm
-r221 42 12 27000.000000
-r222 42 12 51000.000000
+* Rf: parallel array for target 12850.974629 ohm
+r22_1 42 12 13000.000000
+r22_2 42 12 1100000.000000
 
-* Stage 3: lowpass, f0=583.83153 Hz, Q=1.95649, order=2
-* Stage input: STAGE2_OUT
-* Stage output: STAGE3_OUT
-* Equal-C, equal-R Sallen-Key synthesis derived from the legacy gain/Q relation Av = 3 - 1/Q.
-* Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-08 F.
-Xao13 33 43 VCC 0 13 TL082
-c13 33 VREF 1.000000000e-08
-c23 23 13 1.000000000e-08
-* R1: series array for target 27260.422840 ohm
-r331 12 r33_MID1 270.000000
-r332 r33_MID1 23 27000.000000
-* R2: series array for target 27260.422840 ohm
-r431 23 r43_MID1 270.000000
-r432 r43_MID1 33 27000.000000
-r13 43 VREF 10000.000000
-* Rf: parallel array for target 14888.794969 ohm
-r231 43 13 15000.000000
-r232 43 13 2000000.000000
-
-* Stage 4: lowpass, f0=265.06830 Hz, Q=0.75304, order=2
-* Stage input: STAGE3_OUT
+* Stage 3: lowpass, f0=289.49334 Hz, Q=first-order, order=1
+* Stage input: 12
 * Stage output: OUT
-* Equal-C, equal-R Sallen-Key synthesis derived from the legacy gain/Q relation Av = 3 - 1/Q.
+* First-order passive RC section buffered by a voltage follower.
 * Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-09 F.
-Xao14 34 44 VCC 0 OUT TL082
-c14 34 VREF 1.000000000e-09
-c24 24 OUT 1.000000000e-09
-* R1: series array for target 600429.943424 ohm
-r341 13 r34_MID1 130000.000000
-r342 r34_MID1 24 470000.000000
-* R2: series array for target 600429.943424 ohm
-r441 24 r44_MID1 130000.000000
-r442 r44_MID1 34 470000.000000
-r14 44 VREF 10000.000000
-* Rf: parallel array for target 6720.533897 ohm
-r241 44 OUT 6800.000000
-r242 44 OUT 560000.000000
+Xao13 23 OUT VCC 0 OUT TL082
+* R1: parallel array for target 549770.652453 ohm
+r13_1 12 23 560000.000000
+r13_2 12 23 30000000.000000
+c13 23 VREF 1.000000000e-09
 
-.ac dec 100 1Hz 500Hz
+* punto de operacion inicial en la tierra virtual
+.nodeset V(11)=7.5 V(12)=7.5 V(OUT)=7.5
+
+.ac dec 100 100 20000
 .probe V(OUT)
 .end

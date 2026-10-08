@@ -2,90 +2,99 @@
 * Topology request: sallen_key
 * Filter kind: bandpass
 * Approximation: chebyshev
-* Filter order: 8
+* Filter order: 6
 * Epsilon: 0.50884714
-.include "resources/models/TL082.cir"
+.include "../../../resources/models/TL082.cir"
 
-* polarizacion de tierra virtual
-Vin IN 0 DC 2.5 AC 1
-VTIERRA VREF 0 2.5V
-VCC VCC 0 DC 5
+* polarizacion de tierra virtual: fuente unica de 15 V, tierra virtual en 7.5 V
+Vin IN 0 DC 7.5 AC 1
+VTIERRA VREF 0 7.5V
+VCC VCC 0 DC 15
 RLOAD OUT 0 100k
 
-* Stage 1: bandpass, f0=1196.10814 Hz, Q=17.90498, order=2
+* Stage 1: bandpass, f0=1192.14472 Hz, Q=10.10489, order=2
 * Stage input: IN
-* Stage output: STAGE1_OUT
-* Equal-C, equal-R Sallen-Key synthesis derived from the legacy gain/Q relation Av = 3 - 1/Q.
+* Stage output: 11
+* Equal-C, equal-R Sallen-Key band-pass with K = 4 - sqrt(2)/Q and center gain K/(4 - K).
+* Q = 10.10 makes this Sallen-Key band-pass very sensitive to resistor tolerance and op amp bandwidth; MFB or Tow-Thomas is more robust.
+* Input divider R1a/R1b (Thevenin = R1) scales the peak gain from 27.58 to 4.113.
+* Stage capacitor auto-tuned from 1.000e-08 F to 1.000e-06 F.
 Xao11 31 41 VCC 0 11 TL082
-c11 31 VREF 1.000000000e-08
-c21 21 11 1.000000000e-08
-* R1: parallel array for target 13306.066367 ohm
-r311 IN 21 18000.000000
-r312 IN 21 51000.000000
-* R2: parallel array for target 13306.066367 ohm
-r411 21 31 18000.000000
-r412 21 31 51000.000000
+* R1a: parallel array for target 1265.964263 ohm
+r31_1 IN 21 1300.000000
+r31_2 IN 21 47000.000000
+* R1b: series array for target 221.894423 ohm
+r61_1 21 r61_MID1 1.800000
+r61_2 r61_MID1 VREF 220.000000
+c11 21 VREF 1.000000000e-06
+c21 21 31 1.000000000e-06
+* R2: parallel array for target 188.801808 ohm
+r41_1 21 11 300.000000
+r41_2 21 11 510.000000
+* R3: parallel array for target 188.801808 ohm
+r51_1 31 VREF 300.000000
+r51_2 31 VREF 510.000000
 r11 41 VREF 10000.000000
-* Rf: parallel array for target 19441.496104 ohm
-r211 41 11 20000.000000
-r212 41 11 680000.000000
+* Rf: series array for target 28600.466316 ohm
+r21_1 41 r21_MID1 1600.000000
+r21_2 r21_MID1 11 27000.000000
 
-* Stage 2: bandpass, f0=1064.85050 Hz, Q=7.29654, order=2
-* Stage input: STAGE1_OUT
-* Stage output: STAGE2_OUT
-* Equal-C, equal-R Sallen-Key synthesis derived from the legacy gain/Q relation Av = 3 - 1/Q.
+* Stage 2: bandpass, f0=979.79590 Hz, Q=4.95677, order=2
+* Stage input: 11
+* Stage output: 12
+* Equal-C, equal-R Sallen-Key band-pass with K = 4 - sqrt(2)/Q and center gain K/(4 - K).
+* Input divider R1a/R1b (Thevenin = R1) scales the peak gain from 13.02 to 1.000.
 * Stage capacitor auto-tuned from 1.000e-08 F to 1.000e-06 F.
 Xao12 32 42 VCC 0 12 TL082
-c12 32 VREF 1.000000000e-06
-c22 22 12 1.000000000e-06
-* R1: parallel array for target 149.462242 ohm
-r321 11 22 150.000000
-r322 11 22 43000.000000
-* R2: parallel array for target 149.462242 ohm
-r421 22 32 150.000000
-r422 22 32 43000.000000
+* R1a: parallel array for target 2990.927345 ohm
+r32_1 11 22 3000.000000
+r32_2 11 22 910000.000000
+* R1b: series array for target 248.832106 ohm
+r62_1 22 r62_MID1 9.100000
+r62_2 r62_MID1 VREF 240.000000
+c12 22 VREF 1.000000000e-06
+c22 22 32 1.000000000e-06
+* R2: parallel array for target 229.720373 ohm
+r42_1 22 12 390.000000
+r42_2 22 12 560.000000
+* R3: parallel array for target 229.720373 ohm
+r52_1 32 VREF 390.000000
+r52_2 32 VREF 560.000000
 r12 42 VREF 10000.000000
-* Rf: parallel array for target 18629.486667 ohm
-r221 42 12 20000.000000
-r222 42 12 270000.000000
+* Rf: series array for target 27146.904682 ohm
+r22_1 42 r22_MID1 150.000000
+r22_2 r22_MID1 12 27000.000000
 
-* Stage 3: bandpass, f0=901.53501 Hz, Q=7.29654, order=2
-* Stage input: STAGE2_OUT
-* Stage output: STAGE3_OUT
-* Equal-C, equal-R Sallen-Key synthesis derived from the legacy gain/Q relation Av = 3 - 1/Q.
-Xao13 33 43 VCC 0 13 TL082
-c13 33 VREF 1.000000000e-08
-c23 23 13 1.000000000e-08
-* R1: parallel array for target 17653.772956 ohm
-r331 12 23 27000.000000
-r332 12 23 51000.000000
-* R2: parallel array for target 17653.772956 ohm
-r431 23 33 27000.000000
-r432 23 33 51000.000000
-r13 43 VREF 10000.000000
-* Rf: parallel array for target 18629.486667 ohm
-r231 43 13 20000.000000
-r232 43 13 270000.000000
-
-* Stage 4: bandpass, f0=802.60301 Hz, Q=17.90498, order=2
-* Stage input: STAGE3_OUT
+* Stage 3: bandpass, f0=805.27136 Hz, Q=10.10489, order=2
+* Stage input: 12
 * Stage output: OUT
-* Equal-C, equal-R Sallen-Key synthesis derived from the legacy gain/Q relation Av = 3 - 1/Q.
-* Stage capacitor auto-tuned from 1.000e-08 F to 1.000e-07 F.
-Xao14 34 44 VCC 0 OUT TL082
-c14 34 VREF 1.000000000e-07
-c24 24 OUT 1.000000000e-07
-* R1: parallel array for target 1982.984616 ohm
-r341 13 24 2000.000000
-r342 13 24 240000.000000
-* R2: parallel array for target 1982.984616 ohm
-r441 24 34 2000.000000
-r442 24 34 240000.000000
-r14 44 VREF 10000.000000
-* Rf: parallel array for target 19441.496104 ohm
-r241 44 OUT 20000.000000
-r242 44 OUT 680000.000000
+* Equal-C, equal-R Sallen-Key band-pass with K = 4 - sqrt(2)/Q and center gain K/(4 - K).
+* Q = 10.10 makes this Sallen-Key band-pass very sensitive to resistor tolerance and op amp bandwidth; MFB or Tow-Thomas is more robust.
+* Input divider R1a/R1b (Thevenin = R1) scales the peak gain from 27.58 to 4.113.
+* Stage capacitor auto-tuned from 1.000e-08 F to 1.000e-06 F.
+Xao13 33 43 VCC 0 OUT TL082
+* R1a: series array for target 1874.166516 ohm
+r33_1 12 r33_MID1 75.000000
+r33_2 r33_MID1 23 1800.000000
+* R1b: parallel array for target 328.498292 ohm
+r63_1 23 VREF 330.000000
+r63_2 23 VREF 75000.000000
+c13 23 VREF 1.000000000e-06
+c23 23 33 1.000000000e-06
+* R2: parallel array for target 279.507121 ohm
+r43_1 23 OUT 510.000000
+r43_2 23 OUT 620.000000
+* R3: parallel array for target 279.507121 ohm
+r53_1 33 VREF 510.000000
+r53_2 33 VREF 620.000000
+r13 43 VREF 10000.000000
+* Rf: series array for target 28600.466316 ohm
+r23_1 43 r23_MID1 1600.000000
+r23_2 r23_MID1 OUT 27000.000000
 
-.ac dec 100 1Hz 500Hz
+* punto de operacion inicial en la tierra virtual
+.nodeset V(11)=7.5 V(12)=7.5 V(OUT)=7.5
+
+.ac dec 100 50 20000
 .probe V(OUT)
 .end

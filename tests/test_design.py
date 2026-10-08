@@ -2,7 +2,15 @@ import math
 import unittest
 
 from sofia_filter_studio.design import design_filter
-from sofia_filter_studio.models import Approximation, DesignInputs, FilterKind, FilterSpec, ResistorSeries, Topology
+from sofia_filter_studio.models import (
+    Approximation,
+    DesignInputs,
+    FilterKind,
+    FilterSpec,
+    OpAmpModel,
+    ResistorSeries,
+    Topology,
+)
 from sofia_filter_studio.netlist import render_netlist
 from sofia_filter_studio.opamps import recommend_opamps
 from sofia_filter_studio.resistors import fit_resistor_network
@@ -21,6 +29,63 @@ class DesignFilterTests(unittest.TestCase):
         self.assertEqual(result.order, 8)
         self.assertEqual(len(result.stages), 4)
         self.assertTrue(math.isclose(result.epsilon, math.sqrt(10 ** 0.1 - 1), rel_tol=1e-9))
+
+    def test_chebyshev_lowpass_uses_chebyshev_order_formula(self) -> None:
+        inputs = DesignInputs(
+            kind=FilterKind.LOWPASS,
+            approximation=Approximation.CHEBYSHEV_I,
+            spec=FilterSpec(passband_hz=1_000, stopband_hz=2_000),
+            passband_ripple_db=1,
+            stopband_attenuation_db=40,
+        )
+        result = design_filter(inputs)
+        # acosh(sqrt((10^4 - 1)/(10^0.1 - 1))) / acosh(2) = 4.53 -> 5, not the Butterworth 8.
+        self.assertEqual(result.order, 5)
+        self.assertEqual([stage.order for stage in result.stages].count(1), 1)
+
+    def test_odd_order_renders_first_order_section_for_every_topology(self) -> None:
+        for topology in (Topology.SALLEN_KEY, Topology.MFB, Topology.TOW_THOMAS, Topology.ANTONIOU):
+            for kind, fp, fs in ((FilterKind.LOWPASS, 1_000, 2_000), (FilterKind.HIGHPASS, 2_000, 1_000)):
+                with self.subTest(topology=topology, kind=kind):
+                    inputs = DesignInputs(
+                        kind=kind,
+                        approximation=Approximation.CHEBYSHEV_I,
+                        spec=FilterSpec(passband_hz=fp, stopband_hz=fs),
+                        passband_ripple_db=1,
+                        stopband_attenuation_db=40,
+                        topology=topology,
+                    )
+                    netlist = render_netlist(inputs, design_filter(inputs))
+                    # Fifth order: two biquads plus the first-order stage 3 driving OUT.
+                    self.assertIn("order=1", netlist)
+                    self.assertIn("Xao13", netlist)
+                    self.assertIn("VCC 0 OUT", netlist)
+
+    def test_butterworth_bandpass_edges_sit_at_the_ripple_point(self) -> None:
+        inputs = DesignInputs(
+            kind=FilterKind.BANDPASS,
+            approximation=Approximation.BUTTERWORTH,
+            spec=FilterSpec(passband_hz=(800, 1_200), stopband_hz=(500, 2_000)),
+            passband_ripple_db=1,
+            stopband_attenuation_db=30,
+        )
+        result = design_filter(inputs)
+        center = 2 * math.pi * math.sqrt(800 * 1_200)
+
+        zeros_at_origin = len(result.poles) // 2
+
+        def response(s: complex) -> complex:
+            value = s**zeros_at_origin
+            for pole in result.poles:
+                value /= s - pole
+            return value
+
+        def gain_db(freq_hz: float) -> float:
+            s = complex(0, 2 * math.pi * freq_hz)
+            return 20 * math.log10(abs(response(s)) / abs(response(complex(0, center))))
+
+        self.assertAlmostEqual(gain_db(800), -1.0, delta=0.05)
+        self.assertAlmostEqual(gain_db(1_200), -1.0, delta=0.05)
 
     def test_chebyshev_highpass_has_negative_real_poles(self) -> None:
         inputs = DesignInputs(
@@ -88,6 +153,8 @@ class DesignFilterTests(unittest.TestCase):
             passband_ripple_db=1,
             stopband_attenuation_db=25,
             topology=Topology.MFB,
+            stage_capacitor_f=1e-3,
+            auto_stage_capacitor=False,
         )
         result = design_filter(inputs)
         self.assertTrue(any("below 10 ohm" in warning for warning in result.warnings))
@@ -134,10 +201,51 @@ class DesignFilterTests(unittest.TestCase):
         )
         result = design_filter(inputs)
         netlist = render_netlist(inputs, result)
-        self.assertIn("VTIERRA VREF 0 2.5V", netlist)
+        # TL082 needs more than 5 V of rail: 15 V single supply with a 7.5 V virtual ground.
+        self.assertIn("VTIERRA VREF 0 7.5V", netlist)
+        self.assertIn("Vin IN 0 DC 7.5 AC 1", netlist)
         self.assertIn("RLOAD OUT 0 100k", netlist)
-        self.assertIn("1", netlist)
         self.assertIn("Xao11", netlist)
+        self.assertIn("Xao12 32 42 VCC 0 12 TL082", netlist)
+        self.assertIn("r32_1 11 22", netlist)
+
+    def test_netlist_keeps_5v_rail_for_lm324(self) -> None:
+        inputs = DesignInputs(
+            kind=FilterKind.LOWPASS,
+            approximation=Approximation.BUTTERWORTH,
+            spec=FilterSpec(passband_hz=1_000, stopband_hz=2_000),
+            passband_ripple_db=1,
+            stopband_attenuation_db=40,
+            opamp=OpAmpModel.LM324,
+        )
+        netlist = render_netlist(inputs, design_filter(inputs))
+        self.assertIn("VTIERRA VREF 0 2.5V", netlist)
+        self.assertIn("VCC VCC 0 DC 5", netlist)
+
+    def test_netlist_uses_vendor_subckt_names(self) -> None:
+        inputs = DesignInputs(
+            kind=FilterKind.LOWPASS,
+            approximation=Approximation.CHEBYSHEV_I,
+            spec=FilterSpec(passband_hz=1_000, stopband_hz=2_000),
+            passband_ripple_db=1,
+            stopband_attenuation_db=40,
+            opamp=OpAmpModel.LM7171,
+        )
+        netlist = render_netlist(inputs, design_filter(inputs))
+        self.assertIn(" LM7171B/NS", netlist)
+        self.assertNotIn(" LM7171\n", netlist)
+
+    def test_ac_sweep_covers_the_specified_bands(self) -> None:
+        inputs = DesignInputs(
+            kind=FilterKind.BANDSTOP,
+            approximation=Approximation.BUTTERWORTH,
+            spec=FilterSpec(passband_hz=(600, 1_600), stopband_hz=(900, 1_100)),
+            passband_ripple_db=1,
+            stopband_attenuation_db=40,
+            topology=Topology.TOW_THOMAS,
+        )
+        netlist = render_netlist(inputs, design_filter(inputs))
+        self.assertIn(".ac dec 100 60 16000", netlist)
 
     def test_netlist_uses_realized_stage_topology_under_auto(self) -> None:
         inputs = DesignInputs(
@@ -164,9 +272,10 @@ class DesignFilterTests(unittest.TestCase):
         )
         result = design_filter(inputs)
         netlist = render_netlist(inputs, result)
-        self.assertIn("Xao11", netlist)
+        self.assertIn("Xao11 VREF 31 VCC 0", netlist)
         self.assertIn("c11 21 31", netlist)
-        self.assertTrue("r31 10 21" in netlist or "r311 10 21" in netlist)
+        # The first stage must hang from the source node, not from a floating node.
+        self.assertTrue("r31 IN 21" in netlist or "r31_1 IN 21" in netlist)
 
 
 if __name__ == "__main__":

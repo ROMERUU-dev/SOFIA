@@ -62,7 +62,7 @@ def main() -> int:
     result = design_filter(inputs)
     print(format_result(result))
     if args.netlist_out:
-        args.netlist_out.write_text(render_netlist(inputs, result), encoding="utf-8")
+        args.netlist_out.write_text(render_netlist(inputs, result, args.netlist_out), encoding="utf-8")
         print(f"Netlist written to {args.netlist_out}")
     return 0
 

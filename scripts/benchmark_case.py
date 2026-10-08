@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).absolute().parents[1]
 BENCHMARK_DIR = ROOT / "docs" / "benchmark"
 TEMPLATE = BENCHMARK_DIR / "case_template.md"
 
@@ -69,7 +69,8 @@ def build_cli_command(args: argparse.Namespace, case_dir: Path) -> list[str]:
         "--max-network-size",
         str(args.max_network_size),
         "--netlist-out",
-        str(case_dir / "generated.cir"),
+        # Relative to ROOT (the CLI runs there) so command.txt/stdout.txt are portable.
+        (case_dir / "generated.cir").relative_to(ROOT).as_posix(),
     ]
     if args.no_resistor_arrays:
         cmd.append("--no-resistor-arrays")
@@ -128,15 +129,15 @@ def run_case(case_dir: Path, args: argparse.Namespace) -> None:
     payload, _ = json.JSONDecoder().raw_decode(completed.stdout)
     (case_dir / "result.json").write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     (case_dir / "stdout.txt").write_text(completed.stdout, encoding="utf-8")
-    (case_dir / "command.txt").write_text(shlex.join(cmd) + "\n", encoding="utf-8")
+    (case_dir / "command.txt").write_text(shlex.join(["python", *cmd[1:]]) + "\n", encoding="utf-8")
 
 
 def copy_legacy_netlist(case_dir: Path, legacy_path: str | None) -> None:
     if not legacy_path:
         return
-    src = Path(legacy_path).expanduser().resolve()
+    src = Path(legacy_path).expanduser().absolute()
     dst = case_dir / "legacy.cir"
-    if src != dst.resolve():
+    if src != dst.absolute():
         shutil.copyfile(src, dst)
 
 

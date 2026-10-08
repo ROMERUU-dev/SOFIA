@@ -123,6 +123,8 @@ class Stage:
     order: int
     poles: tuple[complex, ...]
     damping_hz: float | None = None
+    zero_frequency_hz: float | None = None
+    gain_reference_hz: float | None = None
     realization: StageRealization | None = None
 
     def as_dict(self) -> dict[str, Any]:

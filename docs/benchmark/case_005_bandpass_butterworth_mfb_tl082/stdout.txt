@@ -3,206 +3,138 @@
   "epsilon": 0.5088471399095875,
   "poles": [
     {
-      "real": -391.5205384227955,
-      "imag": -5085.92892103676
+      "real": -444.81687668339964,
+      "imag": -4908.716371313014
     },
     {
-      "real": -570.2678293921584,
-      "imag": 7407.891442748304
+      "real": -693.9443873487489,
+      "imag": 7657.929259244556
     },
     {
-      "real": -1068.9356378795396,
-      "imag": -5584.675453393706
+      "real": -1244.791654480929,
+      "imag": -5459.780520920122
     },
     {
-      "real": -1253.0268838320053,
-      "imag": 6546.46382120866
+      "real": -1504.4212334506133,
+      "imag": 6598.541784952272
     },
     {
-      "real": -1068.9356378795396,
-      "imag": 5584.675453393706
+      "real": -1244.7916544809293,
+      "imag": 5459.780520920123
     },
     {
-      "real": -1253.0268838320053,
-      "imag": -6546.46382120866
+      "real": -1504.421233450613,
+      "imag": -6598.541784952271
     },
     {
-      "real": -391.5205384227961,
-      "imag": 5085.92892103676
+      "real": -444.8168766834003,
+      "imag": 4908.716371313014
     },
     {
-      "real": -570.2678293921593,
-      "imag": -7407.891442748304
+      "real": -693.9443873487501,
+      "imag": -7657.929259244556
     }
   ],
   "stages": [
     {
       "index": 1,
-      "natural_frequency_hz": 1182.4908205275417,
-      "q": 6.514315350151109,
+      "natural_frequency_hz": 1223.7911891486021,
+      "q": 5.540290374054127,
       "order": 2,
       "poles": [
         {
-          "real": -570.2678293921584,
-          "imag": 7407.891442748304
+          "real": -693.9443873487489,
+          "imag": 7657.929259244556
         },
         {
-          "real": -570.2678293921593,
-          "imag": -7407.891442748304
+          "real": -693.9443873487501,
+          "imag": -7657.929259244556
         }
       ],
-      "damping_hz": 181.52188786809532,
+      "damping_hz": 220.8893589548608,
+      "zero_frequency_hz": null,
+      "gain_reference_hz": 979.7958971132713,
       "realization": {
         "topology": "mfb",
         "stage_index": 1,
         "kind": "bandpass",
-        "gain": 1.0,
+        "gain": 2.677996885770172,
         "resistor_targets_ohms": {
-          "R1": 17535.620079882254,
-          "R2": 0.011782364324898728,
-          "R3": 8767.810039941125
+          "R1": 144103.76655981783,
+          "R2": 1227.2163708733426,
+          "R3": 26905.140802352846
         },
         "capacitor_values_f": {
-          "C1": 1e-07,
-          "C2": 1e-07
+          "C1": 1e-08,
+          "C2": 1e-08
         },
         "resistor_networks": {
           "R1": {
             "label": "R1",
-            "target_ohms": 17535.620079882254,
-            "realized_ohms": 17535.816618911173,
-            "connection": "parallel",
+            "target_ohms": 144103.76655981783,
+            "realized_ohms": 144000.0,
+            "connection": "series",
             "parts_ohms": [
-              18000.0,
-              680000.0
+              24000.0,
+              120000.0
             ],
-            "relative_error": 1.1207988541235421e-05
+            "relative_error": 0.0007200822178007019
           },
           "R2": {
             "label": "R2",
-            "target_ohms": 0.011782364324898728,
-            "realized_ohms": 0.5,
-            "connection": "parallel",
+            "target_ohms": 1227.2163708733426,
+            "realized_ohms": 1227.0,
+            "connection": "series",
             "parts_ohms": [
-              1.0,
-              1.0
+              27.0,
+              1200.0
             ],
-            "relative_error": 41.43630448121436
+            "relative_error": 0.00017631028926759889
           },
           "R3": {
             "label": "R3",
-            "target_ohms": 8767.810039941125,
-            "realized_ohms": 8767.56322761943,
+            "target_ohms": 26905.140802352846,
+            "realized_ohms": 26903.148664806697,
             "connection": "parallel",
             "parts_ohms": [
-              9100.0,
-              240000.0
+              27000.0,
+              7500000.0
             ],
-            "relative_error": 2.8149825392044878e-05
+            "relative_error": 7.404300764613775e-05
           }
         },
         "notes": [
-          "MFB band-pass synthesis follows the legacy relations R1 = 2/(C*alpha), R3 = 1/(C*BW) and R2 from w0.",
-          "Stage capacitor auto-tuned from 1.000e-08 F to 1.000e-07 F."
+          "MFB band-pass synthesis: R1 = 2Q/(C*w0) feedback, R3 = Q/(G*C*w0) input, R2 = Q/((2Q^2-G)*C*w0) shunt."
         ]
       }
     },
     {
       "index": 2,
-      "natural_frequency_hz": 1060.8159298295968,
-      "q": 2.659680789746327,
+      "natural_frequency_hz": 1077.1396425132082,
+      "q": 2.2493261279277985,
       "order": 2,
       "poles": [
         {
-          "real": -1253.0268838320053,
-          "imag": 6546.46382120866
+          "real": -1504.4212334506133,
+          "imag": 6598.541784952272
         },
         {
-          "real": -1253.0268838320053,
-          "imag": -6546.46382120866
+          "real": -1504.421233450613,
+          "imag": -6598.541784952271
         }
       ],
-      "damping_hz": 398.85084477779554,
+      "damping_hz": 478.8721515921427,
+      "zero_frequency_hz": null,
+      "gain_reference_hz": 979.7958971132713,
       "realization": {
         "topology": "mfb",
         "stage_index": 2,
         "kind": "bandpass",
-        "gain": 1.0,
+        "gain": 1.0872513819639873,
         "resistor_targets_ohms": {
-          "R1": 7980.674739729456,
-          "R2": 0.0706823485583709,
-          "R3": 3990.337369864727
-        },
-        "capacitor_values_f": {
-          "C1": 1e-07,
-          "C2": 1e-07
-        },
-        "resistor_networks": {
-          "R1": {
-            "label": "R1",
-            "target_ohms": 7980.674739729456,
-            "realized_ohms": 7981.829980532123,
-            "connection": "parallel",
-            "parts_ohms": [
-              8200.0,
-              300000.0
-            ],
-            "relative_error": 0.0001447547783041819
-          },
-          "R2": {
-            "label": "R2",
-            "target_ohms": 0.0706823485583709,
-            "realized_ohms": 0.5,
-            "connection": "parallel",
-            "parts_ohms": [
-              1.0,
-              1.0
-            ],
-            "relative_error": 6.073901903345642
-          },
-          "R3": {
-            "label": "R3",
-            "target_ohms": 3990.337369864727,
-            "realized_ohms": 3990.0,
-            "connection": "series",
-            "parts_ohms": [
-              390.0,
-              3600.0
-            ],
-            "relative_error": 8.45467020595276e-05
-          }
-        },
-        "notes": [
-          "MFB band-pass synthesis follows the legacy relations R1 = 2/(C*alpha), R3 = 1/(C*BW) and R2 from w0.",
-          "Stage capacitor auto-tuned from 1.000e-08 F to 1.000e-07 F."
-        ]
-      }
-    },
-    {
-      "index": 3,
-      "natural_frequency_hz": 904.9637858984725,
-      "q": 2.659680789746327,
-      "order": 2,
-      "poles": [
-        {
-          "real": -1068.9356378795396,
-          "imag": 5584.675453393706
-        },
-        {
-          "real": -1068.9356378795396,
-          "imag": -5584.675453393706
-        }
-      ],
-      "damping_hz": 340.25278123123394,
-      "realization": {
-        "topology": "mfb",
-        "stage_index": 3,
-        "kind": "bandpass",
-        "gain": 1.0,
-        "resistor_targets_ohms": {
-          "R1": 935510.0200267546,
-          "R2": 0.07068234855837088,
-          "R3": 467755.0100133774
+          "R1": 664707.4487950105,
+          "R2": 36798.641257044765,
+          "R3": 305682.5035229191
         },
         "capacitor_values_f": {
           "C1": 1e-09,
@@ -211,112 +143,185 @@
         "resistor_networks": {
           "R1": {
             "label": "R1",
-            "target_ohms": 935510.0200267546,
-            "realized_ohms": 934246.5753424659,
-            "connection": "parallel",
-            "parts_ohms": [
-              1100000.0,
-              6200000.0
-            ],
-            "relative_error": 0.0013505410495256525
-          },
-          "R2": {
-            "label": "R2",
-            "target_ohms": 0.07068234855837088,
-            "realized_ohms": 0.5,
-            "connection": "parallel",
-            "parts_ohms": [
-              1.0,
-              1.0
-            ],
-            "relative_error": 6.073901903345644
-          },
-          "R3": {
-            "label": "R3",
-            "target_ohms": 467755.0100133774,
-            "realized_ohms": 467889.9082568807,
+            "target_ohms": 664707.4487950105,
+            "realized_ohms": 664928.2920469361,
             "connection": "parallel",
             "parts_ohms": [
               680000.0,
-              1500000.0
+              30000000.0
             ],
-            "relative_error": 0.00028839507993604996
+            "relative_error": 0.0003322412774612464
+          },
+          "R2": {
+            "label": "R2",
+            "target_ohms": 36798.641257044765,
+            "realized_ohms": 36800.0,
+            "connection": "series",
+            "parts_ohms": [
+              6800.0,
+              30000.0
+            ],
+            "relative_error": 3.692372622522409e-05
+          },
+          "R3": {
+            "label": "R3",
+            "target_ohms": 305682.5035229191,
+            "realized_ohms": 305600.0,
+            "connection": "series",
+            "parts_ohms": [
+              5600.0,
+              300000.0
+            ],
+            "relative_error": 0.0002698993955108642
           }
         },
         "notes": [
-          "MFB band-pass synthesis follows the legacy relations R1 = 2/(C*alpha), R3 = 1/(C*BW) and R2 from w0.",
+          "MFB band-pass synthesis: R1 = 2Q/(C*w0) feedback, R3 = Q/(G*C*w0) input, R2 = Q/((2Q^2-G)*C*w0) shunt.",
           "Stage capacitor auto-tuned from 1.000e-08 F to 1.000e-09 F."
         ]
       }
     },
     {
-      "index": 4,
-      "natural_frequency_hz": 811.8456256359925,
-      "q": 6.514315350151098,
+      "index": 3,
+      "natural_frequency_hz": 891.2493441984041,
+      "q": 2.249326127927799,
       "order": 2,
       "poles": [
         {
-          "real": -391.5205384227961,
-          "imag": 5085.92892103676
+          "real": -1244.7916544809293,
+          "imag": 5459.780520920123
         },
         {
-          "real": -391.5205384227955,
-          "imag": -5085.92892103676
+          "real": -1244.791654480929,
+          "imag": -5459.780520920122
         }
       ],
-      "damping_hz": 124.62485802397667,
+      "damping_hz": 396.22948986035703,
+      "zero_frequency_hz": null,
+      "gain_reference_hz": 979.7958971132713,
       "realization": {
         "topology": "mfb",
-        "stage_index": 4,
+        "stage_index": 3,
         "kind": "bandpass",
-        "gain": 1.0,
+        "gain": 1.0872513819639873,
         "resistor_targets_ohms": {
-          "R1": 25541.444237597512,
-          "R2": 0.011782364324898762,
-          "R3": 12770.722118798756
+          "R1": 80334.72881989992,
+          "R2": 4447.383389015004,
+          "R3": 36943.953418934725
         },
         "capacitor_values_f": {
-          "C1": 1e-07,
-          "C2": 1e-07
+          "C1": 1e-08,
+          "C2": 1e-08
         },
         "resistor_networks": {
           "R1": {
             "label": "R1",
-            "target_ohms": 25541.444237597512,
-            "realized_ohms": 25533.199195171026,
+            "target_ohms": 80334.72881989992,
+            "realized_ohms": 80311.40130587644,
             "connection": "parallel",
             "parts_ohms": [
-              27000.0,
-              470000.0
+              82000.0,
+              3900000.0
             ],
-            "relative_error": 0.0003228103450136666
+            "relative_error": 0.0002903789477621026
           },
           "R2": {
             "label": "R2",
-            "target_ohms": 0.011782364324898762,
-            "realized_ohms": 0.5,
+            "target_ohms": 4447.383389015004,
+            "realized_ohms": 4445.213379469435,
             "connection": "parallel",
             "parts_ohms": [
-              1.0,
-              1.0
+              4700.0,
+              82000.0
             ],
-            "relative_error": 41.43630448121423
+            "relative_error": 0.00048792949825933094
           },
           "R3": {
             "label": "R3",
-            "target_ohms": 12770.722118798756,
-            "realized_ohms": 12778.505897771953,
-            "connection": "parallel",
+            "target_ohms": 36943.953418934725,
+            "realized_ohms": 36910.0,
+            "connection": "series",
             "parts_ohms": [
-              13000.0,
-              750000.0
+              910.0,
+              36000.0
             ],
-            "relative_error": 0.0006095018669099947
+            "relative_error": 0.0009190521260597696
           }
         },
         "notes": [
-          "MFB band-pass synthesis follows the legacy relations R1 = 2/(C*alpha), R3 = 1/(C*BW) and R2 from w0.",
-          "Stage capacitor auto-tuned from 1.000e-08 F to 1.000e-07 F."
+          "MFB band-pass synthesis: R1 = 2Q/(C*w0) feedback, R3 = Q/(G*C*w0) input, R2 = Q/((2Q^2-G)*C*w0) shunt."
+        ]
+      }
+    },
+    {
+      "index": 4,
+      "natural_frequency_hz": 784.4475499679622,
+      "q": 5.540290374054127,
+      "order": 2,
+      "poles": [
+        {
+          "real": -444.8168766834003,
+          "imag": 4908.716371313014
+        },
+        {
+          "real": -444.81687668339964,
+          "imag": -4908.716371313014
+        }
+      ],
+      "damping_hz": 141.5896093897223,
+      "zero_frequency_hz": null,
+      "gain_reference_hz": 979.7958971132713,
+      "realization": {
+        "topology": "mfb",
+        "stage_index": 4,
+        "kind": "bandpass",
+        "gain": 2.6779968857701726,
+        "resistor_targets_ohms": {
+          "R1": 224811.61404128865,
+          "R2": 1914.5404710806447,
+          "R3": 41973.83784048622
+        },
+        "capacitor_values_f": {
+          "C1": 1e-08,
+          "C2": 1e-08
+        },
+        "resistor_networks": {
+          "R1": {
+            "label": "R1",
+            "target_ohms": 224811.61404128865,
+            "realized_ohms": 224700.00000000003,
+            "connection": "series",
+            "parts_ohms": [
+              4700.0,
+              220000.00000000003
+            ],
+            "relative_error": 0.0004964780924001427
+          },
+          "R2": {
+            "label": "R2",
+            "target_ohms": 1914.5404710806447,
+            "realized_ohms": 1911.111111111111,
+            "connection": "parallel",
+            "parts_ohms": [
+              2000.0,
+              43000.0
+            ],
+            "relative_error": 0.0017912183217510865
+          },
+          "R3": {
+            "label": "R3",
+            "target_ohms": 41973.83784048622,
+            "realized_ohms": 41979.166666666664,
+            "connection": "parallel",
+            "parts_ohms": [
+              62000.0,
+              130000.0
+            ],
+            "relative_error": 0.00012695589573419924
+          }
+        },
+        "notes": [
+          "MFB band-pass synthesis: R1 = 2Q/(C*w0) feedback, R3 = Q/(G*C*w0) input, R2 = Q/((2Q^2-G)*C*w0) shunt."
         ]
       }
     }
@@ -342,12 +347,6 @@
       "LM6171"
     ]
   },
-  "warnings": [
-    "Band filters are migrated with pole-based section synthesis; component-level realizations still need topology-specific refinement.",
-    "Stage 1 requests resistors below 10 ohm. A capacitor near 1.178e-10 F would move the design toward a saner range.",
-    "Stage 2 requests resistors below 10 ohm. A capacitor near 7.042e-10 F would move the design toward a saner range.",
-    "Stage 3 requests resistors below 10 ohm. A capacitor near 7.042e-12 F would move the design toward a saner range.",
-    "Stage 4 requests resistors below 10 ohm. A capacitor near 1.178e-10 F would move the design toward a saner range."
-  ]
+  "warnings": []
 }
-Netlist written to /home/romeruu/sofia-modern/docs/benchmark/case_005_bandpass_butterworth_mfb_tl082/generated.cir
+Netlist written to docs\benchmark\case_005_bandpass_butterworth_mfb_tl082\generated.cir

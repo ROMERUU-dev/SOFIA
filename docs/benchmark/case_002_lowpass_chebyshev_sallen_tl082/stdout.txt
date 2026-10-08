@@ -1,94 +1,82 @@
 {
-  "order": 8,
+  "order": 5,
   "epsilon": 0.5088471399095875,
   "poles": [
     {
-      "real": -219.9632171141881,
-      "imag": 6260.88805831447
+      "real": -562.0834669805841,
+      "imag": 6221.0264586737085
     },
     {
-      "real": -626.4022455084576,
-      "imag": 5307.724606527671
+      "real": -1471.5536210695489,
+      "imag": 3844.805796372745
     },
     {
-      "real": -937.4772103745603,
-      "imag": 3546.508198040406
+      "real": -1818.940308177929,
+      "imag": 4.0053140951622404e-13
     },
     {
-      "real": -1105.8297682132102,
-      "imag": 1245.3680655783621
+      "real": -1471.5536210695489,
+      "imag": -3844.8057963727447
     },
     {
-      "real": -1105.8297682132102,
-      "imag": -1245.3680655783612
-    },
-    {
-      "real": -937.4772103745604,
-      "imag": -3546.5081980404043
-    },
-    {
-      "real": -626.4022455084576,
-      "imag": -5307.724606527672
-    },
-    {
-      "real": -219.9632171141885,
-      "imag": -6260.88805831447
+      "real": -562.0834669805844,
+      "imag": -6221.0264586737085
     }
   ],
   "stages": [
     {
       "index": 1,
-      "natural_frequency_hz": 997.0660635311339,
-      "q": 14.240451023713725,
+      "natural_frequency_hz": 994.1402777310818,
+      "q": 5.556441305656773,
       "order": 2,
       "poles": [
         {
-          "real": -219.9632171141881,
-          "imag": 6260.88805831447
+          "real": -562.0834669805841,
+          "imag": 6221.0264586737085
         },
         {
-          "real": -219.9632171141885,
-          "imag": -6260.88805831447
+          "real": -562.0834669805844,
+          "imag": -6221.0264586737085
         }
       ],
-      "damping_hz": 70.01646660423765,
+      "damping_hz": 178.91672440038025,
+      "zero_frequency_hz": null,
+      "gain_reference_hz": null,
       "realization": {
         "topology": "sallen_key",
         "stage_index": 1,
         "kind": "lowpass",
-        "gain": 2.929777505056914,
+        "gain": 2.8200286937284944,
         "resistor_targets_ohms": {
-          "R1": 15962.32676180395,
-          "R2": 15962.32676180395,
+          "R1": 160093.0438661366,
+          "R2": 160093.0438661366,
           "Rg": 10000.0,
-          "Rf": 19297.77505056914
+          "Rf": 18200.286937284945
         },
         "capacitor_values_f": {
-          "C1": 1e-08,
-          "C2": 1e-08
+          "C1": 1e-09,
+          "C2": 1e-09
         },
         "resistor_networks": {
           "R1": {
             "label": "R1",
-            "target_ohms": 15962.32676180395,
-            "realized_ohms": 15962.44131455399,
-            "connection": "parallel",
+            "target_ohms": 160093.0438661366,
+            "realized_ohms": 160000.0,
+            "connection": "single",
             "parts_ohms": [
-              16000.0,
-              6800000.0
+              160000.0
             ],
-            "relative_error": 7.176444371097409e-06
+            "relative_error": 0.0005811861895411623
           },
           "R2": {
             "label": "R2",
-            "target_ohms": 15962.32676180395,
-            "realized_ohms": 15962.44131455399,
-            "connection": "parallel",
+            "target_ohms": 160093.0438661366,
+            "realized_ohms": 160000.0,
+            "connection": "single",
             "parts_ohms": [
-              16000.0,
-              6800000.0
+              160000.0
             ],
-            "relative_error": 7.176444371097409e-06
+            "relative_error": 0.0005811861895411623
           },
           "Rg": {
             "label": "Rg",
@@ -102,48 +90,50 @@
           },
           "Rf": {
             "label": "Rf",
-            "target_ohms": 19297.77505056914,
-            "realized_ohms": 19300.0,
+            "target_ohms": 18200.286937284945,
+            "realized_ohms": 18200.0,
             "connection": "series",
             "parts_ohms": [
-              1300.0,
+              200.0,
               18000.0
             ],
-            "relative_error": 0.00011529564548397158
+            "relative_error": 1.576553633105833e-05
           }
         },
         "notes": [
           "Equal-C, equal-R Sallen-Key synthesis derived from the legacy gain/Q relation Av = 3 - 1/Q.",
-          "Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-08 F."
+          "Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-09 F."
         ]
       }
     },
     {
       "index": 2,
-      "natural_frequency_hz": 850.6131229721142,
-      "q": 4.266076562364725,
+      "natural_frequency_hz": 655.2082855339097,
+      "q": 1.3987920704570844,
       "order": 2,
       "poles": [
         {
-          "real": -626.4022455084576,
-          "imag": -5307.724606527672
+          "real": -1471.5536210695489,
+          "imag": 3844.805796372745
         },
         {
-          "real": -626.4022455084576,
-          "imag": 5307.724606527671
+          "real": -1471.5536210695489,
+          "imag": -3844.8057963727447
         }
       ],
-      "damping_hz": 199.39002747306805,
+      "damping_hz": 468.41006563599313,
+      "zero_frequency_hz": null,
+      "gain_reference_hz": null,
       "realization": {
         "topology": "sallen_key",
         "stage_index": 2,
         "kind": "lowpass",
-        "gain": 2.7655925801187005,
+        "gain": 2.2850974629322645,
         "resistor_targets_ohms": {
-          "R1": 1871.0614590072928,
-          "R2": 1871.0614590072928,
+          "R1": 2429.0740304391106,
+          "R2": 2429.0740304391106,
           "Rg": 10000.0,
-          "Rf": 17655.925801187004
+          "Rf": 12850.974629322645
         },
         "capacitor_values_f": {
           "C1": 1e-07,
@@ -152,25 +142,25 @@
         "resistor_networks": {
           "R1": {
             "label": "R1",
-            "target_ohms": 1871.0614590072928,
-            "realized_ohms": 1871.9999999999998,
-            "connection": "parallel",
+            "target_ohms": 2429.0740304391106,
+            "realized_ohms": 2430.0,
+            "connection": "series",
             "parts_ohms": [
-              3600.0,
-              3900.0
+              30.0,
+              2400.0
             ],
-            "relative_error": 0.0005016088531933776
+            "relative_error": 0.00038120269258404635
           },
           "R2": {
             "label": "R2",
-            "target_ohms": 1871.0614590072928,
-            "realized_ohms": 1871.9999999999998,
-            "connection": "parallel",
+            "target_ohms": 2429.0740304391106,
+            "realized_ohms": 2430.0,
+            "connection": "series",
             "parts_ohms": [
-              3600.0,
-              3900.0
+              30.0,
+              2400.0
             ],
-            "relative_error": 0.0005016088531933776
+            "relative_error": 0.00038120269258404635
           },
           "Rg": {
             "label": "Rg",
@@ -184,14 +174,14 @@
           },
           "Rf": {
             "label": "Rf",
-            "target_ohms": 17655.925801187004,
-            "realized_ohms": 17653.846153846152,
+            "target_ohms": 12850.974629322645,
+            "realized_ohms": 12848.158131176999,
             "connection": "parallel",
             "parts_ohms": [
-              27000.0,
-              51000.0
+              13000.0,
+              1100000.0
             ],
-            "relative_error": 0.00011778749889807491
+            "relative_error": 0.00021916611205659758
           }
         },
         "notes": [
@@ -201,164 +191,44 @@
     },
     {
       "index": 3,
-      "natural_frequency_hz": 583.8315275893235,
-      "q": 1.9564857872927954,
-      "order": 2,
+      "natural_frequency_hz": 289.49334123561283,
+      "q": null,
+      "order": 1,
       "poles": [
         {
-          "real": -937.4772103745603,
-          "imag": 3546.508198040406
-        },
-        {
-          "real": -937.4772103745604,
-          "imag": -3546.5081980404043
+          "real": -1818.940308177929,
+          "imag": 4.0053140951622404e-13
         }
       ],
-      "damping_hz": 298.4082641342239,
+      "damping_hz": 289.49334123561283,
+      "zero_frequency_hz": null,
+      "gain_reference_hz": null,
       "realization": {
         "topology": "sallen_key",
         "stage_index": 3,
         "kind": "lowpass",
-        "gain": 2.488879496853536,
+        "gain": 1.0,
         "resistor_targets_ohms": {
-          "R1": 27260.422839625662,
-          "R2": 27260.422839625662,
-          "Rg": 10000.0,
-          "Rf": 14888.79496853536
+          "R1": 549770.6524529776
         },
         "capacitor_values_f": {
-          "C1": 1e-08,
-          "C2": 1e-08
+          "C1": 1e-09
         },
         "resistor_networks": {
           "R1": {
             "label": "R1",
-            "target_ohms": 27260.422839625662,
-            "realized_ohms": 27270.0,
-            "connection": "series",
-            "parts_ohms": [
-              270.0,
-              27000.0
-            ],
-            "relative_error": 0.0003513210499587889
-          },
-          "R2": {
-            "label": "R2",
-            "target_ohms": 27260.422839625662,
-            "realized_ohms": 27270.0,
-            "connection": "series",
-            "parts_ohms": [
-              270.0,
-              27000.0
-            ],
-            "relative_error": 0.0003513210499587889
-          },
-          "Rg": {
-            "label": "Rg",
-            "target_ohms": 10000.0,
-            "realized_ohms": 10000.0,
-            "connection": "single",
-            "parts_ohms": [
-              10000.0
-            ],
-            "relative_error": 0.0
-          },
-          "Rf": {
-            "label": "Rf",
-            "target_ohms": 14888.79496853536,
-            "realized_ohms": 14888.33746898263,
+            "target_ohms": 549770.6524529776,
+            "realized_ohms": 549738.219895288,
             "connection": "parallel",
             "parts_ohms": [
-              15000.0,
-              2000000.0
+              560000.0,
+              30000000.0
             ],
-            "relative_error": 3.072777573309126e-05
+            "relative_error": 5.8992886478934164e-05
           }
         },
         "notes": [
-          "Equal-C, equal-R Sallen-Key synthesis derived from the legacy gain/Q relation Av = 3 - 1/Q.",
-          "Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-08 F."
-        ]
-      }
-    },
-    {
-      "index": 4,
-      "natural_frequency_hz": 265.06829786714314,
-      "q": 0.7530423228020858,
-      "order": 2,
-      "poles": [
-        {
-          "real": -1105.8297682132102,
-          "imag": 1245.3680655783621
-        },
-        {
-          "real": -1105.8297682132102,
-          "imag": -1245.3680655783612
-        }
-      ],
-      "damping_hz": 351.9965476585946,
-      "realization": {
-        "topology": "sallen_key",
-        "stage_index": 4,
-        "kind": "lowpass",
-        "gain": 1.672053389670079,
-        "resistor_targets_ohms": {
-          "R1": 600429.9434241154,
-          "R2": 600429.9434241154,
-          "Rg": 10000.0,
-          "Rf": 6720.533896700791
-        },
-        "capacitor_values_f": {
-          "C1": 1e-09,
-          "C2": 1e-09
-        },
-        "resistor_networks": {
-          "R1": {
-            "label": "R1",
-            "target_ohms": 600429.9434241154,
-            "realized_ohms": 600000.0,
-            "connection": "series",
-            "parts_ohms": [
-              130000.0,
-              470000.0
-            ],
-            "relative_error": 0.0007160592652384282
-          },
-          "R2": {
-            "label": "R2",
-            "target_ohms": 600429.9434241154,
-            "realized_ohms": 600000.0,
-            "connection": "series",
-            "parts_ohms": [
-              130000.0,
-              470000.0
-            ],
-            "relative_error": 0.0007160592652384282
-          },
-          "Rg": {
-            "label": "Rg",
-            "target_ohms": 10000.0,
-            "realized_ohms": 10000.0,
-            "connection": "single",
-            "parts_ohms": [
-              10000.0
-            ],
-            "relative_error": 0.0
-          },
-          "Rf": {
-            "label": "Rf",
-            "target_ohms": 6720.533896700791,
-            "realized_ohms": 6718.419195483416,
-            "connection": "parallel",
-            "parts_ohms": [
-              6800.0,
-              560000.0
-            ],
-            "relative_error": 0.00031466268154874594
-          }
-        },
-        "notes": [
-          "Equal-C, equal-R Sallen-Key synthesis derived from the legacy gain/Q relation Av = 3 - 1/Q.",
+          "First-order passive RC section buffered by a voltage follower.",
           "Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-09 F."
         ]
       }
@@ -384,8 +254,6 @@
       "LM6171"
     ]
   },
-  "warnings": [
-    "At least one section has high Q; a Tow-Thomas or MFB realization may be safer than unity-gain Sallen-Key."
-  ]
+  "warnings": []
 }
-Netlist written to /home/romeruu/sofia-modern/docs/benchmark/case_002_lowpass_chebyshev_sallen_tl082/generated.cir
+Netlist written to docs\benchmark\case_002_lowpass_chebyshev_sallen_tl082\generated.cir

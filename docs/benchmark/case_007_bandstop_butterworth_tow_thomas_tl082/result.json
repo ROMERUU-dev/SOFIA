@@ -3,323 +3,383 @@
   "epsilon": 0.5088471399095875,
   "poles": [
     {
-      "real": -682.914006358605,
-      "imag": 3816.7610780956775
+      "real": -635.9038029362655,
+      "imag": 4107.69476444043
     },
     {
-      "real": -1721.5569131787802,
-      "imag": -9621.66738237454
+      "real": -1394.8924966954148,
+      "imag": -9010.47073342833
     },
     {
-      "real": -2278.83611789422,
-      "imag": 4393.237255377459
+      "real": -2018.7935091642041,
+      "imag": 4738.569979431755
     },
     {
-      "real": -3526.070186384641,
-      "imag": -6797.708174914845
+      "real": -2883.982459823694,
+      "imag": -6769.366279063437
     },
     {
-      "real": -2278.8361178942205,
-      "imag": -4393.23725537746
+      "real": -2018.793509164205,
+      "imag": -4738.569979431756
     },
     {
-      "real": -3526.0701863846407,
-      "imag": 6797.708174914844
+      "real": -2883.9824598236955,
+      "imag": 6769.366279063436
     },
     {
-      "real": -682.914006358606,
-      "imag": -3816.7610780956784
+      "real": -635.9038029362665,
+      "imag": -4107.69476444043
     },
     {
-      "real": -1721.5569131787825,
-      "imag": 9621.667382374539
+      "real": -1394.8924966954169,
+      "imag": 9010.470733428327
     }
   ],
   "stages": [
     {
       "index": 1,
-      "natural_frequency_hz": 1555.6550345745525,
-      "q": 2.8388456929462316,
+      "natural_frequency_hz": 1451.143211339368,
+      "q": 3.268281149157207,
       "order": 2,
       "poles": [
         {
-          "real": -1721.5569131787802,
-          "imag": -9621.66738237454
+          "real": -1394.8924966954148,
+          "imag": -9010.47073342833
         },
         {
-          "real": -1721.5569131787825,
-          "imag": 9621.667382374539
+          "real": -1394.8924966954169,
+          "imag": 9010.470733428327
         }
       ],
-      "damping_hz": 547.9885850928555,
+      "damping_hz": 444.0080718617415,
+      "zero_frequency_hz": 979.7958971132713,
+      "gain_reference_hz": null,
       "realization": {
         "topology": "tow_thomas",
         "stage_index": 1,
         "kind": "bandstop",
         "gain": 1.0,
         "resistor_targets_ohms": {
-          "Rbase": 10230.734935102226,
-          "Rq": 29043.477806189498,
-          "Rnotch": 10230.734935102226
+          "R": 109675.55913726763,
+          "Rq": 358450.56245160825,
+          "Rinv": 109675.55913726763,
+          "Rff": 240579.80751969517
         },
         "capacitor_values_f": {
-          "C1": 1e-08,
-          "C2": 1e-08
+          "C1": 1e-09,
+          "C2": 1e-09,
+          "Cff": 1e-09
         },
         "resistor_networks": {
-          "Rbase": {
-            "label": "Rbase",
-            "target_ohms": 10230.734935102226,
-            "realized_ohms": 10240.0,
-            "connection": "series",
+          "R": {
+            "label": "R",
+            "target_ohms": 109675.55913726763,
+            "realized_ohms": 109664.9127665467,
+            "connection": "parallel",
             "parts_ohms": [
-              240.0,
-              10000.0
+              110000.00000000001,
+              36000000.0
             ],
-            "relative_error": 0.0009056108829469574
+            "relative_error": 9.70714971018148e-05
           },
           "Rq": {
             "label": "Rq",
-            "target_ohms": 29043.477806189498,
-            "realized_ohms": 29042.55319148936,
+            "target_ohms": 358450.56245160825,
+            "realized_ohms": 358426.4205925207,
             "connection": "parallel",
             "parts_ohms": [
-              30000.0,
-              910000.0
+              360000.0,
+              82000000.0
             ],
-            "relative_error": 3.183553658091237e-05
+            "relative_error": 6.735059619505656e-05
           },
-          "Rnotch": {
-            "label": "Rnotch",
-            "target_ohms": 10230.734935102226,
-            "realized_ohms": 10240.0,
-            "connection": "series",
+          "Rinv": {
+            "label": "Rinv",
+            "target_ohms": 109675.55913726763,
+            "realized_ohms": 109664.9127665467,
+            "connection": "parallel",
             "parts_ohms": [
-              240.0,
-              10000.0
+              110000.00000000001,
+              36000000.0
             ],
-            "relative_error": 0.0009056108829469574
+            "relative_error": 9.70714971018148e-05
+          },
+          "Rff": {
+            "label": "Rff",
+            "target_ohms": 240579.80751969517,
+            "realized_ohms": 240485.82995951417,
+            "connection": "parallel",
+            "parts_ohms": [
+              270000.0,
+              2200000.0
+            ],
+            "relative_error": 0.00039062945951231825
           }
         },
         "notes": [
           "Tow-Thomas synthesis anchored to the legacy relations R = 1/(C*w0) and Rq = Q*R.",
-          "Band-stop extra resistor uses the legacy notch relation around the center frequency.",
-          "Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-08 F."
+          "Band-stop realized with feed-forward Cff = C and Rff = R*(w0/wz)^2, placing the notch at the band center.",
+          "Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-09 F."
         ]
       }
     },
     {
       "index": 2,
-      "natural_frequency_hz": 1218.777830449402,
-      "q": 1.0858840794725666,
+      "natural_frequency_hz": 1171.078408965836,
+      "q": 1.2756843627300019,
       "order": 2,
       "poles": [
         {
-          "real": -3526.070186384641,
-          "imag": -6797.708174914845
+          "real": -2883.982459823694,
+          "imag": -6769.366279063437
         },
         {
-          "real": -3526.0701863846407,
-          "imag": 6797.708174914844
+          "real": -2883.9824598236955,
+          "imag": 6769.366279063436
         }
       ],
-      "damping_hz": 1122.3829997041528,
+      "damping_hz": 918.000128542529,
+      "zero_frequency_hz": 979.7958971132713,
+      "gain_reference_hz": null,
       "realization": {
         "topology": "tow_thomas",
         "stage_index": 2,
         "kind": "bandstop",
         "gain": 1.0,
         "resistor_targets_ohms": {
-          "Rbase": 1305.8568929926291,
-          "Rq": 1418.009210170207,
-          "Rnotch": 1305.8568929926291
+          "R": 1359.0460030122408,
+          "Rq": 1733.7137342734266,
+          "Rinv": 1359.0460030122408,
+          "Rff": 1941.4887243240096
         },
         "capacitor_values_f": {
           "C1": 1e-07,
-          "C2": 1e-07
+          "C2": 1e-07,
+          "Cff": 1e-07
         },
         "resistor_networks": {
-          "Rbase": {
-            "label": "Rbase",
-            "target_ohms": 1305.8568929926291,
-            "realized_ohms": 1304.3478260869565,
-            "connection": "parallel",
+          "R": {
+            "label": "R",
+            "target_ohms": 1359.0460030122408,
+            "realized_ohms": 1360.0,
+            "connection": "series",
             "parts_ohms": [
-              1500.0,
-              10000.0
+              160.0,
+              1200.0
             ],
-            "relative_error": 0.0011556143048832102
+            "relative_error": 0.0007019607766364848
           },
           "Rq": {
             "label": "Rq",
-            "target_ohms": 1418.009210170207,
-            "realized_ohms": 1420.0,
-            "connection": "series",
-            "parts_ohms": [
-              120.0,
-              1300.0
-            ],
-            "relative_error": 0.0014039329332381015
-          },
-          "Rnotch": {
-            "label": "Rnotch",
-            "target_ohms": 1305.8568929926291,
-            "realized_ohms": 1304.3478260869565,
+            "target_ohms": 1733.7137342734266,
+            "realized_ohms": 1733.606557377049,
             "connection": "parallel",
             "parts_ohms": [
-              1500.0,
-              10000.0
+              1800.0,
+              47000.0
             ],
-            "relative_error": 0.0011556143048832102
+            "relative_error": 6.181925785020787e-05
+          },
+          "Rinv": {
+            "label": "Rinv",
+            "target_ohms": 1359.0460030122408,
+            "realized_ohms": 1360.0,
+            "connection": "series",
+            "parts_ohms": [
+              160.0,
+              1200.0
+            ],
+            "relative_error": 0.0007019607766364848
+          },
+          "Rff": {
+            "label": "Rff",
+            "target_ohms": 1941.4887243240096,
+            "realized_ohms": 1942.8571428571427,
+            "connection": "parallel",
+            "parts_ohms": [
+              2000.0,
+              68000.0
+            ],
+            "relative_error": 0.0007048295032511914
           }
         },
         "notes": [
           "Tow-Thomas synthesis anchored to the legacy relations R = 1/(C*w0) and Rq = Q*R.",
-          "Band-stop extra resistor uses the legacy notch relation around the center frequency."
+          "Band-stop realized with feed-forward Cff = C and Rff = R*(w0/wz)^2, placing the notch at the band center."
         ]
       }
     },
     {
       "index": 3,
-      "natural_frequency_hz": 787.6743209597256,
-      "q": 1.0858840794725666,
+      "natural_frequency_hz": 819.757236279135,
+      "q": 1.2756843627300019,
       "order": 2,
       "poles": [
         {
-          "real": -2278.8361178942205,
-          "imag": -4393.23725537746
+          "real": -2018.793509164205,
+          "imag": -4738.569979431756
         },
         {
-          "real": -2278.83611789422,
-          "imag": 4393.237255377459
+          "real": -2018.7935091642041,
+          "imag": 4738.569979431755
         }
       ],
-      "damping_hz": 725.3760653184207,
+      "damping_hz": 642.6019321306334,
+      "zero_frequency_hz": 979.7958971132713,
+      "gain_reference_hz": null,
       "realization": {
         "topology": "tow_thomas",
         "stage_index": 3,
         "kind": "bandstop",
         "gain": 1.0,
         "resistor_targets_ohms": {
-          "Rbase": 202056.7877571231,
-          "Rq": 219410.24897482738,
-          "Rnotch": 202056.7877571231
+          "R": 194.14887243240096,
+          "Rq": 247.67268060367584,
+          "Rinv": 194.14887243240096,
+          "Rff": 135.9046003012241
         },
         "capacitor_values_f": {
-          "C1": 1e-09,
-          "C2": 1e-09
+          "C1": 1e-06,
+          "C2": 1e-06,
+          "Cff": 1e-06
         },
         "resistor_networks": {
-          "Rbase": {
-            "label": "Rbase",
-            "target_ohms": 202056.7877571231,
-            "realized_ohms": 202000.0,
-            "connection": "series",
+          "R": {
+            "label": "R",
+            "target_ohms": 194.14887243240096,
+            "realized_ohms": 194.28571428571428,
+            "connection": "parallel",
             "parts_ohms": [
-              2000.0,
-              200000.0
+              200.0,
+              6800.0
             ],
-            "relative_error": 0.0002810485000452105
+            "relative_error": 0.0007048295032512207
           },
           "Rq": {
             "label": "Rq",
-            "target_ohms": 219410.24897482738,
-            "realized_ohms": 219411.33544149844,
+            "target_ohms": 247.67268060367584,
+            "realized_ohms": 247.70642201834863,
             "connection": "parallel",
             "parts_ohms": [
-              220000.00000000003,
-              82000000.0
+              270.0,
+              3000.0
             ],
-            "relative_error": 4.9517589817766385e-06
+            "relative_error": 0.00013623389786289044
           },
-          "Rnotch": {
-            "label": "Rnotch",
-            "target_ohms": 202056.7877571231,
-            "realized_ohms": 202000.0,
+          "Rinv": {
+            "label": "Rinv",
+            "target_ohms": 194.14887243240096,
+            "realized_ohms": 194.28571428571428,
+            "connection": "parallel",
+            "parts_ohms": [
+              200.0,
+              6800.0
+            ],
+            "relative_error": 0.0007048295032512207
+          },
+          "Rff": {
+            "label": "Rff",
+            "target_ohms": 135.9046003012241,
+            "realized_ohms": 136.0,
             "connection": "series",
             "parts_ohms": [
-              2000.0,
-              200000.0
+              16.0,
+              120.0
             ],
-            "relative_error": 0.0002810485000452105
+            "relative_error": 0.0007019607766364011
           }
         },
         "notes": [
           "Tow-Thomas synthesis anchored to the legacy relations R = 1/(C*w0) and Rq = Q*R.",
-          "Band-stop extra resistor uses the legacy notch relation around the center frequency.",
-          "Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-09 F."
+          "Band-stop realized with feed-forward Cff = C and Rff = R*(w0/wz)^2, placing the notch at the band center.",
+          "Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-06 F."
         ]
       }
     },
     {
       "index": 4,
-      "natural_frequency_hz": 617.103392888479,
-      "q": 2.8388456929462276,
+      "natural_frequency_hz": 661.5473872588666,
+      "q": 3.2682811491572066,
       "order": 2,
       "poles": [
         {
-          "real": -682.914006358606,
-          "imag": -3816.7610780956784
+          "real": -635.9038029362655,
+          "imag": 4107.69476444043
         },
         {
-          "real": -682.914006358605,
-          "imag": 3816.7610780956775
+          "real": -635.9038029362665,
+          "imag": -4107.69476444043
         }
       ],
-      "damping_hz": 217.3782796373244,
+      "damping_hz": 202.41446713648247,
+      "zero_frequency_hz": 979.7958971132713,
+      "gain_reference_hz": null,
       "realization": {
         "topology": "tow_thomas",
         "stage_index": 4,
         "kind": "bandstop",
         "gain": 1.0,
         "resistor_targets_ohms": {
-          "Rbase": 25790.64463524305,
-          "Rq": 73215.66044106646,
-          "Rnotch": 25790.64463524305
+          "R": 240579.8075196951,
+          "Rq": 786282.4497844887,
+          "Rinv": 240579.8075196951,
+          "Rff": 109675.55913726764
         },
         "capacitor_values_f": {
-          "C1": 1e-08,
-          "C2": 1e-08
+          "C1": 1e-09,
+          "C2": 1e-09,
+          "Cff": 1e-09
         },
         "resistor_networks": {
-          "Rbase": {
-            "label": "Rbase",
-            "target_ohms": 25790.64463524305,
-            "realized_ohms": 25795.27559055118,
+          "R": {
+            "label": "R",
+            "target_ohms": 240579.8075196951,
+            "realized_ohms": 240485.82995951417,
             "connection": "parallel",
             "parts_ohms": [
-              36000.0,
-              91000.0
+              270000.0,
+              2200000.0
             ],
-            "relative_error": 0.00017955950204524336
+            "relative_error": 0.00039062945951207637
           },
           "Rq": {
             "label": "Rq",
-            "target_ohms": 73215.66044106646,
-            "realized_ohms": 73175.8530183727,
-            "connection": "parallel",
-            "parts_ohms": [
-              82000.0,
-              680000.0
-            ],
-            "relative_error": 0.0005437009302921309
-          },
-          "Rnotch": {
-            "label": "Rnotch",
-            "target_ohms": 25790.64463524305,
-            "realized_ohms": 25795.27559055118,
-            "connection": "parallel",
+            "target_ohms": 786282.4497844887,
+            "realized_ohms": 786000.0,
+            "connection": "series",
             "parts_ohms": [
               36000.0,
-              91000.0
+              750000.0
             ],
-            "relative_error": 0.00017955950204524336
+            "relative_error": 0.00035922178418972266
+          },
+          "Rinv": {
+            "label": "Rinv",
+            "target_ohms": 240579.8075196951,
+            "realized_ohms": 240485.82995951417,
+            "connection": "parallel",
+            "parts_ohms": [
+              270000.0,
+              2200000.0
+            ],
+            "relative_error": 0.00039062945951207637
+          },
+          "Rff": {
+            "label": "Rff",
+            "target_ohms": 109675.55913726764,
+            "realized_ohms": 109664.9127665467,
+            "connection": "parallel",
+            "parts_ohms": [
+              110000.00000000001,
+              36000000.0
+            ],
+            "relative_error": 9.707149710194746e-05
           }
         },
         "notes": [
           "Tow-Thomas synthesis anchored to the legacy relations R = 1/(C*w0) and Rq = Q*R.",
-          "Band-stop extra resistor uses the legacy notch relation around the center frequency.",
-          "Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-08 F."
+          "Band-stop realized with feed-forward Cff = C and Rff = R*(w0/wz)^2, placing the notch at the band center.",
+          "Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-09 F."
         ]
       }
     }
@@ -345,7 +405,5 @@
       "LM6171"
     ]
   },
-  "warnings": [
-    "Band filters are migrated with pole-based section synthesis; component-level realizations still need topology-specific refinement."
-  ]
+  "warnings": []
 }

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 from .models import DesignInputs, DesignResult, FilterKind, Stage, Topology
@@ -16,10 +17,51 @@ MODEL_FILE_MAP = {
     "LM6171": "LM6171.cir",
 }
 
+# Subcircuit names as declared inside the vendor model files.
+MODEL_SUBCKT_MAP = {
+    "LM7171": "LM7171B/NS",
+    "LM6164": "LM6164/NS",
+    "LM6165": "LM6165/NS",
+    "LM6171": "LM6171A/NS",
+}
+
+# Single-supply rail per op amp. The virtual ground sits at half the rail, which keeps it inside
+# every model's input common-mode range (TL082/uA741/LM7171 do not bias with a 5 V rail).
+DEFAULT_SUPPLY_V = 15.0
+SUPPLY_VOLTAGE_MAP = {"LM324": 5.0}
+
+MODELS_DIR = Path(__file__).absolute().parents[2] / "resources" / "models"
+
 
 def model_path_for(inputs: DesignInputs) -> Path:
     filename = MODEL_FILE_MAP[inputs.opamp.value]
     return Path("resources") / "models" / filename
+
+
+def subckt_name_for(inputs: DesignInputs) -> str:
+    return MODEL_SUBCKT_MAP.get(inputs.opamp.value, inputs.opamp.value)
+
+
+def supply_voltage_for(inputs: DesignInputs) -> float:
+    return SUPPLY_VOLTAGE_MAP.get(inputs.opamp.value, DEFAULT_SUPPLY_V)
+
+
+def _include_path(inputs: DesignInputs, netlist_path: Path | None) -> str:
+    model = MODELS_DIR / MODEL_FILE_MAP[inputs.opamp.value]
+    if netlist_path is None or not model.exists():
+        return model_path_for(inputs).as_posix()
+    try:
+        return Path(os.path.relpath(model, Path(netlist_path).absolute().parent)).as_posix()
+    except ValueError:
+        # Different drive on Windows: fall back to an absolute path.
+        return model.as_posix()
+
+
+def ac_sweep_limits(inputs: DesignInputs) -> tuple[float, float]:
+    edges: list[float] = []
+    for value in (inputs.spec.passband_hz, inputs.spec.stopband_hz):
+        edges.extend(value if isinstance(value, tuple) else (value,))
+    return min(edges) / 10, max(edges) * 10
 
 
 def _stage_comment(stage: Stage, kind: FilterKind) -> str:
@@ -37,22 +79,24 @@ def _format_resistor_network(name: str, node_a: str, node_b: str, realized_name:
         current_a = node_a
         for index, value in enumerate(network.parts_ohms, start=1):
             current_b = node_b if index == len(network.parts_ohms) else f"{midpoint}{index}"
-            lines.append(f"{realized_name}{index} {current_a} {current_b} {value:.6f}")
+            lines.append(f"{realized_name}_{index} {current_a} {current_b} {value:.6f}")
             current_a = current_b
         return lines
 
     for index, value in enumerate(network.parts_ohms, start=1):
-        lines.append(f"{realized_name}{index} {node_a} {node_b} {value:.6f}")
+        lines.append(f"{realized_name}_{index} {node_a} {node_b} {value:.6f}")
     return lines
 
 
 def _stage_ports(stage: Stage, total_stages: int) -> tuple[str, str]:
-    stage_input = "IN" if stage.index == 1 else f"STAGE{stage.index - 1}_OUT"
-    stage_output = "OUT" if stage.index == total_stages else f"STAGE{stage.index}_OUT"
+    stage_input = "IN" if stage.index == 1 else f"1{stage.index - 1}"
+    stage_output = "OUT" if stage.index == total_stages else f"1{stage.index}"
     return stage_input, stage_output
 
 
-def render_netlist(inputs: DesignInputs, result: DesignResult) -> str:
+def render_netlist(inputs: DesignInputs, result: DesignResult, netlist_path: Path | None = None) -> str:
+    supply = supply_voltage_for(inputs)
+    vref = supply / 2
     lines: list[str] = []
     lines.append("* SOFIA Filter Studio generated netlist")
     lines.append(f"* Topology request: {inputs.topology.value}")
@@ -60,12 +104,12 @@ def render_netlist(inputs: DesignInputs, result: DesignResult) -> str:
     lines.append(f"* Approximation: {inputs.approximation.value}")
     lines.append(f"* Filter order: {result.order}")
     lines.append(f"* Epsilon: {result.epsilon:.8f}")
-    lines.append(f'.include "{model_path_for(inputs).as_posix()}"')
+    lines.append(f'.include "{_include_path(inputs, netlist_path)}"')
     lines.append("")
-    lines.append("* polarizacion de tierra virtual")
-    lines.append("Vin IN 0 DC 2.5 AC 1")
-    lines.append("VTIERRA VREF 0 2.5V")
-    lines.append("VCC VCC 0 DC 5")
+    lines.append(f"* polarizacion de tierra virtual: fuente unica de {supply:g} V, tierra virtual en {vref:g} V")
+    lines.append(f"Vin IN 0 DC {vref:g} AC 1")
+    lines.append(f"VTIERRA VREF 0 {vref:g}V")
+    lines.append(f"VCC VCC 0 DC {supply:g}")
     lines.append("RLOAD OUT 0 100k")
     lines.append("")
 
@@ -75,145 +119,228 @@ def render_netlist(inputs: DesignInputs, result: DesignResult) -> str:
         lines.append("* TODO: port legacy OTA sizing equations and transistor-level export.")
     else:
         total_stages = len(result.stages)
+        stage_lines: list[str] = []
         for stage in result.stages:
-            lines.append(_stage_comment(stage, inputs.kind))
-            lines.extend(_render_stage_template(inputs, stage, total_stages))
-            lines.append("")
+            stage_lines.append(_stage_comment(stage, inputs.kind))
+            stage_lines.extend(_render_stage_template(inputs, stage, total_stages))
+            stage_lines.append("")
+        lines.extend(stage_lines)
+        lines.extend(_nodeset_lines(stage_lines, vref))
 
-    lines.append(".ac dec 100 1Hz 500Hz")
+    f_start, f_stop = ac_sweep_limits(inputs)
+    lines.append(f".ac dec 100 {f_start:.6g} {f_stop:.6g}")
     lines.append(".probe V(OUT)")
     lines.append(".end")
     return "\n".join(lines)
 
 
+def _nodeset_lines(stage_lines: list[str], vref: float, per_line: int = 8) -> list[str]:
+    """Seed every op amp output at the virtual ground.
+
+    Op amp macro-models (TL082 in particular) admit a latched DC solution with the output stuck at a
+    rail; without a hint the simulator can converge there and the AC result becomes meaningless.
+    Seeding only the outputs is enough; seeding every node makes some Tow-Thomas cascades diverge.
+    """
+    nodes: list[str] = []
+    for line in stage_lines:
+        parts = line.split()
+        if len(parts) >= 7 and parts[0].upper().startswith("X"):
+            output = parts[-2]
+            if output not in nodes:
+                nodes.append(output)
+    if not nodes:
+        return []
+    lines = ["* punto de operacion inicial en la tierra virtual"]
+    for start in range(0, len(nodes), per_line):
+        chunk = " ".join(f"V({node})={vref:g}" for node in nodes[start : start + per_line])
+        lines.append(f".nodeset {chunk}" if start == 0 else f"+ {chunk}")
+    lines.append("")
+    return lines
+
+
+class _StageWriter:
+    """Small helper that emits the element lines of one stage with legacy-style names."""
+
+    def __init__(self, inputs: DesignInputs, stage: Stage) -> None:
+        self.inputs = inputs
+        self.stage = stage
+        self.realization = stage.realization
+        self.subckt = subckt_name_for(inputs)
+        self.lines: list[str] = []
+
+    def node(self, prefix: int) -> str:
+        return f"{prefix}{self.stage.index}"
+
+    def opamp(self, number: int, plus: str, minus: str, out: str) -> None:
+        self.lines.append(f"Xao{number}{self.stage.index} {plus} {minus} VCC 0 {out} {self.subckt}")
+
+    def cap(self, number: int, node_a: str, node_b: str, key: str) -> None:
+        value = self.realization.capacitor_values_f[key]
+        self.lines.append(f"c{number}{self.stage.index} {node_a} {node_b} {value:.9e}")
+
+    def res(self, number: int, node_a: str, node_b: str, key: str) -> None:
+        network = self.realization.resistor_networks[key]
+        self.lines.extend(_format_resistor_network(key, node_a, node_b, f"r{number}{self.stage.index}", network))
+
+    def has(self, key: str) -> bool:
+        return key in self.realization.resistor_networks or key in self.realization.capacitor_values_f
+
+
 def _render_stage_template(inputs: DesignInputs, stage: Stage, total_stages: int) -> list[str]:
     realization = stage.realization
-    topology = realization.topology if realization is not None else inputs.topology
     stage_input, stage_output = _stage_ports(stage, total_stages)
-    stage_tag = f"S{stage.index}"
     lines = [f"* Stage input: {stage_input}", f"* Stage output: {stage_output}"]
+    if realization is None:
+        lines.append("* Missing realization")
+        return lines
+    for note in realization.notes:
+        lines.append(f"* {note}")
 
-    if realization is not None:
-        for note in realization.notes:
-            lines.append(f"* {note}")
-
-    if topology is Topology.SALLEN_KEY and realization is not None:
-        c1 = realization.capacitor_values_f["C1"]
-        c2 = realization.capacitor_values_f["C2"]
-        in_node = "IN" if stage.index == 1 else f"1{stage.index - 1}"
-        out_node = "OUT" if stage.index == total_stages else f"1{stage.index}"
-        node_2 = f"2{stage.index}"
-        node_3 = f"3{stage.index}"
-        node_4 = f"4{stage.index}"
-        lines.append(f"Xao1{stage.index} {node_3} {node_4} VCC 0 {out_node} {inputs.opamp.value}")
-        lines.append(f"c1{stage.index} {node_3} VREF {c1:.9e}")
-        lines.append(f"c2{stage.index} {node_2} {out_node} {c2:.9e}")
-        lines.extend(_format_resistor_network("R1", in_node, node_2, f"r3{stage.index}", realization.resistor_networks["R1"]))
-        lines.extend(_format_resistor_network("R2", node_2, node_3, f"r4{stage.index}", realization.resistor_networks["R2"]))
-        lines.extend(_format_resistor_network("Rg", node_4, "VREF", f"r1{stage.index}", realization.resistor_networks["Rg"]))
-        lines.extend(_format_resistor_network("Rf", node_4, out_node, f"r2{stage.index}", realization.resistor_networks["Rf"]))
-    elif topology is Topology.TOW_THOMAS and realization is not None:
-        in_node = "IN" if stage.index == 1 else f"1{stage.index - 1}"
-        out_node = "OUT" if stage.index == total_stages else f"1{stage.index}"
-        n2 = f"2{stage.index}"
-        n3 = f"3{stage.index}"
-        n4 = f"4{stage.index}"
-        n6 = f"6{stage.index}"
-        n7 = f"7{stage.index}"
-        lines.append(f"Xao1{stage.index} VREF {n2} VCC 0 {n3} {inputs.opamp.value}")
-        lines.append(f"Xao2{stage.index} VREF {n4} VCC 0 {out_node} {inputs.opamp.value}")
-        lines.append(f"Xao3{stage.index} VREF {n6} VCC 0 {n7} {inputs.opamp.value}")
-        lines.append(f"c1{stage.index} {n2} {n3} {realization.capacitor_values_f['C1']:.9e}")
-        lines.append(f"c2{stage.index} {n4} {out_node} {realization.capacitor_values_f['C2']:.9e}")
-        if "Rbase" in realization.resistor_networks:
-            lines.extend(_format_resistor_network("Rbase", in_node, n2, f"r1{stage.index}", realization.resistor_networks["Rbase"]))
-            lines.extend(_format_resistor_network("Rbase", n2, n7, f"r2{stage.index}", realization.resistor_networks["Rbase"]))
-            lines.extend(_format_resistor_network("Rbase", n3, n4, f"r3{stage.index}", realization.resistor_networks["Rbase"]))
-        if "Rq" in realization.resistor_networks:
-            lines.extend(_format_resistor_network("Rq", n2, n3, f"r4{stage.index}", realization.resistor_networks["Rq"]))
-        if "Rbw" in realization.resistor_networks:
-            lines.extend(_format_resistor_network("Rbw", out_node, n6, f"r5{stage.index}", realization.resistor_networks["Rbw"]))
-            lines.extend(_format_resistor_network("Rbw", n6, n7, f"r6{stage.index}", realization.resistor_networks["Rbw"]))
-    elif topology is Topology.MFB and realization is not None:
-        in_node = "10" if stage.index == 1 else f"1{stage.index - 1}"
-        out_node = "OUT" if stage.index == total_stages else f"1{stage.index}"
-        n2 = f"2{stage.index}"
-        n3 = f"3{stage.index}"
-        lines.append(f"Xao1{stage.index} {n3} VREF VCC 0 {out_node} {inputs.opamp.value}")
-        lines.append(f"c1{stage.index} {n2} {n3} {realization.capacitor_values_f['C1']:.9e}")
-        lines.append(f"c2{stage.index} {n2} {out_node} {realization.capacitor_values_f['C2']:.9e}")
-        lines.extend(_format_resistor_network("R1", n3, out_node, f"r1{stage.index}", realization.resistor_networks["R1"]))
-        lines.extend(_format_resistor_network("R2", n2, "VREF", f"r2{stage.index}", realization.resistor_networks["R2"]))
-        lines.extend(_format_resistor_network("R3", in_node, n2, f"r3{stage.index}", realization.resistor_networks["R3"]))
-    elif topology is Topology.ANTONIOU and realization is not None:
-        in_node = "10" if stage.index == 1 else f"1{stage.index - 1}"
-        out_node = "OUT" if stage.index == total_stages else f"1{stage.index}"
-        n2 = f"2{stage.index}"
-        n3 = f"3{stage.index}"
-        n4 = f"4{stage.index}"
-        n5 = f"5{stage.index}"
-        n6 = f"6{stage.index}"
-        lines.append(f"Xao1{stage.index} {n2} {n4} VCC 0 {n5} {inputs.opamp.value}")
-        lines.append(f"Xao2{stage.index} {n6} {n4} VCC 0 {n3} {inputs.opamp.value}")
-        lines.append(f"Xao3{stage.index} {n6} {out_node} VCC 0 {out_node} {inputs.opamp.value}")
-        if "R1" in realization.resistor_networks:
-            lines.extend(_format_resistor_network("R1", n5, n6, f"r1{stage.index}", realization.resistor_networks["R1"]))
-        if "R2" in realization.resistor_networks:
-            lines.extend(_format_resistor_network("R2", n4, n5, f"r2{stage.index}", realization.resistor_networks["R2"]))
-        if "R3" in realization.resistor_networks:
-            lines.extend(_format_resistor_network("R3", n3, n4, f"r3{stage.index}", realization.resistor_networks["R3"]))
-        if "Rq" in realization.resistor_networks:
-            lines.extend(_format_resistor_network("Rq", in_node, n2, f"r5{stage.index}", realization.resistor_networks["Rq"]))
-            lines.extend(_format_resistor_network("Rq", n6, "VREF", f"r6{stage.index}", realization.resistor_networks["Rq"]))
-        if "Rbw" in realization.resistor_networks:
-            lines.extend(_format_resistor_network("Rbw", n6, out_node, f"r7{stage.index}", realization.resistor_networks["Rbw"]))
-        if "Rnotch" in realization.resistor_networks:
-            lines.extend(_format_resistor_network("Rnotch", in_node, out_node, f"r8{stage.index}", realization.resistor_networks["Rnotch"]))
-        lines.append(f"c4{stage.index} {n2} {n3} {realization.capacitor_values_f['C1']:.9e}")
-        lines.append(f"c6{stage.index} {n6} VREF {realization.capacitor_values_f['C2']:.9e}")
+    writer = _StageWriter(inputs, stage)
+    topology = realization.topology
+    if stage.order == 1:
+        if topology in {Topology.MFB, Topology.TOW_THOMAS}:
+            _render_first_order_inverting(writer, inputs.kind, stage_input, stage_output)
+        else:
+            _render_first_order_follower(writer, inputs.kind, stage_input, stage_output)
     elif topology is Topology.SALLEN_KEY:
-        lines.extend(
-            [
-                f"R{stage_tag}1 {stage_input} {stage_tag}_A 10k",
-                f"R{stage_tag}2 {stage_tag}_A {stage_output} 10k",
-                f"C{stage_tag}1 {stage_tag}_A 0 10n",
-                f"C{stage_tag}2 {stage_output} 0 10n",
-                f"X{stage_tag}BUF {stage_output} {stage_output} VCC 0 {stage_output} {inputs.opamp.value}",
-            ]
-        )
-    elif topology is Topology.TOW_THOMAS:
-        lines.extend(
-            [
-                f"R{stage_tag}B {stage_input} {stage_tag}_SUM 10k",
-                f"C{stage_tag}1 {stage_tag}_INT1 0 10n",
-                f"C{stage_tag}2 {stage_tag}_INT2 0 10n",
-                f"X{stage_tag}A {stage_tag}_SUM {stage_tag}_INT1 VCC 0 {stage_tag}_SUMO {inputs.opamp.value}",
-                f"X{stage_tag}B {stage_tag}_INT1 {stage_tag}_INT2 VCC 0 {stage_tag}_INTO {inputs.opamp.value}",
-                f"X{stage_tag}C {stage_tag}_INT2 {stage_output} VCC 0 {stage_output} {inputs.opamp.value}",
-            ]
-        )
+        _render_sallen_key(writer, inputs.kind, stage_input, stage_output)
     elif topology is Topology.MFB:
-        lines.extend(
-            [
-                f"R{stage_tag}1 {stage_input} {stage_tag}_INV 10k",
-                f"R{stage_tag}2 {stage_output} {stage_tag}_INV 10k",
-                f"R{stage_tag}3 {stage_tag}_INV 0 10k",
-                f"C{stage_tag}1 {stage_input} {stage_tag}_INV 10n",
-                f"C{stage_tag}2 {stage_output} {stage_tag}_INV 10n",
-                f"X{stage_tag}MFB VREF {stage_tag}_INV VCC 0 {stage_output} {inputs.opamp.value}",
-            ]
-        )
+        _render_mfb(writer, inputs.kind, stage_input, stage_output)
+    elif topology is Topology.TOW_THOMAS:
+        _render_tow_thomas(writer, inputs.kind, stage_input, stage_output)
     elif topology is Topology.ANTONIOU:
-        lines.extend(
-            [
-                f"R{stage_tag}1 {stage_input} {stage_tag}_A 10k",
-                f"R{stage_tag}2 {stage_input} {stage_tag}_B 10k",
-                f"C{stage_tag}1 {stage_tag}_A 0 10n",
-                f"C{stage_tag}2 {stage_tag}_B 0 10n",
-                f"X{stage_tag}A {stage_tag}_A {stage_tag}_B VCC 0 {stage_tag}_AO {inputs.opamp.value}",
-                f"X{stage_tag}B {stage_tag}_B {stage_output} VCC 0 {stage_output} {inputs.opamp.value}",
-            ]
-        )
+        _render_antoniou(writer, inputs.kind, stage_input, stage_output)
     else:
-        lines.append("* Unknown topology")
-    return lines
+        writer.lines.append("* Unknown topology")
+    return lines + writer.lines
+
+
+def _render_first_order_follower(w: _StageWriter, kind: FilterKind, in_node: str, out_node: str) -> None:
+    n2 = w.node(2)
+    w.opamp(1, n2, out_node, out_node)
+    if kind is FilterKind.HIGHPASS:
+        w.cap(1, in_node, n2, "C1")
+        w.res(1, n2, "VREF", "R1")
+    else:
+        w.res(1, in_node, n2, "R1")
+        w.cap(1, n2, "VREF", "C1")
+
+
+def _render_first_order_inverting(w: _StageWriter, kind: FilterKind, in_node: str, out_node: str) -> None:
+    n2, n3 = w.node(2), w.node(3)
+    w.opamp(1, "VREF", n3, out_node)
+    if kind is FilterKind.HIGHPASS:
+        w.cap(1, in_node, n2, "C1")
+        w.res(1, n2, n3, "R1")
+    else:
+        w.res(1, in_node, n3, "R1")
+        w.cap(1, n3, out_node, "C1")
+    w.res(2, n3, out_node, "R2")
+
+
+def _render_sallen_key(w: _StageWriter, kind: FilterKind, in_node: str, out_node: str) -> None:
+    n2, n3, n4 = w.node(2), w.node(3), w.node(4)
+    unity = not w.has("Rf")
+    w.opamp(1, n3, out_node if unity else n4, out_node)
+    if kind is FilterKind.HIGHPASS:
+        w.cap(1, in_node, n2, "C1")
+        w.cap(2, n2, n3, "C2")
+        w.res(3, n2, out_node, "R1")
+        w.res(4, n3, "VREF", "R2")
+    elif kind is FilterKind.BANDPASS:
+        if w.has("R1a"):
+            w.res(3, in_node, n2, "R1a")
+            w.res(6, n2, "VREF", "R1b")
+        else:
+            w.res(3, in_node, n2, "R1")
+        w.cap(1, n2, "VREF", "C1")
+        w.cap(2, n2, n3, "C2")
+        w.res(4, n2, out_node, "R2")
+        w.res(5, n3, "VREF", "R3")
+    else:
+        w.cap(1, n3, "VREF", "C1")
+        w.cap(2, n2, out_node, "C2")
+        w.res(3, in_node, n2, "R1")
+        w.res(4, n2, n3, "R2")
+    if not unity:
+        w.res(1, n4, "VREF", "Rg")
+        w.res(2, n4, out_node, "Rf")
+
+
+def _render_mfb(w: _StageWriter, kind: FilterKind, in_node: str, out_node: str) -> None:
+    n2, n3 = w.node(2), w.node(3)
+    w.opamp(1, "VREF", n3, out_node)
+    if kind is FilterKind.BANDPASS:
+        w.cap(1, n2, n3, "C1")
+        w.cap(2, n2, out_node, "C2")
+        w.res(1, n3, out_node, "R1")
+        if w.has("R2"):
+            w.res(2, n2, "VREF", "R2")
+        w.res(3, in_node, n2, "R3")
+    elif kind is FilterKind.HIGHPASS:
+        w.cap(1, in_node, n2, "C1")
+        w.cap(2, n2, out_node, "C2")
+        w.cap(3, n2, n3, "C3")
+        w.res(1, n2, "VREF", "R1")
+        w.res(2, n3, out_node, "R2")
+    else:
+        w.cap(1, n2, "VREF", "C1")
+        w.cap(2, n3, out_node, "C2")
+        w.res(1, in_node, n2, "R1")
+        w.res(2, n2, out_node, "R2")
+        w.res(3, n2, n3, "R3")
+
+
+def _render_tow_thomas(w: _StageWriter, kind: FilterKind, in_node: str, out_node: str) -> None:
+    n2, n4, n6, n7 = w.node(2), w.node(4), w.node(6), w.node(7)
+    if kind is FilterKind.LOWPASS:
+        bandpass_node, lowpass_node = w.node(3), out_node
+    else:
+        bandpass_node, lowpass_node = out_node, w.node(5)
+    w.opamp(1, "VREF", n2, bandpass_node)
+    w.opamp(2, "VREF", n4, lowpass_node)
+    w.opamp(3, "VREF", n6, n7)
+    w.cap(1, n2, bandpass_node, "C1")
+    w.cap(2, n4, lowpass_node, "C2")
+    w.res(2, n7, n2, "R")
+    w.res(3, bandpass_node, n4, "R")
+    w.res(4, n2, bandpass_node, "Rq")
+    w.res(5, lowpass_node, n6, "Rinv")
+    w.res(6, n6, n7, "Rinv")
+    if w.has("R1"):
+        w.res(1, in_node, n2, "R1")
+    if w.has("Cff"):
+        w.cap(3, in_node, n2, "Cff")
+    if w.has("Rff"):
+        w.res(7, in_node, n4, "Rff")
+
+
+def _render_antoniou(w: _StageWriter, kind: FilterKind, in_node: str, out_node: str) -> None:
+    # GIC nodes: X=n6 (simulated inductor), a=n5, b=n4, c=n3, d=n2.
+    n2, n3, n4, n5, n6, n7 = w.node(2), w.node(3), w.node(4), w.node(5), w.node(6), w.node(7)
+    w.opamp(1, n2, n4, n5)
+    w.opamp(2, n6, n4, n3)
+    if w.has("Rf"):
+        w.opamp(3, n6, n7, out_node)
+        w.res(8, n7, "VREF", "Rg")
+        w.res(9, n7, out_node, "Rf")
+    else:
+        w.opamp(3, n6, out_node, out_node)
+    w.res(1, n5, n6, "R")
+    w.res(2, n4, n5, "R")
+    w.res(3, n3, n4, "R")
+    w.cap(4, n2, n3, "C1")
+    if w.has("R5"):
+        lifted = kind in {FilterKind.LOWPASS, FilterKind.BANDSTOP}
+        w.res(5, n2, in_node if lifted else "VREF", "R5")
+    if w.has("R5a"):
+        w.res(5, n2, in_node, "R5a")
+        w.res(7, n2, "VREF", "R5b")
+    if w.has("C2"):
+        w.cap(6, n6, in_node if kind is FilterKind.HIGHPASS else "VREF", "C2")
+    if w.has("C2a"):
+        w.cap(6, n6, in_node, "C2a")
+    if w.has("C2b"):
+        w.cap(7, n6, "VREF", "C2b")
+    w.res(6, n6, in_node if kind is FilterKind.BANDPASS else "VREF", "Rq")

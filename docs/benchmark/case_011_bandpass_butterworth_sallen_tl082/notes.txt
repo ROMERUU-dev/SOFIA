@@ -1,0 +1,2 @@
+Legado: SOFIA avisa que Sallen-Key no soporta pasa banda, pero al cambiar el capacitor se reactiva Execute y genera un netlist que solo trae las lineas de los opamps (salida en cero).
+Nuevo: `cumple_con_tolerancia` (funciona): rizo 1.05 dB (limite 1), atenuacion 49.5 dB (minimo 40), ganancia 0.0 dB; con opamp ideal rizo 0.98 dB, atenuacion 49.4 dB

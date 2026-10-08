@@ -4,109 +4,141 @@
 * Approximation: butterworth
 * Filter order: 8
 * Epsilon: 0.50884714
-.include "resources/models/TL082.cir"
+.include "../../../resources/models/TL082.cir"
 
-* polarizacion de tierra virtual
-Vin IN 0 DC 2.5 AC 1
-VTIERRA VREF 0 2.5V
-VCC VCC 0 DC 5
+* polarizacion de tierra virtual: fuente unica de 15 V, tierra virtual en 7.5 V
+Vin IN 0 DC 7.5 AC 1
+VTIERRA VREF 0 7.5V
+VCC VCC 0 DC 15
 RLOAD OUT 0 100k
 
-* Stage 1: bandstop, f0=1555.65503 Hz, Q=2.83885, order=2
+* Stage 1: bandstop, f0=1451.14321 Hz, Q=3.26828, order=2
 * Stage input: IN
-* Stage output: STAGE1_OUT
+* Stage output: 11
 * Tow-Thomas synthesis anchored to the legacy relations R = 1/(C*w0) and Rq = Q*R.
-* Band-stop extra resistor uses the legacy notch relation around the center frequency.
-* Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-08 F.
-Xao11 VREF 21 VCC 0 31 TL082
-Xao21 VREF 41 VCC 0 11 TL082
-Xao31 VREF 61 VCC 0 71 TL082
-c11 21 31 1.000000000e-08
-c21 41 11 1.000000000e-08
-* Rbase: series array for target 10230.734935 ohm
-r111 IN r11_MID1 240.000000
-r112 r11_MID1 21 10000.000000
-* Rbase: series array for target 10230.734935 ohm
-r211 21 r21_MID1 240.000000
-r212 r21_MID1 71 10000.000000
-* Rbase: series array for target 10230.734935 ohm
-r311 31 r31_MID1 240.000000
-r312 r31_MID1 41 10000.000000
-* Rq: parallel array for target 29043.477806 ohm
-r411 21 31 30000.000000
-r412 21 31 910000.000000
-
-* Stage 2: bandstop, f0=1218.77783 Hz, Q=1.08588, order=2
-* Stage input: STAGE1_OUT
-* Stage output: STAGE2_OUT
-* Tow-Thomas synthesis anchored to the legacy relations R = 1/(C*w0) and Rq = Q*R.
-* Band-stop extra resistor uses the legacy notch relation around the center frequency.
-Xao12 VREF 22 VCC 0 32 TL082
-Xao22 VREF 42 VCC 0 12 TL082
-Xao32 VREF 62 VCC 0 72 TL082
-c12 22 32 1.000000000e-07
-c22 42 12 1.000000000e-07
-* Rbase: parallel array for target 1305.856893 ohm
-r121 11 22 1500.000000
-r122 11 22 10000.000000
-* Rbase: parallel array for target 1305.856893 ohm
-r221 22 72 1500.000000
-r222 22 72 10000.000000
-* Rbase: parallel array for target 1305.856893 ohm
-r321 32 42 1500.000000
-r322 32 42 10000.000000
-* Rq: series array for target 1418.009210 ohm
-r421 22 r42_MID1 120.000000
-r422 r42_MID1 32 1300.000000
-
-* Stage 3: bandstop, f0=787.67432 Hz, Q=1.08588, order=2
-* Stage input: STAGE2_OUT
-* Stage output: STAGE3_OUT
-* Tow-Thomas synthesis anchored to the legacy relations R = 1/(C*w0) and Rq = Q*R.
-* Band-stop extra resistor uses the legacy notch relation around the center frequency.
+* Band-stop realized with feed-forward Cff = C and Rff = R*(w0/wz)^2, placing the notch at the band center.
 * Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-09 F.
-Xao13 VREF 23 VCC 0 33 TL082
-Xao23 VREF 43 VCC 0 13 TL082
-Xao33 VREF 63 VCC 0 73 TL082
-c13 23 33 1.000000000e-09
-c23 43 13 1.000000000e-09
-* Rbase: series array for target 202056.787757 ohm
-r131 12 r13_MID1 2000.000000
-r132 r13_MID1 23 200000.000000
-* Rbase: series array for target 202056.787757 ohm
-r231 23 r23_MID1 2000.000000
-r232 r23_MID1 73 200000.000000
-* Rbase: series array for target 202056.787757 ohm
-r331 33 r33_MID1 2000.000000
-r332 r33_MID1 43 200000.000000
-* Rq: parallel array for target 219410.248975 ohm
-r431 23 33 220000.000000
-r432 23 33 82000000.000000
+Xao11 VREF 21 VCC 0 11 TL082
+Xao21 VREF 41 VCC 0 51 TL082
+Xao31 VREF 61 VCC 0 71 TL082
+c11 21 11 1.000000000e-09
+c21 41 51 1.000000000e-09
+* R: parallel array for target 109675.559137 ohm
+r21_1 71 21 110000.000000
+r21_2 71 21 36000000.000000
+* R: parallel array for target 109675.559137 ohm
+r31_1 11 41 110000.000000
+r31_2 11 41 36000000.000000
+* Rq: parallel array for target 358450.562452 ohm
+r41_1 21 11 360000.000000
+r41_2 21 11 82000000.000000
+* Rinv: parallel array for target 109675.559137 ohm
+r51_1 51 61 110000.000000
+r51_2 51 61 36000000.000000
+* Rinv: parallel array for target 109675.559137 ohm
+r61_1 61 71 110000.000000
+r61_2 61 71 36000000.000000
+c31 IN 21 1.000000000e-09
+* Rff: parallel array for target 240579.807520 ohm
+r71_1 IN 41 270000.000000
+r71_2 IN 41 2200000.000000
 
-* Stage 4: bandstop, f0=617.10339 Hz, Q=2.83885, order=2
-* Stage input: STAGE3_OUT
+* Stage 2: bandstop, f0=1171.07841 Hz, Q=1.27568, order=2
+* Stage input: 11
+* Stage output: 12
+* Tow-Thomas synthesis anchored to the legacy relations R = 1/(C*w0) and Rq = Q*R.
+* Band-stop realized with feed-forward Cff = C and Rff = R*(w0/wz)^2, placing the notch at the band center.
+Xao12 VREF 22 VCC 0 12 TL082
+Xao22 VREF 42 VCC 0 52 TL082
+Xao32 VREF 62 VCC 0 72 TL082
+c12 22 12 1.000000000e-07
+c22 42 52 1.000000000e-07
+* R: series array for target 1359.046003 ohm
+r22_1 72 r22_MID1 160.000000
+r22_2 r22_MID1 22 1200.000000
+* R: series array for target 1359.046003 ohm
+r32_1 12 r32_MID1 160.000000
+r32_2 r32_MID1 42 1200.000000
+* Rq: parallel array for target 1733.713734 ohm
+r42_1 22 12 1800.000000
+r42_2 22 12 47000.000000
+* Rinv: series array for target 1359.046003 ohm
+r52_1 52 r52_MID1 160.000000
+r52_2 r52_MID1 62 1200.000000
+* Rinv: series array for target 1359.046003 ohm
+r62_1 62 r62_MID1 160.000000
+r62_2 r62_MID1 72 1200.000000
+c32 11 22 1.000000000e-07
+* Rff: parallel array for target 1941.488724 ohm
+r72_1 11 42 2000.000000
+r72_2 11 42 68000.000000
+
+* Stage 3: bandstop, f0=819.75724 Hz, Q=1.27568, order=2
+* Stage input: 12
+* Stage output: 13
+* Tow-Thomas synthesis anchored to the legacy relations R = 1/(C*w0) and Rq = Q*R.
+* Band-stop realized with feed-forward Cff = C and Rff = R*(w0/wz)^2, placing the notch at the band center.
+* Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-06 F.
+Xao13 VREF 23 VCC 0 13 TL082
+Xao23 VREF 43 VCC 0 53 TL082
+Xao33 VREF 63 VCC 0 73 TL082
+c13 23 13 1.000000000e-06
+c23 43 53 1.000000000e-06
+* R: parallel array for target 194.148872 ohm
+r23_1 73 23 200.000000
+r23_2 73 23 6800.000000
+* R: parallel array for target 194.148872 ohm
+r33_1 13 43 200.000000
+r33_2 13 43 6800.000000
+* Rq: parallel array for target 247.672681 ohm
+r43_1 23 13 270.000000
+r43_2 23 13 3000.000000
+* Rinv: parallel array for target 194.148872 ohm
+r53_1 53 63 200.000000
+r53_2 53 63 6800.000000
+* Rinv: parallel array for target 194.148872 ohm
+r63_1 63 73 200.000000
+r63_2 63 73 6800.000000
+c33 12 23 1.000000000e-06
+* Rff: series array for target 135.904600 ohm
+r73_1 12 r73_MID1 16.000000
+r73_2 r73_MID1 43 120.000000
+
+* Stage 4: bandstop, f0=661.54739 Hz, Q=3.26828, order=2
+* Stage input: 13
 * Stage output: OUT
 * Tow-Thomas synthesis anchored to the legacy relations R = 1/(C*w0) and Rq = Q*R.
-* Band-stop extra resistor uses the legacy notch relation around the center frequency.
-* Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-08 F.
-Xao14 VREF 24 VCC 0 34 TL082
-Xao24 VREF 44 VCC 0 OUT TL082
+* Band-stop realized with feed-forward Cff = C and Rff = R*(w0/wz)^2, placing the notch at the band center.
+* Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-09 F.
+Xao14 VREF 24 VCC 0 OUT TL082
+Xao24 VREF 44 VCC 0 54 TL082
 Xao34 VREF 64 VCC 0 74 TL082
-c14 24 34 1.000000000e-08
-c24 44 OUT 1.000000000e-08
-* Rbase: parallel array for target 25790.644635 ohm
-r141 13 24 36000.000000
-r142 13 24 91000.000000
-* Rbase: parallel array for target 25790.644635 ohm
-r241 24 74 36000.000000
-r242 24 74 91000.000000
-* Rbase: parallel array for target 25790.644635 ohm
-r341 34 44 36000.000000
-r342 34 44 91000.000000
-* Rq: parallel array for target 73215.660441 ohm
-r441 24 34 82000.000000
-r442 24 34 680000.000000
+c14 24 OUT 1.000000000e-09
+c24 44 54 1.000000000e-09
+* R: parallel array for target 240579.807520 ohm
+r24_1 74 24 270000.000000
+r24_2 74 24 2200000.000000
+* R: parallel array for target 240579.807520 ohm
+r34_1 OUT 44 270000.000000
+r34_2 OUT 44 2200000.000000
+* Rq: series array for target 786282.449784 ohm
+r44_1 24 r44_MID1 36000.000000
+r44_2 r44_MID1 OUT 750000.000000
+* Rinv: parallel array for target 240579.807520 ohm
+r54_1 54 64 270000.000000
+r54_2 54 64 2200000.000000
+* Rinv: parallel array for target 240579.807520 ohm
+r64_1 64 74 270000.000000
+r64_2 64 74 2200000.000000
+c34 13 24 1.000000000e-09
+* Rff: parallel array for target 109675.559137 ohm
+r74_1 13 44 110000.000000
+r74_2 13 44 36000000.000000
 
-.ac dec 100 1Hz 500Hz
+* punto de operacion inicial en la tierra virtual
+.nodeset V(11)=7.5 V(51)=7.5 V(71)=7.5 V(12)=7.5 V(52)=7.5 V(72)=7.5 V(13)=7.5 V(53)=7.5
++ V(73)=7.5 V(OUT)=7.5 V(54)=7.5 V(74)=7.5
+
+.ac dec 100 60 16000
 .probe V(OUT)
 .end

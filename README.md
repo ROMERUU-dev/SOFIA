@@ -32,6 +32,21 @@ sofia --kind lowpass --approx butterworth --fp 1000 --fs 2000 --ap 1 --as 40
 sofia-gui
 ```
 
+En Windows (PowerShell) se activa con `.venv\Scripts\Activate.ps1`. Sin instalar nada tambien funciona
+desde la raiz del repo:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m sofia_filter_studio --kind lowpass --approx butterworth --fp 1000 --fs 2000 --ap 1 --as 40 --netlist-out filtro.cir
+python -m unittest discover -s tests
+```
+
+Las pruebas de `tests/test_simulation.py` simulan los netlists con SPICE y se saltan si no hay simulador
+(LTspice o ngspice; ruta configurable con `SOFIA_SPICE`).
+
+Cada netlist usa una sola fuente con tierra virtual a la mitad: 5 V para LM324 y 15 V para los demas
+opamps, que no polarizan con 5 V. Las correcciones hechas con el banco estan en `docs/correcciones.md`.
+
 ## Estado de la migracion
 
 La base nueva no intenta replicar al 100% la UI de VCL ni los acoplamientos del codigo original. En esta primera modernizacion:
@@ -53,6 +68,8 @@ Hay una base lista en:
 
 - `docs/benchmark/`
 - `scripts/benchmark_case.py`
+- `scripts/simulate_case.py` (simula y revisa contra la especificacion)
+- `scripts/run_benchmark_suite.py` (corre todo y escribe `docs/benchmark/report.md`)
 
 Ejemplo:
 

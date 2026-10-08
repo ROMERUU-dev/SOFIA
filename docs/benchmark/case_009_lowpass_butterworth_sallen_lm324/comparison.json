@@ -1,12 +1,66 @@
 {
   "case_id": "case_009_lowpass_butterworth_sallen_lm324",
-  "status": "pending_legacy",
+  "status": "needs_review",
+  "modern_spec": "cumple",
+  "legacy_spec": "no_cumple",
+  "legacy_capture": {
+    "status": "capturado",
+    "dialogs_at_steps": [],
+    "approximation": {
+      "epsilon": [
+        "0.508847139909587"
+      ],
+      "q": [
+        "2.56291537734078",
+        "0.899976201058182",
+        "0.601344875957864",
+        "0.509795575225689"
+      ],
+      "wo_denormalized": [
+        "2667.60913765335",
+        "7596.70808137798",
+        "11369.2770205056",
+        "13410.9765009236"
+      ],
+      "order": [
+        "8"
+      ],
+      "wo_normalized": [
+        "0.390180654750129",
+        "1.11114049329772",
+        "1.66293925496102",
+        "1.96157057572988"
+      ]
+    }
+  },
+  "simulation": {
+    "modern": {
+      "verdict": "cumple",
+      "diagnosis": "funciona",
+      "passband_gain_db": 16.7269,
+      "passband_ripple_db": 0.9949,
+      "passband_ripple_limit_db": 1.0,
+      "stopband_attenuation_db": 42.3847,
+      "stopband_attenuation_required_db": 40.0,
+      "ideal_opamp_verdict": "cumple"
+    },
+    "legacy": {
+      "verdict": "no_cumple",
+      "diagnosis": "error_de_diseno",
+      "passband_gain_db": 16.7979,
+      "passband_ripple_db": 1.5455,
+      "passband_ripple_limit_db": 1.0,
+      "stopband_attenuation_db": 44.2327,
+      "stopband_attenuation_required_db": 40.0,
+      "ideal_opamp_verdict": "no_cumple"
+    }
+  },
   "modern_result": {
     "order": 8,
     "stage_count": 4,
     "stage_q": [
-      2.562915447741507,
-      0.8999762231364163,
+      2.5629154477415037,
+      0.899976223136416,
       0.6013448869350453,
       0.5097955791041592
     ],
@@ -14,7 +68,7 @@
       1088.1194736627365,
       1088.1194736627367,
       1088.1194736627367,
-      1088.1194736627367
+      1088.1194736627365
     ],
     "summary": {
       "passband_hz": 1000.0,
@@ -48,10 +102,10 @@
       "C": 8
     },
     "includes": [
-      ".include \"resources/models/oplm324.cir\""
+      ".include \"../../../resources/models/oplm324.cir\""
     ],
     "analyses": [
-      ".ac dec 100 1Hz 500Hz"
+      ".ac dec 100 100 20000"
     ],
     "components": [
       {
@@ -121,27 +175,27 @@
         ]
       },
       {
-        "name": "r311",
+        "name": "r31_1",
         "kind": "R",
-        "line": "r311 IN 21 150000.000000",
+        "line": "r31_1 IN 21 150000.000000",
         "numeric_values": [
           21.0,
           150000.0
         ]
       },
       {
-        "name": "r312",
+        "name": "r31_2",
         "kind": "R",
-        "line": "r312 IN 21 5600000.000000",
+        "line": "r31_2 IN 21 5600000.000000",
         "numeric_values": [
           21.0,
           5600000.0
         ]
       },
       {
-        "name": "r411",
+        "name": "r41_1",
         "kind": "R",
-        "line": "r411 21 31 150000.000000",
+        "line": "r41_1 21 31 150000.000000",
         "numeric_values": [
           21.0,
           31.0,
@@ -149,9 +203,9 @@
         ]
       },
       {
-        "name": "r412",
+        "name": "r41_2",
         "kind": "R",
-        "line": "r412 21 31 5600000.000000",
+        "line": "r41_2 21 31 5600000.000000",
         "numeric_values": [
           21.0,
           31.0,
@@ -168,18 +222,18 @@
         ]
       },
       {
-        "name": "r211",
+        "name": "r21_1",
         "kind": "R",
-        "line": "r211 41 r21_MID1 100.000000",
+        "line": "r21_1 41 r21_MID1 100.000000",
         "numeric_values": [
           41.0,
           100.0
         ]
       },
       {
-        "name": "r212",
+        "name": "r21_2",
         "kind": "R",
-        "line": "r212 r21_MID1 11 16000.000000",
+        "line": "r21_2 r21_MID1 11 16000.000000",
         "numeric_values": [
           11.0,
           16000.0
@@ -216,9 +270,9 @@
         ]
       },
       {
-        "name": "r321",
+        "name": "r32_1",
         "kind": "R",
-        "line": "r321 11 22 150000.000000",
+        "line": "r32_1 11 22 150000.000000",
         "numeric_values": [
           11.0,
           22.0,
@@ -226,9 +280,9 @@
         ]
       },
       {
-        "name": "r322",
+        "name": "r32_2",
         "kind": "R",
-        "line": "r322 11 22 5600000.000000",
+        "line": "r32_2 11 22 5600000.000000",
         "numeric_values": [
           11.0,
           22.0,
@@ -236,9 +290,9 @@
         ]
       },
       {
-        "name": "r421",
+        "name": "r42_1",
         "kind": "R",
-        "line": "r421 22 32 150000.000000",
+        "line": "r42_1 22 32 150000.000000",
         "numeric_values": [
           22.0,
           32.0,
@@ -246,9 +300,9 @@
         ]
       },
       {
-        "name": "r422",
+        "name": "r42_2",
         "kind": "R",
-        "line": "r422 22 32 5600000.000000",
+        "line": "r42_2 22 32 5600000.000000",
         "numeric_values": [
           22.0,
           32.0,
@@ -265,9 +319,9 @@
         ]
       },
       {
-        "name": "r221",
+        "name": "r22_1",
         "kind": "R",
-        "line": "r221 42 12 16000.000000",
+        "line": "r22_1 42 12 16000.000000",
         "numeric_values": [
           42.0,
           12.0,
@@ -275,9 +329,9 @@
         ]
       },
       {
-        "name": "r222",
+        "name": "r22_2",
         "kind": "R",
-        "line": "r222 42 12 20000.000000",
+        "line": "r22_2 42 12 20000.000000",
         "numeric_values": [
           42.0,
           12.0,
@@ -315,9 +369,9 @@
         ]
       },
       {
-        "name": "r331",
+        "name": "r33_1",
         "kind": "R",
-        "line": "r331 12 23 150000.000000",
+        "line": "r33_1 12 23 150000.000000",
         "numeric_values": [
           12.0,
           23.0,
@@ -325,9 +379,9 @@
         ]
       },
       {
-        "name": "r332",
+        "name": "r33_2",
         "kind": "R",
-        "line": "r332 12 23 5600000.000000",
+        "line": "r33_2 12 23 5600000.000000",
         "numeric_values": [
           12.0,
           23.0,
@@ -335,9 +389,9 @@
         ]
       },
       {
-        "name": "r431",
+        "name": "r43_1",
         "kind": "R",
-        "line": "r431 23 33 150000.000000",
+        "line": "r43_1 23 33 150000.000000",
         "numeric_values": [
           23.0,
           33.0,
@@ -345,9 +399,9 @@
         ]
       },
       {
-        "name": "r432",
+        "name": "r43_2",
         "kind": "R",
-        "line": "r432 23 33 5600000.000000",
+        "line": "r43_2 23 33 5600000.000000",
         "numeric_values": [
           23.0,
           33.0,
@@ -364,18 +418,18 @@
         ]
       },
       {
-        "name": "r231",
+        "name": "r23_1",
         "kind": "R",
-        "line": "r231 43 r23_MID1 68.000000",
+        "line": "r23_1 43 r23_MID1 68.000000",
         "numeric_values": [
           43.0,
           68.0
         ]
       },
       {
-        "name": "r232",
+        "name": "r23_2",
         "kind": "R",
-        "line": "r232 r23_MID1 13 3300.000000",
+        "line": "r23_2 r23_MID1 13 3300.000000",
         "numeric_values": [
           13.0,
           3300.0
@@ -410,9 +464,9 @@
         ]
       },
       {
-        "name": "r341",
+        "name": "r34_1",
         "kind": "R",
-        "line": "r341 13 24 150000.000000",
+        "line": "r34_1 13 24 150000.000000",
         "numeric_values": [
           13.0,
           24.0,
@@ -420,9 +474,9 @@
         ]
       },
       {
-        "name": "r342",
+        "name": "r34_2",
         "kind": "R",
-        "line": "r342 13 24 5600000.000000",
+        "line": "r34_2 13 24 5600000.000000",
         "numeric_values": [
           13.0,
           24.0,
@@ -430,9 +484,9 @@
         ]
       },
       {
-        "name": "r441",
+        "name": "r44_1",
         "kind": "R",
-        "line": "r441 24 34 150000.000000",
+        "line": "r44_1 24 34 150000.000000",
         "numeric_values": [
           24.0,
           34.0,
@@ -440,9 +494,9 @@
         ]
       },
       {
-        "name": "r442",
+        "name": "r44_2",
         "kind": "R",
-        "line": "r442 24 34 5600000.000000",
+        "line": "r44_2 24 34 5600000.000000",
         "numeric_values": [
           24.0,
           34.0,
@@ -459,18 +513,18 @@
         ]
       },
       {
-        "name": "r241",
+        "name": "r24_1",
         "kind": "R",
-        "line": "r241 44 OUT 390.000000",
+        "line": "r24_1 44 OUT 390.000000",
         "numeric_values": [
           44.0,
           390.0
         ]
       },
       {
-        "name": "r242",
+        "name": "r24_2",
         "kind": "R",
-        "line": "r242 44 OUT 27000.000000",
+        "line": "r24_2 44 OUT 27000.000000",
         "numeric_values": [
           44.0,
           27000.0
@@ -479,18 +533,389 @@
     ]
   },
   "legacy_netlist": {
-    "present": false
+    "present": true,
+    "component_count": 31,
+    "component_counts_by_prefix": {
+      "V": 3,
+      "X": 4,
+      "C": 8,
+      "R": 16
+    },
+    "includes": [
+      ".include \"../../../resources/models/oplm324.cir\""
+    ],
+    "analyses": [
+      ".ac dec 100 1Hz 500Hz"
+    ],
+    "components": [
+      {
+        "name": "vin",
+        "kind": "V",
+        "line": "vin 10 0  dc 2.5 ac 1",
+        "numeric_values": [
+          10.0,
+          0.0,
+          2.5,
+          1.0
+        ]
+      },
+      {
+        "name": "vtierra",
+        "kind": "V",
+        "line": "vtierra 100 0 2.5V",
+        "numeric_values": [
+          100.0,
+          0.0
+        ]
+      },
+      {
+        "name": "Xao11",
+        "kind": "X",
+        "line": "Xao11 31 41 50 0 11 LM324",
+        "numeric_values": [
+          31.0,
+          41.0,
+          50.0,
+          0.0,
+          11.0
+        ]
+      },
+      {
+        "name": "c11",
+        "kind": "C",
+        "line": "c11 31 100 1.000000e-07",
+        "numeric_values": [
+          31.0,
+          100.0,
+          1e-07
+        ]
+      },
+      {
+        "name": "c21",
+        "kind": "C",
+        "line": "c21 21 11 1.000000e-07",
+        "numeric_values": [
+          21.0,
+          11.0,
+          1e-07
+        ]
+      },
+      {
+        "name": "r31",
+        "kind": "R",
+        "line": "r31 10 21 1.500000e+03",
+        "numeric_values": [
+          10.0,
+          21.0,
+          1500.0
+        ]
+      },
+      {
+        "name": "r41",
+        "kind": "R",
+        "line": "r41 21 31 1.500000e+03",
+        "numeric_values": [
+          21.0,
+          31.0,
+          1500.0
+        ]
+      },
+      {
+        "name": "r11",
+        "kind": "R",
+        "line": "r11 41 100 1.000000e+03",
+        "numeric_values": [
+          41.0,
+          100.0,
+          1000.0
+        ]
+      },
+      {
+        "name": "r21",
+        "kind": "R",
+        "line": "r21 41 11 1.600000e+03",
+        "numeric_values": [
+          41.0,
+          11.0,
+          1600.0
+        ]
+      },
+      {
+        "name": "Xao12",
+        "kind": "X",
+        "line": "Xao12 32 42 50 0 12 LM324",
+        "numeric_values": [
+          32.0,
+          42.0,
+          50.0,
+          0.0,
+          12.0
+        ]
+      },
+      {
+        "name": "c12",
+        "kind": "C",
+        "line": "c12 32 100 1.000000e-07",
+        "numeric_values": [
+          32.0,
+          100.0,
+          1e-07
+        ]
+      },
+      {
+        "name": "c22",
+        "kind": "C",
+        "line": "c22 22 12 1.000000e-07",
+        "numeric_values": [
+          22.0,
+          12.0,
+          1e-07
+        ]
+      },
+      {
+        "name": "r32",
+        "kind": "R",
+        "line": "r32 11 22 1.500000e+03",
+        "numeric_values": [
+          11.0,
+          22.0,
+          1500.0
+        ]
+      },
+      {
+        "name": "r42",
+        "kind": "R",
+        "line": "r42 22 32 1.500000e+03",
+        "numeric_values": [
+          22.0,
+          32.0,
+          1500.0
+        ]
+      },
+      {
+        "name": "r12",
+        "kind": "R",
+        "line": "r12 42 100 1.000000e+03",
+        "numeric_values": [
+          42.0,
+          100.0,
+          1000.0
+        ]
+      },
+      {
+        "name": "r22",
+        "kind": "R",
+        "line": "r22 42 12 9.100000e+02",
+        "numeric_values": [
+          42.0,
+          12.0,
+          910.0
+        ]
+      },
+      {
+        "name": "Xao13",
+        "kind": "X",
+        "line": "Xao13 33 43 50 0 13 LM324",
+        "numeric_values": [
+          33.0,
+          43.0,
+          50.0,
+          0.0,
+          13.0
+        ]
+      },
+      {
+        "name": "c13",
+        "kind": "C",
+        "line": "c13 33 100 1.000000e-07",
+        "numeric_values": [
+          33.0,
+          100.0,
+          1e-07
+        ]
+      },
+      {
+        "name": "c23",
+        "kind": "C",
+        "line": "c23 23 13 1.000000e-07",
+        "numeric_values": [
+          23.0,
+          13.0,
+          1e-07
+        ]
+      },
+      {
+        "name": "r33",
+        "kind": "R",
+        "line": "r33 12 23 1.500000e+03",
+        "numeric_values": [
+          12.0,
+          23.0,
+          1500.0
+        ]
+      },
+      {
+        "name": "r43",
+        "kind": "R",
+        "line": "r43 23 33 1.500000e+03",
+        "numeric_values": [
+          23.0,
+          33.0,
+          1500.0
+        ]
+      },
+      {
+        "name": "r13",
+        "kind": "R",
+        "line": "r13 43 100 1.000000e+03",
+        "numeric_values": [
+          43.0,
+          100.0,
+          1000.0
+        ]
+      },
+      {
+        "name": "r23",
+        "kind": "R",
+        "line": "r23 43 13 3.300000e+02",
+        "numeric_values": [
+          43.0,
+          13.0,
+          330.0
+        ]
+      },
+      {
+        "name": "Xao14",
+        "kind": "X",
+        "line": "Xao14 34 44 50 0 14 LM324",
+        "numeric_values": [
+          34.0,
+          44.0,
+          50.0,
+          0.0,
+          14.0
+        ]
+      },
+      {
+        "name": "c14",
+        "kind": "C",
+        "line": "c14 34 100 1.000000e-07",
+        "numeric_values": [
+          34.0,
+          100.0,
+          1e-07
+        ]
+      },
+      {
+        "name": "c24",
+        "kind": "C",
+        "line": "c24 24 14 1.000000e-07",
+        "numeric_values": [
+          24.0,
+          14.0,
+          1e-07
+        ]
+      },
+      {
+        "name": "r34",
+        "kind": "R",
+        "line": "r34 13 24 1.500000e+03",
+        "numeric_values": [
+          13.0,
+          24.0,
+          1500.0
+        ]
+      },
+      {
+        "name": "r44",
+        "kind": "R",
+        "line": "r44 24 34 1.500000e+03",
+        "numeric_values": [
+          24.0,
+          34.0,
+          1500.0
+        ]
+      },
+      {
+        "name": "r14",
+        "kind": "R",
+        "line": "r14 44 100 1.000000e+03",
+        "numeric_values": [
+          44.0,
+          100.0,
+          1000.0
+        ]
+      },
+      {
+        "name": "r24",
+        "kind": "R",
+        "line": "r24 44 14 3.900000e+01",
+        "numeric_values": [
+          44.0,
+          14.0,
+          39.0
+        ]
+      },
+      {
+        "name": "vdd",
+        "kind": "V",
+        "line": "vdd 50 0 dc 5",
+        "numeric_values": [
+          50.0,
+          0.0,
+          5.0
+        ]
+      }
+    ]
   },
   "checks": [
     {
       "name": "legacy_netlist_present",
-      "status": "pending",
-      "detail": "Capture legacy.cir from SOFIA original on Windows."
+      "status": "pass",
+      "detail": "legacy.cir is present"
     },
     {
       "name": "modern_netlist_present",
       "status": "pass",
       "detail": "generated.cir is present"
+    },
+    {
+      "name": "order_and_q",
+      "status": "pass",
+      "modern": {
+        "order": 8,
+        "q": [
+          0.5097955791041592,
+          0.6013448869350453,
+          0.899976223136416,
+          2.5629154477415037
+        ]
+      },
+      "legacy": {
+        "order": 8,
+        "q": [
+          0.509795575225689,
+          0.601344875957864,
+          0.899976201058182,
+          2.56291537734078
+        ]
+      }
+    },
+    {
+      "name": "component_prefix_counts",
+      "status": "review",
+      "modern": {
+        "V": 3,
+        "R": 29,
+        "X": 4,
+        "C": 8
+      },
+      "legacy": {
+        "V": 3,
+        "X": 4,
+        "C": 8,
+        "R": 16
+      }
     }
   ]
 }

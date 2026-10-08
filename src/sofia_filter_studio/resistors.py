@@ -42,7 +42,9 @@ def _candidate_pool(target_ohms: float, series: ResistorSeries) -> list[float]:
     if target_ohms <= 0:
         raise ValueError("target_ohms must be positive")
     exponent = int(math.floor(math.log10(target_ohms)))
-    decades = range(max(0, exponent - 2), exponent + 3)
+    # Never return an empty pool: tiny targets fall back to the smallest decades (10 mohm and up).
+    low = max(-2, exponent - 2)
+    decades = range(low, max(low + 1, exponent + 3))
     values = commercial_values(series, decades)
     values.sort()
     return values

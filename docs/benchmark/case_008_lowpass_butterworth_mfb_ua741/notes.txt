@@ -1,0 +1,2 @@
+Legado: SOFIA no soporta MFB pasa bajas: avisa y no genera netlist.
+Nuevo: `cumple` (funciona): rizo 1.00 dB (limite 1), atenuacion 42.5 dB (minimo 40), ganancia 0.0 dB; con opamp ideal rizo 1.01 dB, atenuacion 42.3 dB

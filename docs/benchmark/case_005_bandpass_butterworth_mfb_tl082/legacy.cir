@@ -1,0 +1,36 @@
+* Netlist capturado del SOFIA original (Sofia.exe) con scripts/legacy_capture.py
+* El editor de SOFIA pega el modelo del opamp desde el portapapeles; aqui se referencia con .include
+.include "../../../resources/models/TL082.cir"
+*polarizacion de tierra virtual 
+vin 10 0  dc 2.5 ac 1 
+vtierra 100 0 2.5V 
+*Primer Bicuadratico 
+Xao11 31 100 50 0 11 Tl082 
+c11 21 31 1.000000e-08 
+c21 21 11 1.000000e-08 
+r11 31 11 2.700000e+05 
+r21 21 100 1.600000e+03 
+r31 10 21 3.900000e+04 
+Xao12 32 100 50 0 12 Tl082 
+c12 22 32 1.000000e-08 
+c22 22 12 1.000000e-08 
+r12 32 12 1.000000e+05 
+r22 22 100 3.300000e+03 
+r32 11 22 3.900000e+04 
+Xao13 33 100 50 0 13 Tl082 
+c13 23 33 1.000000e-08 
+c23 23 13 1.000000e-08 
+r13 33 13 8.200000e+04 
+r23 23 100 3.000000e+03 
+r33 12 23 3.900000e+04 
+Xao14 34 100 50 0 14 Tl082 
+c14 24 34 1.000000e-08 
+c24 24 14 1.000000e-08 
+r14 34 14 1.800000e+05 
+r24 24 100 1.100000e+03 
+r34 13 24 3.900000e+04 
+*polarizacion del opamp 
+vdd 50 0 dc 5 
+.ac dec 100 1Hz 500Hz 
+.probe 
+.end 

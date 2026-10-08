@@ -7,7 +7,7 @@
       "imag": -11326.799698904468
     },
     {
-      "real": -6416.116630032966,
+      "real": -6416.116630032967,
       "imag": -9602.397122441222
     },
     {
@@ -39,7 +39,7 @@
     {
       "index": 1,
       "natural_frequency_hz": 1838.0334590169286,
-      "q": 2.5629154477415006,
+      "q": 2.562915447741504,
       "order": 2,
       "poles": [
         {
@@ -51,17 +51,19 @@
           "imag": -11326.799698904468
         }
       ],
-      "damping_hz": 717.165078792063,
+      "damping_hz": 717.165078792062,
+      "zero_frequency_hz": null,
+      "gain_reference_hz": null,
       "realization": {
         "topology": "sallen_key",
         "stage_index": 1,
         "kind": "highpass",
-        "gain": 2.6098193559677427,
+        "gain": 2.609819355967743,
         "resistor_targets_ohms": {
           "R1": 865.89796453988,
           "R2": 865.89796453988,
           "Rg": 10000.0,
-          "Rf": 16098.193559677427
+          "Rf": 16098.193559677431
         },
         "capacitor_values_f": {
           "C1": 1e-07,
@@ -102,14 +104,14 @@
           },
           "Rf": {
             "label": "Rf",
-            "target_ohms": 16098.193559677427,
+            "target_ohms": 16098.193559677431,
             "realized_ohms": 16100.0,
             "connection": "series",
             "parts_ohms": [
               100.0,
               16000.0
             ],
-            "relative_error": 0.00011221385280751931
+            "relative_error": 0.00011221385280729331
           }
         },
         "notes": [
@@ -120,11 +122,11 @@
     {
       "index": 2,
       "natural_frequency_hz": 1838.0334590169286,
-      "q": 0.8999762231364162,
+      "q": 0.8999762231364159,
       "order": 2,
       "poles": [
         {
-          "real": -6416.116630032966,
+          "real": -6416.116630032967,
           "imag": -9602.397122441222
         },
         {
@@ -132,17 +134,19 @@
           "imag": 9602.39712244122
         }
       ],
-      "damping_hz": 2042.31335424772,
+      "damping_hz": 2042.3133542477206,
+      "zero_frequency_hz": null,
+      "gain_reference_hz": null,
       "realization": {
         "topology": "sallen_key",
         "stage_index": 2,
         "kind": "highpass",
-        "gain": 1.8888595339607963,
+        "gain": 1.8888595339607959,
         "resistor_targets_ohms": {
           "R1": 865.89796453988,
           "R2": 865.89796453988,
           "Rg": 10000.0,
-          "Rf": 8888.595339607964
+          "Rf": 8888.595339607959
         },
         "capacitor_values_f": {
           "C1": 1e-07,
@@ -183,14 +187,14 @@
           },
           "Rf": {
             "label": "Rf",
-            "target_ohms": 8888.595339607964,
+            "target_ohms": 8888.595339607959,
             "realized_ohms": 8888.888888888889,
             "connection": "parallel",
             "parts_ohms": [
               16000.0,
               20000.0
             ],
-            "relative_error": 3.302538474404834e-05
+            "relative_error": 3.302538474466229e-05
           }
         },
         "notes": [
@@ -214,6 +218,8 @@
         }
       ],
       "damping_hz": 3056.537935135824,
+      "zero_frequency_hz": null,
+      "gain_reference_hz": null,
       "realization": {
         "topology": "sallen_key",
         "stage_index": 3,
@@ -295,6 +301,8 @@
         }
       ],
       "damping_hz": 3605.4323229848756,
+      "zero_frequency_hz": null,
+      "gain_reference_hz": null,
       "realization": {
         "topology": "sallen_key",
         "stage_index": 4,

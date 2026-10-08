@@ -8,7 +8,7 @@
     },
     {
       "real": -3798.353841808873,
-      "imag": 5684.638248293763
+      "imag": 5684.638248293762
     },
     {
       "real": -5684.638248293762,
@@ -39,7 +39,7 @@
     {
       "index": 1,
       "natural_frequency_hz": 1088.1194736627365,
-      "q": 2.562915447741507,
+      "q": 2.5629154477415037,
       "order": 2,
       "poles": [
         {
@@ -51,129 +51,133 @@
           "imag": -6705.488012849965
         }
       ],
-      "damping_hz": 424.5631570177664,
+      "damping_hz": 424.5631570177669,
+      "zero_frequency_hz": null,
+      "gain_reference_hz": null,
       "realization": {
         "topology": "mfb",
         "stage_index": 1,
         "kind": "lowpass",
         "gain": 1.0,
         "resistor_targets_ohms": {
-          "R1": 570.701836513226,
-          "R2": 1462.6605528541947,
-          "R3": 3748.6753257121486
+          "R1": 214.5069724216078,
+          "R2": 214.5069724216078,
+          "R3": 178.09743204580948
         },
         "capacitor_values_f": {
-          "C1": 1e-07,
+          "C1": 5.6e-06,
           "C2": 1e-07
         },
         "resistor_networks": {
           "R1": {
             "label": "R1",
-            "target_ohms": 570.701836513226,
-            "realized_ohms": 571.0,
-            "connection": "series",
+            "target_ohms": 214.5069724216078,
+            "realized_ohms": 214.2857142857143,
+            "connection": "parallel",
             "parts_ohms": [
-              11.0,
-              560.0
+              240.0,
+              2000.0
             ],
-            "relative_error": 0.0005224505471993367
+            "relative_error": 0.0010314729325376687
           },
           "R2": {
             "label": "R2",
-            "target_ohms": 1462.6605528541947,
-            "realized_ohms": 1460.8695652173915,
+            "target_ohms": 214.5069724216078,
+            "realized_ohms": 214.2857142857143,
             "connection": "parallel",
             "parts_ohms": [
-              1500.0,
-              56000.0
+              240.0,
+              2000.0
             ],
-            "relative_error": 0.0012244725088868928
+            "relative_error": 0.0010314729325376687
           },
           "R3": {
             "label": "R3",
-            "target_ohms": 3748.6753257121486,
-            "realized_ohms": 3750.0,
+            "target_ohms": 178.09743204580948,
+            "realized_ohms": 178.0,
             "connection": "series",
             "parts_ohms": [
-              150.0,
-              3600.0
+              18.0,
+              160.0
             ],
-            "relative_error": 0.0003533713039284727
+            "relative_error": 0.0005470715927247208
           }
         },
         "notes": [
-          "Non-band MFB remains a practical heuristic; the legacy code only implemented explicit MFB sizing for band-pass."
+          "MFB low-pass with unity DC gain: C1 is the next E12 value above 8*Q^2*C2 and R1..R3 solve w0 and Q exactly."
         ]
       }
     },
     {
       "index": 2,
       "natural_frequency_hz": 1088.1194736627367,
-      "q": 0.8999762231364163,
+      "q": 0.899976223136416,
       "order": 2,
       "poles": [
         {
           "real": -3798.353841808873,
-          "imag": 5684.638248293763
+          "imag": 5684.638248293762
         },
         {
           "real": -3798.3538418088747,
           "imag": -5684.6382482937615
         }
       ],
-      "damping_hz": 1209.0535790719464,
+      "damping_hz": 1209.0535790719466,
+      "zero_frequency_hz": null,
+      "gain_reference_hz": null,
       "realization": {
         "topology": "mfb",
         "stage_index": 2,
         "kind": "lowpass",
         "gain": 1.0,
         "resistor_targets_ohms": {
-          "R1": 162522.13283555687,
-          "R2": 146266.05528541942,
-          "R3": 131635.97200883404
+          "R1": 6362.363810510239,
+          "R2": 6362.363810510239,
+          "R3": 4944.9247365227275
         },
         "capacitor_values_f": {
-          "C1": 1e-09,
-          "C2": 1e-09
+          "C1": 6.8e-08,
+          "C2": 1e-08
         },
         "resistor_networks": {
           "R1": {
             "label": "R1",
-            "target_ohms": 162522.13283555687,
-            "realized_ohms": 162400.0,
+            "target_ohms": 6362.363810510239,
+            "realized_ohms": 6360.0,
             "connection": "series",
             "parts_ohms": [
-              2400.0,
-              160000.0
+              160.0,
+              6200.0
             ],
-            "relative_error": 0.000751484326632889
+            "relative_error": 0.000371530233202669
           },
           "R2": {
             "label": "R2",
-            "target_ohms": 146266.05528541942,
-            "realized_ohms": 146086.95652173914,
-            "connection": "parallel",
+            "target_ohms": 6362.363810510239,
+            "realized_ohms": 6360.0,
+            "connection": "series",
             "parts_ohms": [
-              150000.0,
-              5600000.0
+              160.0,
+              6200.0
             ],
-            "relative_error": 0.0012244725088866382
+            "relative_error": 0.000371530233202669
           },
           "R3": {
             "label": "R3",
-            "target_ohms": 131635.97200883404,
-            "realized_ohms": 131600.0,
-            "connection": "series",
+            "target_ohms": 4944.9247365227275,
+            "realized_ohms": 4942.459115687463,
+            "connection": "parallel",
             "parts_ohms": [
-              1600.0,
-              130000.0
+              5100.0,
+              160000.0
             ],
-            "relative_error": 0.00027326883590471726
+            "relative_error": 0.0004986164535637083
           }
         },
         "notes": [
-          "Non-band MFB remains a practical heuristic; the legacy code only implemented explicit MFB sizing for band-pass.",
-          "Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-09 F."
+          "MFB low-pass with unity DC gain: C1 is the next E12 value above 8*Q^2*C2 and R1..R3 solve w0 and Q exactly.",
+          "Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-08 F."
         ]
       }
     },
@@ -193,63 +197,66 @@
         }
       ],
       "damping_hz": 1809.4765538104107,
+      "zero_frequency_hz": null,
+      "gain_reference_hz": null,
       "realization": {
         "topology": "mfb",
         "stage_index": 3,
         "kind": "lowpass",
         "gain": 1.0,
         "resistor_targets_ohms": {
-          "R1": 2432.315605623807,
-          "R2": 1462.6605528541945,
-          "R3": 879.5634447804564
+          "R1": 7890.180702739937,
+          "R2": 7890.180702739937,
+          "R3": 8216.487676749068
         },
         "capacitor_values_f": {
-          "C1": 1e-07,
-          "C2": 1e-07
+          "C1": 3.3e-08,
+          "C2": 1e-08
         },
         "resistor_networks": {
           "R1": {
             "label": "R1",
-            "target_ohms": 2432.315605623807,
-            "realized_ohms": 2432.3232323232323,
-            "connection": "parallel",
+            "target_ohms": 7890.180702739937,
+            "realized_ohms": 7890.0,
+            "connection": "series",
             "parts_ohms": [
-              4300.0,
-              5600.0
+              390.0,
+              7500.0
             ],
-            "relative_error": 3.135571472514356e-06
+            "relative_error": 2.290223085442256e-05
           },
           "R2": {
             "label": "R2",
-            "target_ohms": 1462.6605528541945,
-            "realized_ohms": 1460.8695652173915,
-            "connection": "parallel",
+            "target_ohms": 7890.180702739937,
+            "realized_ohms": 7890.0,
+            "connection": "series",
             "parts_ohms": [
-              1500.0,
-              56000.0
+              390.0,
+              7500.0
             ],
-            "relative_error": 0.0012244725088867375
+            "relative_error": 2.290223085442256e-05
           },
           "R3": {
             "label": "R3",
-            "target_ohms": 879.5634447804564,
-            "realized_ohms": 880.0,
+            "target_ohms": 8216.487676749068,
+            "realized_ohms": 8216.0,
             "connection": "series",
             "parts_ohms": [
-              130.0,
-              750.0
+              16.0,
+              8200.0
             ],
-            "relative_error": 0.0004963316997019733
+            "relative_error": 5.9353432787075436e-05
           }
         },
         "notes": [
-          "Non-band MFB remains a practical heuristic; the legacy code only implemented explicit MFB sizing for band-pass."
+          "MFB low-pass with unity DC gain: C1 is the next E12 value above 8*Q^2*C2 and R1..R3 solve w0 and Q exactly.",
+          "Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-08 F."
         ]
       }
     },
     {
       "index": 4,
-      "natural_frequency_hz": 1088.1194736627367,
+      "natural_frequency_hz": 1088.1194736627365,
       "q": 0.5097955791041592,
       "order": 2,
       "poles": [
@@ -263,57 +270,59 @@
         }
       ],
       "damping_hz": 2134.423126177045,
+      "zero_frequency_hz": null,
+      "gain_reference_hz": null,
       "realization": {
         "topology": "mfb",
         "stage_index": 4,
         "kind": "lowpass",
         "gain": 1.0,
         "resistor_targets_ohms": {
-          "R1": 286911.188093169,
-          "R2": 146266.05528541942,
-          "R3": 74565.78835751135
+          "R1": 109830.66713450546,
+          "R2": 109830.66713450546,
+          "R3": 88540.26047933179
         },
         "capacitor_values_f": {
-          "C1": 1e-09,
+          "C1": 2.2000000000000003e-09,
           "C2": 1e-09
         },
         "resistor_networks": {
           "R1": {
             "label": "R1",
-            "target_ohms": 286911.188093169,
-            "realized_ohms": 286956.52173913043,
+            "target_ohms": 109830.66713450546,
+            "realized_ohms": 109838.90294235123,
             "connection": "parallel",
             "parts_ohms": [
-              330000.0,
-              2200000.0
+              110000.00000000001,
+              75000000.0
             ],
-            "relative_error": 0.00015800584934561965
+            "relative_error": 7.498641372792356e-05
           },
           "R2": {
             "label": "R2",
-            "target_ohms": 146266.05528541942,
-            "realized_ohms": 146086.95652173914,
+            "target_ohms": 109830.66713450546,
+            "realized_ohms": 109838.90294235123,
             "connection": "parallel",
             "parts_ohms": [
-              150000.0,
-              5600000.0
+              110000.00000000001,
+              75000000.0
             ],
-            "relative_error": 0.0012244725088866382
+            "relative_error": 7.498641372792356e-05
           },
           "R3": {
             "label": "R3",
-            "target_ohms": 74565.78835751135,
-            "realized_ohms": 74545.45454545454,
+            "target_ohms": 88540.26047933179,
+            "realized_ohms": 88557.9475081097,
             "connection": "parallel",
             "parts_ohms": [
-              82000.0,
-              819999.9999999999
+              91000.0,
+              3300000.0
             ],
-            "relative_error": 0.0002726962660049377
+            "relative_error": 0.00019976255640274856
           }
         },
         "notes": [
-          "Non-band MFB remains a practical heuristic; the legacy code only implemented explicit MFB sizing for band-pass.",
+          "MFB low-pass with unity DC gain: C1 is the next E12 value above 8*Q^2*C2 and R1..R3 solve w0 and Q exactly.",
           "Stage capacitor auto-tuned from 1.000e-07 F to 1.000e-09 F."
         ]
       }

@@ -1,1 +1,1 @@
-/usr/bin/python3 -m sofia_filter_studio --kind lowpass --approx butterworth --ap 1 --as 40 --topology sallen_key --opamp TL082 --cap 1e-7 --resistor-series E24 --max-network-size 2 --netlist-out /home/romeruu/sofia-modern/docs/benchmark/case_01_lowpass_butterworth/generated.cir --fp 1000 --fs 2000
+python -m sofia_filter_studio --kind lowpass --approx butterworth --ap 1 --as 40 --topology sallen_key --opamp TL082 --cap 1e-7 --resistor-series E24 --max-network-size 2 --netlist-out docs/benchmark/case_01_lowpass_butterworth/generated.cir --fp 1000 --fs 2000

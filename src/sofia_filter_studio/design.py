@@ -6,7 +6,7 @@ import math
 from dataclasses import asdict
 
 from .models import Approximation, DesignInputs, DesignResult, FilterKind, Stage, Topology
-from .opamps import recommend_opamps
+from .opamps import recommend_opamps, stability_warnings
 from .synthesis import practical_notes_for_stage, synthesize_stage_realizations
 
 
@@ -41,7 +41,7 @@ def _chebyshev_poles(order: int, epsilon: float) -> list[complex]:
     return poles
 
 
-def _pair_poles(poles: list[complex]) -> list[tuple[complex, ...]]:
+def _pair_poles(poles: list[complex], pair_real_poles: bool = False) -> list[tuple[complex, ...]]:
     ordered = sorted(poles, key=lambda pole: (round(abs(pole.imag), 12), pole.imag), reverse=True)
     groups: list[tuple[complex, ...]] = []
     used: set[int] = set()
@@ -64,6 +64,14 @@ def _pair_poles(poles: list[complex]) -> list[tuple[complex, ...]]:
         else:
             groups.append((pole,))
             used.add(index)
+    if pair_real_poles:
+        # Band filters need second-order sections; very wide bands can yield real pole pairs (Q < 0.5).
+        singles = [group[0] for group in groups if len(group) == 1]
+        groups = [group for group in groups if len(group) == 2]
+        singles.sort(key=lambda pole: pole.real)
+        while len(singles) >= 2:
+            groups.append((singles.pop(0), singles.pop(0)))
+        groups.extend((pole,) for pole in singles)
     return groups
 
 
@@ -80,16 +88,16 @@ def _section_from_pole_group(index: int, group: tuple[complex, ...]) -> Stage:
             damping_hz=abs(pole.real) / (2 * math.pi),
         )
 
-    pole = group[0]
-    omega_0 = abs(pole)
-    q = omega_0 / (-2 * pole.real)
+    first, second = group
+    omega_0 = math.sqrt(abs(first * second))
+    q = omega_0 / -(first + second).real
     return Stage(
         index=index,
         natural_frequency_hz=omega_0 / (2 * math.pi),
         q=q,
         order=2,
         poles=group,
-        damping_hz=(-2 * pole.real) / (2 * math.pi),
+        damping_hz=-(first + second).real / (2 * math.pi),
     )
 
 
@@ -140,20 +148,26 @@ def _bandpass_bandstop_terms(inputs: DesignInputs) -> tuple[float, float, float]
     return omega_0, bandwidth, ratio
 
 
-def _estimate_order(inputs: DesignInputs, epsilon: float) -> tuple[int, dict[str, float]]:
+def _order_for_ratio(inputs: DesignInputs, ratio: float) -> int:
     ap = inputs.passband_ripple_db
     a_stop = inputs.stopband_attenuation_db
-    numerator = math.log10((10 ** (a_stop / 10) - 1) / (10 ** (ap / 10) - 1))
+    discrimination = (10 ** (a_stop / 10) - 1) / (10 ** (ap / 10) - 1)
+    if inputs.approximation is Approximation.CHEBYSHEV_I:
+        exact = math.acosh(math.sqrt(discrimination)) / math.acosh(ratio)
+    else:
+        exact = math.log10(discrimination) / (2 * math.log10(ratio))
+    # Guard against values like 4.0000000001 caused by floating point noise.
+    return max(1, math.ceil(exact - 1e-9))
 
+
+def _estimate_order(inputs: DesignInputs, epsilon: float) -> tuple[int, dict[str, float]]:
     if inputs.kind in {FilterKind.LOWPASS, FilterKind.HIGHPASS}:
         wp, ratio = _low_high_ratios(inputs)
-        denominator = 2 * math.log10(ratio)
-        order = math.ceil(numerator / denominator)
+        order = _order_for_ratio(inputs, ratio)
         return order, {"passband_hz": wp, "ratio": ratio}
 
     omega_0, bandwidth, ratio = _bandpass_bandstop_terms(inputs)
-    denominator = 2 * math.log10(ratio)
-    prototype_order = math.ceil(numerator / denominator)
+    prototype_order = _order_for_ratio(inputs, ratio)
     return prototype_order, {
         "center_frequency_hz": omega_0 / (2 * math.pi),
         "bandwidth_hz": bandwidth / (2 * math.pi),
@@ -173,6 +187,9 @@ def _scale_prototype_poles(inputs: DesignInputs, order: int, epsilon: float, pol
         return [omega_c / pole for pole in poles]
 
     omega_0, bandwidth, _ = _bandpass_bandstop_terms(inputs)
+    if inputs.approximation is Approximation.BUTTERWORTH:
+        # Normalize the prototype so its -Ap point (not its -3 dB point) lands on the band edges.
+        poles = [pole * epsilon ** (-1 / order) for pole in poles]
     transformed: list[complex] = []
     for pole in poles:
         if inputs.kind is FilterKind.BANDPASS:
@@ -190,14 +207,22 @@ def design_filter(inputs: DesignInputs) -> DesignResult:
     prototype_order, summary = _estimate_order(inputs, epsilon)
     prototype_poles = _prototype_poles(prototype_order, inputs.approximation, epsilon)
     poles = _scale_prototype_poles(inputs, prototype_order, epsilon, prototype_poles)
-    order = prototype_order if inputs.kind in {FilterKind.LOWPASS, FilterKind.HIGHPASS} else prototype_order * 2
+    is_band = inputs.kind in {FilterKind.BANDPASS, FilterKind.BANDSTOP}
+    order = prototype_order * 2 if is_band else prototype_order
     stages = [
         _section_from_pole_group(index, group)
-        for index, group in enumerate(_pair_poles(poles), start=1)
+        for index, group in enumerate(_pair_poles(poles, pair_real_poles=is_band), start=1)
     ]
+    if inputs.kind is FilterKind.BANDSTOP:
+        # Every band-stop section carries its transmission zeros at the band center.
+        notch_hz = summary["center_frequency_hz"]
+        for stage in stages:
+            stage.zero_frequency_hz = notch_hz
+    if inputs.kind is FilterKind.BANDPASS:
+        # Staggered sections are scaled for unity gain at the band center, not at their own peaks.
+        for stage in stages:
+            stage.gain_reference_hz = summary["center_frequency_hz"]
     warnings: list[str] = []
-    if inputs.kind in {FilterKind.BANDPASS, FilterKind.BANDSTOP}:
-        warnings.append("Band filters are migrated with pole-based section synthesis; component-level realizations still need topology-specific refinement.")
     if inputs.topology is not Topology.OTA and any(stage.q is not None and stage.q > 10 for stage in stages):
         warnings.append("At least one section has high Q; a Tow-Thomas or MFB realization may be safer than unity-gain Sallen-Key.")
     summary.update(
@@ -214,6 +239,7 @@ def design_filter(inputs: DesignInputs) -> DesignResult:
     synthesize_stage_realizations(inputs, stages)
     for stage in stages:
         warnings.extend(practical_notes_for_stage(inputs, stage))
+    warnings.extend(stability_warnings(inputs, {stage.realization.topology for stage in stages}))
     return DesignResult(order=order, epsilon=epsilon, poles=poles, stages=stages, summary=summary, warnings=warnings)
 
 

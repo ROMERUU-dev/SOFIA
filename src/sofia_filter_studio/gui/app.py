@@ -157,9 +157,10 @@ class SofiaApp:
             return
 
         self.result_text.delete("1.0", tk.END)
-        self.result_text.insert(tk.END, json.dumps(result.as_dict(), indent=2))
+        self.result_text.insert(tk.END, json.dumps(result.as_dict(), indent=2, default=str))
         self.netlist_text.delete("1.0", tk.END)
         self.netlist_text.insert(tk.END, netlist)
+        self._last_design = (inputs, result, netlist.strip())
 
     def save_netlist(self) -> None:
         netlist = self.netlist_text.get("1.0", tk.END).strip()
@@ -173,6 +174,10 @@ class SofiaApp:
         )
         if not path:
             return
+        last = getattr(self, "_last_design", None)
+        if last is not None and last[2] == netlist:
+            # Unedited netlist: re-render so the model include is relative to the chosen folder.
+            netlist = render_netlist(last[0], last[1], Path(path)).strip()
         Path(path).write_text(netlist + "\n", encoding="utf-8")
         messagebox.showinfo("Saved", f"Netlist saved to {path}")
 
