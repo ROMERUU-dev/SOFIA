@@ -1,1 +1,0 @@
-python -m sofia_filter_studio --kind highpass --approx butterworth --ap 1 --as 40 --topology sallen_key --opamp TL082 --cap 1e-7 --resistor-series E96 --max-network-size 2 --netlist-out docs/benchmark/case_003_highpass_butterworth_sallen_tl082/generated.cir --fp 2000 --fs 1000

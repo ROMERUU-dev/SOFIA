@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=SOFIA Filter Studio
+GenericName=Diseño de filtros activos
+GenericName[en]=Active filter design
+Comment=Diseña filtros activos y obtén el netlist SPICE, el esquemático y la placa
+Comment[en]=Design active filters and get the SPICE netlist, schematic and PCB
+Exec=sofia-filter-studio
+Icon=sofia-filter-studio
+Terminal=false
+Categories=Education;Science;Electronics;Engineering;
+Keywords=filtro;filter;spice;butterworth;chebyshev;sallen-key;kicad;gerber;pcb;
+StartupWMClass=SOFIA Filter Studio

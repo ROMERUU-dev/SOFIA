@@ -107,6 +107,10 @@
             <span class="input"><input id="cap" autocomplete="off" spellcheck="false" /><span class="unit">F</span></span>
           </label>
           <p class="hint">Punto de partida; cada etapa lo ajusta si es necesario. Acepta 10n, 4.7k, 1.5M o 1e-8.</p>
+          <label class="field">
+            <span>Componentes de la placa</span>
+            <select id="mounting"></select>
+          </label>
           <details class="advanced">
             <summary>Opciones avanzadas</summary>
             <label class="field">
@@ -170,11 +174,41 @@
         <section class="card tabs-card">
           <nav class="tabs" role="tablist">
             <button type="button" role="tab" aria-selected="true" data-panel="stages">Etapas</button>
+            <button type="button" role="tab" aria-selected="false" data-panel="schematic">Esquemático</button>
+            <button type="button" role="tab" aria-selected="false" data-panel="pcb">PCB</button>
             <button type="button" role="tab" aria-selected="false" data-panel="netlist">Netlist</button>
             <button type="button" role="tab" aria-selected="false" data-panel="warnings" id="warnings-tab">Avisos</button>
             <button type="button" role="tab" aria-selected="false" data-panel="details">Detalles</button>
           </nav>
           <div class="panel" role="tabpanel" id="panel-stages"><div class="stages" id="stages"></div></div>
+          <div class="panel schematic-panel" role="tabpanel" id="panel-schematic" hidden>
+            <div class="schematic-bar">
+              <span class="muted">Rueda: zoom · arrastrar: mover · doble clic: ajustar</span>
+              <div class="downloads-row">
+                <button class="button small" type="button" data-export="kicad_sch" title="Proyecto de KiCad (ZIP) con el esquemático">KiCad</button>
+                <button class="button small" type="button" data-export="svg" title="Esquemático como imagen vectorial">SVG</button>
+                <button class="button small" type="button" data-export="bom" title="Lista de materiales para comprar">Materiales (CSV)</button>
+                <button class="button small" type="button" id="schematic-full" title="Ver el esquemático en pantalla completa">Ampliar</button>
+              </div>
+            </div>
+            <div class="schematic-view" id="schematic-view"><p class="empty">Abriendo el esquemático…</p></div>
+          </div>
+          <div class="panel schematic-panel" role="tabpanel" id="panel-pcb" hidden>
+            <div class="schematic-bar">
+              <span class="muted" id="pcb-status">La placa se rutea al abrir esta pestaña.</span>
+              <div class="downloads-row">
+                <div class="toggle" id="pcb-side">
+                  <button type="button" aria-pressed="true" data-side="top">Arriba</button>
+                  <button type="button" aria-pressed="false" data-side="bottom">Abajo</button>
+                </div>
+                <button class="button small" type="button" data-pcb-export="kicad_pcb" title="Proyecto de KiCad (ZIP) con el esquemático y la placa ruteada">KiCad</button>
+                <button class="button small" type="button" data-pcb-export="gerber" title="Archivos de fabricación: Gerber y barrenos">Gerber (ZIP)</button>
+                <button class="button small" type="button" data-pcb-export="cpl" id="pcb-cpl" title="Posiciones de los componentes SMD para ensamble">Posiciones</button>
+                <button class="button small" type="button" id="pcb-full" title="Ver la placa en pantalla completa">Ampliar</button>
+              </div>
+            </div>
+            <div class="schematic-view pcb-view" id="pcb-view"><p class="empty">Abriendo la placa…</p></div>
+          </div>
           <div class="panel" role="tabpanel" id="panel-netlist" hidden><pre class="netlist" id="netlist"></pre></div>
           <div class="panel" role="tabpanel" id="panel-warnings" hidden></div>
           <div class="panel" role="tabpanel" id="panel-details" hidden></div>

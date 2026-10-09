@@ -20,7 +20,7 @@
       <p class="cover-lead">Diseño de filtros activos Butterworth y Chebyshev, de la especificación al netlist SPICE.</p>
       <img class="cover-shot" src="../../web/img/app-pasabanda.webp" alt="" />
       <dl class="cover-meta">
-        <div><dt>Versión</dt><dd>0.3.0</dd></div>
+        <div><dt>Versión</dt><dd>0.4.0</dd></div>
         <div><dt>App en el navegador</dt><dd>romeruu-dev.github.io/SOFIA/app</dd></div>
         <div><dt>Descargas y código</dt><dd>github.com/ROMERUU-dev/SOFIA</dd></div>
       </dl>
@@ -35,6 +35,7 @@
         <li><a href="#paso-a-paso">Diseñar un filtro paso a paso</a></li>
         <li><a href="#resultados">Leer los resultados</a></li>
         <li><a href="#simular">Simular el netlist</a></li>
+        <li><a href="#placa">Esquemático, materiales y placa</a></li>
         <li><a href="#armar">Armar el circuito</a></li>
         <li><a href="#mensajes">Mensajes de error y avisos</a></li>
         <li><a href="#windows">Versión para Windows y línea de comandos</a></li>
@@ -52,12 +53,12 @@
         <li>elige la <b>topología</b> de cada etapa: Sallen-Key, MFB, Tow-Thomas o Antoniou;</li>
         <li>calcula las <b>resistencias y capacitores</b> y los redondea a valores comerciales;</li>
         <li>dibuja la <b>respuesta en frecuencia</b> con la especificación marcada;</li>
-        <li>genera el <b>netlist SPICE</b>, con el modelo del amplificador operacional incluido, para simularlo en LTspice o ngspice.</li>
+        <li>genera el <b>netlist SPICE</b>, con el modelo del amplificador operacional incluido, para simularlo en LTspice o ngspice;</li>
+        <li>dibuja el <b>esquemático</b>, arma la <b>lista de materiales</b> y rutea la <b>placa</b> (PCB) lista para fabricar.</li>
       </ul>
       <p>
-        Es una reescritura en Python del SOFIA original (C++ Builder). El cálculo se verificó con un banco de casos
-        simulados en SPICE: con resistencias E96 y el modelo real del TL082, las 40 combinaciones de tipo de filtro,
-        aproximación y topología cumplen la especificación.
+        Es una versión en Python del programa SOFIA original. El cálculo se verificó simulando en SPICE: con resistencias E96 y el modelo real del TL082, las 40
+        combinaciones de tipo de filtro, aproximación y topología cumplen la especificación.
       </p>
 
       <h3>Dónde usarla</h3>
@@ -88,7 +89,7 @@
         <span class="badge" style="left: 68.4%; top: 1.9%">5</span>
         <span class="badge" style="left: 40.0%; top: 30.0%">6</span>
         <span class="badge" style="left: 80.2%; top: 10.5%">7</span>
-        <span class="badge" style="left: 52.5%; top: 59.6%">8</span>
+        <span class="badge" style="left: 64.5%; top: 59.6%">8</span>
       </figure>
       <ol class="legend">
         <li><b>Tipo de filtro y aproximación.</b> Pasa bajas, pasa altas, pasa banda o rechaza banda; Butterworth o Chebyshev.</li>
@@ -98,7 +99,7 @@
         <li><b>Acciones.</b> Copiar el enlace del diseño, copiar el netlist o descargarlo.</li>
         <li><b>Respuesta en frecuencia.</b> La curva diseñada y, en rojo, las zonas que la especificación prohíbe.</li>
         <li><b>Vista de la gráfica.</b> <i>Completa</i> muestra toda la curva; <i>Banda de paso</i> amplía la parte de arriba para ver el rizo.</li>
-        <li><b>Pestañas de resultados.</b> Etapas con sus componentes, netlist, avisos y detalles del cálculo.</li>
+        <li><b>Pestañas de resultados.</b> Etapas con sus componentes, esquemático, placa (PCB), netlist, avisos y detalles del cálculo.</li>
       </ol>
     </section>
 
@@ -272,7 +273,7 @@
       <h3>4.5 Avisos</h3>
       <p>
         Explican lo que puede fallar al armar o simular el circuito y qué hacer. La pestaña muestra cuántos hay. La
-        sección <a href="#mensajes">7</a> los lista todos.
+        sección <a href="#mensajes">8</a> los lista todos.
       </p>
       <figure>
         <div class="crop" style="--x: 0.286; --y: 0.592; --w: 0.703; --h: 0.2">
@@ -326,17 +327,74 @@ plot vdb(out)</pre>
         </li>
       </ul>
 
-      <h2 id="armar"><span class="num">6</span>Armar el circuito</h2>
+    </section>
+
+    <section class="page">
+      <h2 id="placa"><span class="num">6</span>Esquemático, materiales y placa</h2>
+      <p>
+        Las pestañas <i>Esquemático</i> y <i>PCB</i> convierten el diseño en un circuito listo para armar. Antes de
+        abrirlas elige en <i>Circuito › Componentes de la placa</i> si quieres partes <b>SMD</b> (resistencias 0805,
+        opamps SOIC) o <b>through-hole</b> (resistencias axiales, capacitores de película, opamps DIP).
+      </p>
+      <h3>6.1 Esquemático</h3>
+      <p>
+        Muestra cada etapa con su topología y, abajo, lo que la placa necesita además del filtro: el conector de
+        alimentación con sus capacitores de desacoplo, la tierra virtual (divisor y seguidor), el acoplamiento de entrada
+        y de salida, las secciones de opamp que sobran conectadas como seguidores y los barrenos de montaje. Las
+        referencias siguen la etapa (R101 es de la etapa 1) y las etiquetas E1, E2… unen una etapa con la siguiente.
+      </p>
+      <p>
+        <i>KiCad</i> descarga un proyecto de KiCad en un ZIP: descomprímelo y abre el archivo <code>.kicad_pro</code>
+        con KiCad 8 o más reciente. Trae el esquemático y su biblioteca de símbolos, así que el ERC de KiCad sale limpio.
+        <i>SVG</i> lo guarda como imagen, y <i>Materiales (CSV)</i> descarga la lista de componentes agrupada por valor,
+        con cantidades, referencias, descripción y huella. El CSV abre directo en Excel.
+      </p>
+      <figure class="medium">
+        <img src="../../web/img/esquematico.webp" alt="" />
+        <figcaption>Esquemático de un pasa banda Chebyshev de orden 8 con etapas Tow-Thomas.</figcaption>
+      </figure>
+      <h3>6.2 Placa (PCB)</h3>
+      <p>
+        Al abrir la pestaña PCB, SOFIA coloca los componentes (cada opamp con sus resistencias y capacitores cerca de los
+        pines que usan) y rutea las pistas automáticamente en dos capas, con un plano de tierra en la capa de abajo.
+        Tarda unos segundos. Arriba aparecen el tamaño, el número de vías y si el ruteo quedó completo y sin errores de
+        reglas; los botones <i>Arriba</i> y <i>Abajo</i> cambian la cara que se ve.
+      </p>
+      <table>
+        <thead><tr><th>Regla</th><th>Valor</th></tr></thead>
+        <tbody>
+          <tr><td>Capas</td><td>2, FR-4 de 1.6 mm, plano de tierra en la capa inferior</td></tr>
+          <tr><td>Pista mínima / separación</td><td>0.3 mm / 0.25 mm</td></tr>
+          <tr><td>Vías</td><td>0.8 mm de diámetro, barreno de 0.4 mm</td></tr>
+          <tr><td>Montaje</td><td>4 barrenos M3 en las esquinas</td></tr>
+        </tbody>
+      </table>
+      <ul>
+        <li><b>KiCad</b> descarga el proyecto completo en un ZIP: esquemático y placa ruteada, enlazados y con las reglas de
+          arriba. Abre el <code>.kicad_pro</code> y, en la placa, presiona <b>B</b> para rellenar el plano de tierra.</li>
+        <li><b>Gerber (ZIP)</b> trae todo lo que pide un fabricante: cobre, máscara, serigrafía, pasta, contorno y barrenos. Súbelo tal cual.</li>
+        <li><b>Posiciones</b> (solo SMD) es la lista para el ensamble automático de componentes.</li>
+      </ul>
+      <figure class="medium">
+        <img src="../../web/img/pcb-gerber.webp" alt="" />
+        <figcaption>La misma placa dibujada a partir de sus archivos Gerber: así la recibe el fabricante.</figcaption>
+      </figure>
+      <p class="note">
+        Las reglas se revisan sobre el cobre real antes de mostrar la placa, y el proyecto pasa el ERC y el DRC de KiCad
+        sin errores. Aun así, revísala en KiCad antes de mandarla a fabricar: es tu circuito.
+      </p>
+
+      <h2 id="armar"><span class="num">7</span>Armar el circuito</h2>
       <ul>
         <li>
           <b>Alimentación.</b> El netlist usa una fuente única de 15 V (5 V con LM324) y una tierra virtual ideal a la
-          mitad. En la placa, haz la tierra virtual con un divisor de dos resistencias iguales y un capacitor, de
-          preferencia con un seguidor de voltaje, o usa una fuente doble (±7.5 V) y conecta a tierra lo que en el netlist
-          es <code>VREF</code>.
+          mitad. El esquemático y la placa ya traen la tierra virtual real: un divisor de dos resistencias de 10 kΩ, un
+          capacitor y una sección de opamp como seguidor.
         </li>
         <li>
-          <b>Entrada.</b> En la simulación la entrada trae la tierra virtual como nivel de DC. Con fuente única, acopla la
-          señal con un capacitor y polariza la entrada a la tierra virtual.
+          <b>Entrada y salida.</b> En la simulación la entrada trae la tierra virtual como nivel de DC. En la placa la
+          señal entra y sale por capacitores de acoplamiento, con una resistencia que polariza la entrada a la tierra
+          virtual; por eso el filtro no pasa la componente de DC.
         </li>
         <li>
           <b>Componentes.</b> Usa resistencias de película metálica de la serie elegida (E96: 1 %) y capacitores de
@@ -348,7 +406,7 @@ plot vdb(out)</pre>
     </section>
 
     <section class="page">
-      <h2 id="mensajes"><span class="num">7</span>Mensajes de error y avisos</h2>
+      <h2 id="mensajes"><span class="num">8</span>Mensajes de error y avisos</h2>
       <h3>Errores en la especificación</h3>
       <p>Aparecen en una franja roja arriba de la gráfica; el campo con el problema se marca en rojo.</p>
       <table>
@@ -380,7 +438,7 @@ plot vdb(out)</pre>
     </section>
 
     <section class="page">
-      <h2 id="windows"><span class="num">8</span>Versión para Windows y línea de comandos</h2>
+      <h2 id="windows"><span class="num">9</span>Versión para Windows y línea de comandos</h2>
       <p>
         Descarga <code>SOFIA-Filter-Studio.exe</code> de la sección <i>Releases</i> del repositorio y ábrelo con doble
         clic; no se instala. La ventana es la misma que la del navegador. Atajos: <b>Ctrl+S</b> guarda el netlist y
@@ -413,12 +471,10 @@ plot vdb(out)</pre>
         resultado completo (orden, polos, etapas y componentes) se imprime en JSON.
       </p>
 
-      <h2 id="preguntas"><span class="num">9</span>Preguntas frecuentes</h2>
+      <h2 id="preguntas"><span class="num">10</span>Preguntas frecuentes</h2>
       <dl class="faq">
         <dt>¿Por qué me sale un orden más alto del que esperaba?</dt>
         <dd>Es el mínimo entero que cumple Ap y As. Si quieres menos etapas, prueba Chebyshev o relaja la especificación (más rizo, menos atenuación o bandas más separadas).</dd>
-        <dt>¿Por qué los resultados no son iguales a los del SOFIA original?</dt>
-        <dd>El original tenía errores de cálculo y de circuito (fuente de 5 V para todos los opamps, MFB con entradas invertidas, etapas impares con resistencias de 0 Ω, entre otros): ninguno de los 12 casos del banco cumplía la especificación. La versión nueva cumple los 12. La lista está en <code>docs/correcciones.md</code>.</dd>
         <dt>¿La versión del navegador funciona sin internet?</dt>
         <dd>Necesita internet la primera vez; después el navegador la guarda. El ejecutable para Windows funciona siempre sin conexión.</dd>
         <dt>¿La gráfica de la app es una simulación?</dt>

@@ -1,10 +1,11 @@
 // Web page of SOFIA Filter Studio. The form lives here; the design runs in Python (worker.js).
 import { ResponsePlot } from "./plot.js";
+import { SchematicView } from "./schematicview.js";
 
 const $ = (id) => document.getElementById(id);
 const TEXT_FIELDS = ["fp", "fs", "fp1", "fp2", "fs1", "fs2", "ap", "as", "cap"];
 const BAND_FIELDS = ["fp1", "fp2", "fs1", "fs2"];
-const SELECTS = ["topology", "opamp", "series"];
+const SELECTS = ["topology", "opamp", "series", "mounting"];
 const SINGLE_KINDS = new Set(["lowpass", "highpass"]);
 const DEBOUNCE_MS = 160;
 
@@ -22,6 +23,11 @@ const state = {
 };
 let plot;
 let worker;
+let schematicView;
+let pcbView;
+let pcbWorker = null;
+const pending = new Map();
+let requestCounter = 0;
 let timer;
 
 // Icons -----------------------------------------------------------------------------------------
@@ -104,7 +110,7 @@ function buildForm(options) {
     "approximation",
     (item) => `${escapeHtml(item.label)}<small>${escapeHtml(item.detail)}</small>`,
   );
-  const lists = { topology: options.topologies, opamp: options.opamps, series: options.series };
+  const lists = { topology: options.topologies, opamp: options.opamps, series: options.series, mounting: options.mountings };
   for (const name of SELECTS) {
     const select = $(name);
     select.innerHTML = lists[name].map((item) => `<option value="${escapeHtml(item.value)}">${escapeHtml(item.label)}</option>`).join("");
@@ -178,6 +184,7 @@ function readHash(options) {
     topology: options.topologies,
     opamp: options.opamps,
     series: options.series,
+    mounting: options.mountings,
   };
   for (const [name, items] of Object.entries(allowed)) {
     const value = params.get(name);
@@ -197,7 +204,7 @@ function writeHash() {
   params.set("kind", form.kind);
   params.set("approximation", form.approximation);
   const fields = SINGLE_KINDS.has(form.kind) ? ["fp", "fs"] : BAND_FIELDS;
-  for (const name of [...fields, "ap", "as", "topology", "opamp", "cap", "series"]) params.set(name, form[name]);
+  for (const name of [...fields, "ap", "as", "topology", "opamp", "cap", "series", "mounting"]) params.set(name, form[name]);
   if (!form.auto_cap) params.set("auto_cap", "0");
   history.replaceState(null, "", `#${params}`);
 }
@@ -235,7 +242,112 @@ function onWorkerMessage(event) {
     const elapsed = performance.now() - state.sentAt;
     render(JSON.parse(message.json), elapsed);
     if (state.dirty) request();
+  } else if (pending.has(message.id)) {
+    pending.get(message.id)(JSON.parse(message.json));
+    pending.delete(message.id);
   }
+}
+
+// Schematic and exports: on demand, answered by id.
+function ask(type, extra = {}, target = worker) {
+  return new Promise((resolve) => {
+    const id = `${type}-${++requestCounter}`;
+    pending.set(id, resolve);
+    target.postMessage({ type, id, form: state.form, ...extra });
+  });
+}
+
+// The PCB is routed in a second engine, so typing stays responsive while it works.
+function ensurePcbWorker() {
+  if (pcbWorker) return pcbWorker;
+  pcbWorker = new Worker("worker.js", { type: "module" });
+  pcbWorker.onmessage = (event) => {
+    const message = event.data;
+    if (message.type === "status") $("pcb-status").textContent = message.text;
+    else if (message.type === "fatal") $("pcb-status").textContent = `No se pudo cargar el motor de la placa: ${message.text}`;
+    else if (pending.has(message.id)) {
+      pending.get(message.id)(JSON.parse(message.json));
+      pending.delete(message.id);
+    }
+  };
+  pcbWorker.postMessage({ type: "init", bundle: state.options.bundle });
+  return pcbWorker;
+}
+
+function pcbVisible() {
+  return !$("panel-pcb").hidden;
+}
+
+async function refreshPcb() {
+  if (!state.ready || !state.view || !state.view.ok) return;
+  const key = JSON.stringify(state.form) + state.pcbSide;
+  if (state.pcbKey === key || state.pcbBusy) {
+    state.pcbAgain = state.pcbBusy && state.pcbKey !== key;
+    return;
+  }
+  state.pcbKey = key;
+  state.pcbBusy = true;
+  $("pcb-status").textContent = "Colocando y ruteando la placa…";
+  const view = await ask("pcb", { side: state.pcbSide }, ensurePcbWorker());
+  state.pcbBusy = false;
+  if (state.pcbKey === key) {
+    if (view.ok) {
+      pcbView.show(view.svg);
+      const routing = view.unrouted ? `${view.unrouted} conexiones sin rutear` : "ruteo completo";
+      const rules = view.problems.length ? ` · ${view.problems.length} avisos de reglas` : " · sin errores de reglas";
+      $("pcb-status").textContent = `${view.width} × ${view.height} mm · ${view.parts} componentes · ${view.vias} vías · ${routing}${rules}`;
+      $("pcb-cpl").hidden = !view.smd;
+    } else {
+      pcbView.clear(escapeHtml(view.error));
+      $("pcb-status").textContent = "";
+    }
+  }
+  if (state.pcbAgain) {
+    state.pcbAgain = false;
+    if (pcbVisible()) refreshPcb();
+  }
+}
+
+function base64ToBytes(text) {
+  const binary = atob(text);
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index++) bytes[index] = binary.charCodeAt(index);
+  return bytes;
+}
+
+function schematicVisible() {
+  return !$("panel-schematic").hidden;
+}
+
+async function refreshSchematic() {
+  if (!state.ready || !state.view || !state.view.ok) return;
+  const key = JSON.stringify(state.form);
+  if (state.schematicKey === key) return;
+  state.schematicKey = key;
+  const view = await ask("schematic");
+  if (state.schematicKey !== key) return;
+  if (view.ok) schematicView.show(view.svg);
+  else schematicView.clear(escapeHtml(view.error));
+}
+
+async function download(what, target = worker) {
+  if (!state.ready || !state.view || !state.view.ok) return;
+  if (target === pcbWorker) toast("Preparando los archivos de la placa…");
+  const file = await ask("export", { what }, target);
+  if (!file.ok) {
+    toast(file.error);
+    return;
+  }
+  const body = file.base64 ? base64ToBytes(file.base64) : file.content;
+  const url = URL.createObjectURL(new Blob([body], { type: file.mime }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = file.filename;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast(`Descargado ${file.filename}`);
 }
 
 function showFatal(text) {
@@ -269,6 +381,10 @@ function render(view, elapsed) {
     $("panel-details").innerHTML = "";
     $("warnings-tab").textContent = "Avisos";
     $("status").textContent = "Revisa la especificación";
+    state.schematicKey = null;
+    schematicView.clear("Completa la especificación para ver el esquemático");
+    state.pcbKey = null;
+    pcbView.clear("Completa la especificación para ver la placa");
     return;
   }
   error.hidden = true;
@@ -282,6 +398,8 @@ function render(view, elapsed) {
   renderDetails(view);
   $("netlist").textContent = view.netlist;
   $("status").textContent = `Diseño actualizado en ${Math.round(elapsed)} ms`;
+  if (schematicVisible()) refreshSchematic();
+  if (pcbVisible()) refreshPcb();
 }
 
 function renderStages(stages) {
@@ -378,6 +496,32 @@ function bindActions() {
         other.setAttribute("aria-selected", String(selected));
         $(`panel-${other.dataset.panel}`).hidden = !selected;
       }
+      if (tab.dataset.panel === "schematic") refreshSchematic();
+      if (tab.dataset.panel === "pcb") refreshPcb();
+    });
+  }
+  for (const button of document.querySelectorAll("[data-export]")) {
+    button.addEventListener("click", () => download(button.dataset.export));
+  }
+  for (const [button, panel] of [["schematic-full", "panel-schematic"], ["pcb-full", "panel-pcb"]]) {
+    $(button).addEventListener("click", async () => {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else if ($(panel).requestFullscreen) await $(panel).requestFullscreen();
+    });
+  }
+  document.addEventListener("fullscreenchange", () => {
+    for (const button of ["schematic-full", "pcb-full"]) $(button).textContent = document.fullscreenElement ? "Salir" : "Ampliar";
+    schematicView.fit();
+    pcbView.fit();
+  });
+  for (const button of document.querySelectorAll("[data-pcb-export]")) {
+    button.addEventListener("click", () => download(button.dataset.pcbExport, ensurePcbWorker()));
+  }
+  for (const button of $("pcb-side").querySelectorAll("button")) {
+    button.addEventListener("click", () => {
+      for (const other of $("pcb-side").querySelectorAll("button")) other.setAttribute("aria-pressed", String(other === button));
+      state.pcbSide = button.dataset.side;
+      refreshPcb();
     });
   }
 }
@@ -385,6 +529,9 @@ function bindActions() {
 // Start -----------------------------------------------------------------------------------------
 async function main() {
   plot = new ResponsePlot($("plot"));
+  schematicView = new SchematicView($("schematic-view"));
+  pcbView = new SchematicView($("pcb-view"));
+  state.pcbSide = "top";
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => plot.readColors());
   if (matchMedia("(pointer: coarse)").matches) {
     $("plot-hint").textContent = "Zonas rojas: fuera de la especificación. Pellizca para zoom · arrastra para mover.";

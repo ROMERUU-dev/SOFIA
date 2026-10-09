@@ -1,1 +1,0 @@
-python -m sofia_filter_studio --kind bandstop --approx butterworth --ap 1 --as 40 --topology tow_thomas --opamp TL082 --cap 1e-7 --resistor-series E96 --max-network-size 2 --netlist-out docs/benchmark/case_007_bandstop_butterworth_tow_thomas_tl082/generated.cir --fp1 600 --fp2 1600 --fs1 900 --fs2 1100

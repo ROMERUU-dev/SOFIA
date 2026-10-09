@@ -385,16 +385,6 @@ h3 {
   margin: 0 0 16px;
 }
 
-.link {
-  color: var(--accent-text);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.link:hover {
-  text-decoration: underline;
-}
-
 .download svg {
   width: 40px;
   height: 40px;
@@ -615,48 +605,6 @@ pre.mini.code {
 
 .table td:first-child {
   white-space: nowrap;
-}
-
-.fixes {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 10px;
-}
-
-.fixes li {
-  position: relative;
-  padding: 14px 18px 14px 46px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--surface);
-  font-size: 15.5px;
-}
-
-.fixes li::before {
-  content: "";
-  position: absolute;
-  left: 18px;
-  top: 19px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  border: 2px solid var(--accent);
-}
-
-.fixes li.result {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-  color: var(--accent-text);
-}
-
-.fixes li.result b {
-  color: var(--accent-text);
-}
-
-.fixes li.result::before {
-  background: var(--accent);
 }
 
 /* Downloads ---------------------------------------------------------------------------------- */

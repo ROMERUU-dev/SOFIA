@@ -4,13 +4,13 @@ build-backend = "hatchling.build"
 
 [project]
 name = "sofia-filter-studio"
-version = "0.3.0"
-description = "Modern cross-platform rewrite of the legacy SOFIA analog filter design tool."
+version = "0.4.0"
+description = "Active analog filter design: synthesis, SPICE netlists, schematic and PCB."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Proprietary" }
 authors = [
-  { name = "Codex Migration Bootstrap" }
+  { name = "ROMERUU-dev", email = "juvenal.romero@uabc.edu.mx" }
 ]
 keywords = ["filters", "analog", "spice", "sallen-key", "chebyshev", "butterworth"]
 classifiers = [

@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).absolute().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
-import simulate_case  # noqa: E402
+import simulate  # noqa: E402
 
 from sofia_filter_studio.design import design_filter  # noqa: E402
 from sofia_filter_studio.models import (  # noqa: E402
@@ -25,7 +25,7 @@ from sofia_filter_studio.models import (  # noqa: E402
 )
 from sofia_filter_studio.netlist import render_netlist  # noqa: E402
 
-SIMULATOR = simulate_case.find_simulator()
+SIMULATOR = simulate.find_simulator()
 PASSING = {"cumple", "cumple_con_tolerancia"}
 
 SPECS = {
@@ -62,7 +62,7 @@ class SimulatedResponseTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="sofia_test_") as tmp:
             path = Path(tmp) / "filter.cir"
             path.write_text(render_netlist(inputs, design_filter(inputs), path), encoding="utf-8")
-            return simulate_case.simulate_netlist(SIMULATOR, path, spec, "OUT", 0.15, 0.5, ideal_opamp=ideal)
+            return simulate.simulate_netlist(SIMULATOR, path, spec, "OUT", 0.15, 0.5, ideal_opamp=ideal)
 
     def test_every_topology_and_kind_meets_spec_with_ideal_opamps(self) -> None:
         for topology in (Topology.SALLEN_KEY, Topology.MFB, Topology.TOW_THOMAS, Topology.ANTONIOU, Topology.AUTO):
@@ -87,9 +87,9 @@ class SimulatedResponseTests(unittest.TestCase):
                         with tempfile.TemporaryDirectory(prefix="sofia_test_") as tmp:
                             path = Path(tmp) / "filter.cir"
                             path.write_text(render_netlist(inputs, result, path, exact_values=True), encoding="utf-8")
-                            freqs, simulated = simulate_case.simulated_response(SIMULATOR, path, spec, ideal_opamp=True)
+                            freqs, simulated = simulate.simulated_response(SIMULATOR, path, spec, ideal_opamp=True)
                         ideal = ideal_response_db(inputs, result, freqs)
-                        passbands, _ = simulate_case.spec_bands(spec)
+                        passbands, _ = simulate.spec_bands(spec)
                         reference = max(g for f, g in zip(freqs, simulated) if any(lo <= f <= hi for lo, hi in passbands))
                         worst = max(abs((s - reference) - i) for s, i in zip(simulated, ideal) if i > -60)
                         self.assertLess(worst, 0.05)

@@ -49,6 +49,24 @@ class MainWindowTests(unittest.TestCase):
         self.assertFalse(self.window.error_banner.isVisibleTo(self.window))
         self.assertTrue(self.window.headline.text().startswith("Pasa altas"))
 
+    def test_schematic_tab_shows_the_drawing(self) -> None:
+        self.window.tabs.setCurrentWidget(self.window.schematic_tab)
+        self.assertIsNotNone(self.window.schematic_view._item)
+        self.window.mounting.setCurrentIndex(1)
+        self.assertIsNotNone(self.window.schematic_view._item)
+
+    def test_pcb_tab_routes_the_board(self) -> None:
+        import time
+
+        self.window.tabs.setCurrentWidget(self.window.pcb_tab)
+        deadline = time.time() + 60
+        while self.window._pcb is None and time.time() < deadline:
+            self.app.processEvents()
+            time.sleep(0.05)
+        self.assertIsNotNone(self.window._pcb)
+        self.assertEqual(self.window._pcb.unrouted, [])
+        self.assertIn("ruteo completo", self.window.pcb_status.text())
+
     def test_detour_through_a_band_filter_keeps_the_spec_valid(self) -> None:
         for index, expected in ((2, "Pasa banda"), (1, "Pasa altas"), (0, "Pasa bajas")):
             self.window.kind_group.button(index).click()

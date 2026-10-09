@@ -19,6 +19,7 @@ from .models import (
     ResistorSeries,
     Topology,
 )
+from .board import BoardOptions, Mounting, bom_csv, build_board
 from .netlist import render_netlist, supply_voltage_for
 from .response import design_response, spec_bands
 from .synthesis import KIND_NAMES, TOPOLOGY_NAMES
@@ -83,7 +84,12 @@ DEFAULT_FORM: dict[str, Any] = {
     "cap": "10n",
     "series": ResistorSeries.E96.value,
     "auto_cap": True,
+    "mounting": Mounting.SMD.value,
 }
+MOUNTINGS = [
+    (Mounting.SMD, "SMD · 0805 y SOIC"),
+    (Mounting.THT, "Through-hole · axiales y DIP"),
+]
 UNITS = {"fp": "Hz", "fs": "Hz", "fp1": "Hz", "fp2": "Hz", "fs1": "Hz", "fs2": "Hz", "ap": "dB", "as": "dB", "cap": "F"}
 LABELS = {"ap": "Rizo", "as": "Atenuación", "cap": "Capacitor"}
 
@@ -163,6 +169,7 @@ def options() -> dict[str, Any]:
         "topologies": [{"value": t.value, "label": label} for t, label in TOPOLOGIES],
         "opamps": [{"value": o.value, "label": label} for o, label in OPAMPS],
         "series": [{"value": s.value, "label": label} for s, label in SERIES],
+        "mountings": [{"value": m.value, "label": label} for m, label in MOUNTINGS],
         "hints": {k.value: hint for k, hint in SPEC_HINTS.items()},
         "default_bands": {k.value: values for k, values in DEFAULT_BANDS.items()},
         "defaults": DEFAULT_FORM,
@@ -270,3 +277,121 @@ def design_view(form: dict[str, Any], points_per_decade: int = 160) -> dict[str,
 def design_view_json(form_json: str) -> str:
     """JSON in, JSON out: the web worker calls this through Pyodide."""
     return json.dumps(design_view(json.loads(form_json)), ensure_ascii=False)
+
+
+def board_options(form: dict[str, Any]) -> BoardOptions:
+    return BoardOptions(Mounting(form.get("mounting", Mounting.SMD)))
+
+
+def _board(form: dict[str, Any]):
+    inputs = read_form(form)
+    result = design_filter(inputs)
+    return inputs, result, build_board(inputs, result, board_options(form))
+
+
+def schematic_view(form: dict[str, Any]) -> dict[str, Any]:
+    """Schematic SVG (cropped to the drawing) for the Esquemático tab."""
+    from .schematic import build_schematic, to_svg
+
+    try:
+        _, _, board = _board(form)
+    except (FormError, ValueError) as exc:
+        return {"ok": False, "error": str(exc)}
+    schematic = build_schematic(board)
+    return {"ok": True, "svg": to_svg(schematic, standalone=False), "paper": schematic.paper}
+
+
+EXPORTS = {
+    # KiCad projects (ZIP): the schematic alone, or the schematic with the routed board.
+    "kicad_sch": ("_kicad.zip", "application/zip"),
+    "svg": ("_esquematico.svg", "image/svg+xml"),
+    "bom": ("_materiales.csv", "text/csv"),
+    "kicad_pcb": ("_kicad.zip", "application/zip"),
+    "gerber": ("_gerber.zip", "application/zip"),
+    "cpl": ("_posiciones.csv", "text/csv"),
+}
+_PCB_CACHE: dict[str, Any] = {}
+
+
+def _pcb(form: dict[str, Any]):
+    """Board, schematic and routed PCB of a form; the last one is kept so exports do not re-route."""
+    from .pcb import build_pcb
+    from .schematic import build_schematic
+
+    key = json.dumps({name: form.get(name) for name in DEFAULT_FORM}, sort_keys=True)
+    if key not in _PCB_CACHE:
+        inputs, result, board = _board(form)
+        schematic = build_schematic(board)
+        _PCB_CACHE.clear()
+        _PCB_CACHE[key] = (inputs, result, board, build_pcb(board, schematic))
+    return _PCB_CACHE[key]
+
+
+def pcb_view(form: dict[str, Any], side: str = "top") -> dict[str, Any]:
+    """Routed board preview and its status, for the PCB tab."""
+    from .pcb import to_svg
+
+    try:
+        _, _, board, pcb = _pcb(form)
+    except (FormError, ValueError) as exc:
+        return {"ok": False, "error": str(exc)}
+    packages = sum(1 for component in board.components if component.symbol == "OPAMP")
+    return {
+        "ok": True,
+        "svg": to_svg(pcb, side),
+        "width": round(pcb.width, 1),
+        "height": round(pcb.height, 1),
+        "parts": sum(1 for component in board.components if component.in_bom),
+        "packages": packages,
+        "vias": len(pcb.vias),
+        "unrouted": len(pcb.unrouted),
+        "problems": pcb.problems[:20],
+        "smd": board.options.mounting is Mounting.SMD,
+    }
+
+
+def export_file(form: dict[str, Any], what: str) -> dict[str, Any]:
+    """A file to download (see EXPORTS); binary files come as base64."""
+    import base64
+
+    from .kicad import project_zip
+    from .schematic import build_schematic, to_svg
+
+    try:
+        inputs, result, board = _board(form)
+    except (FormError, ValueError) as exc:
+        return {"ok": False, "error": str(exc)}
+    suffix, mime = EXPORTS[what]
+    base = netlist_filename(inputs, result).removesuffix(".cir")
+    data = None
+    if what in ("kicad_pcb", "gerber", "cpl"):
+        from .pcbfiles import gerber_zip, placement_csv
+
+        pcb = _pcb(form)[3]
+        if what == "gerber":
+            data = gerber_zip(pcb, base)
+        elif what == "kicad_pcb":
+            data = project_zip(build_schematic(board), base, pcb)
+        else:
+            content = placement_csv(pcb)
+    elif what == "bom":
+        content = bom_csv(board)
+    elif what == "kicad_sch":
+        data = project_zip(build_schematic(board), base)
+    else:
+        content = to_svg(build_schematic(board))
+    if data is not None:
+        return {"ok": True, "filename": base + suffix, "mime": mime, "base64": base64.b64encode(data).decode("ascii")}
+    return {"ok": True, "filename": base + suffix, "mime": mime, "content": content}
+
+
+def schematic_view_json(form_json: str) -> str:
+    return json.dumps(schematic_view(json.loads(form_json)), ensure_ascii=False)
+
+
+def export_file_json(form_json: str, what: str) -> str:
+    return json.dumps(export_file(json.loads(form_json), what), ensure_ascii=False)
+
+
+def pcb_view_json(form_json: str, side: str = "top") -> str:
+    return json.dumps(pcb_view(json.loads(form_json), side), ensure_ascii=False)

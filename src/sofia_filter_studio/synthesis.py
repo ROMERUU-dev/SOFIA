@@ -290,12 +290,12 @@ def _synthesize_sallen_key(inputs: DesignInputs, stage: Stage, topology: Topolog
                 f"Con Q = {q:.2f} este Sallen-Key pasa banda es muy sensible a la tolerancia de las resistencias y al ancho de banda del opamp; MFB o Tow-Thomas son más robustos."
             )
     else:
-        # Equal-R, equal-C low-pass/high-pass with the legacy gain/Q relation K = 3 - 1/Q.
+        # Equal-R, equal-C low-pass/high-pass with the classic gain/Q relation K = 3 - 1/Q.
         r_target = 1 / (omega_0 * capacitor)
         gain = 3 - 1 / q
         max_gain = SALLEN_KEY_MAX_GAIN_LP_HP
         targets = {"R1": r_target, "R2": r_target}
-        notes.append("Sallen-Key de componentes iguales con la relación del legado Av = 3 - 1/Q.")
+        notes.append("Sallen-Key de componentes iguales con la relación clásica Av = 3 - 1/Q.")
     if gain < 1:
         gain = 1.0
         notes.append("El Q pedido queda debajo de la región de Sallen-Key de componentes iguales; la etapa se limitó a ganancia 1 y su Q no será exacto.")
@@ -326,7 +326,7 @@ def _synthesize_tow_thomas(inputs: DesignInputs, stage: Stage, topology: Topolog
     base_r = 1 / (omega_0 * capacitor)
     targets = {"R": base_r, "Rq": q * base_r, "Rinv": base_r}
     capacitors = {"C1": capacitor, "C2": capacitor}
-    notes = ["Tow-Thomas con las relaciones del legado R = 1/(C*w0) y Rq = Q*R."]
+    notes = ["Tow-Thomas con las relaciones R = 1/(C*w0) y Rq = Q*R."]
     if inputs.kind is FilterKind.LOWPASS:
         targets["R1"] = base_r
         notes.append("Salida pasa bajas en el segundo integrador, ganancia en DC -R/R1 = -1.")

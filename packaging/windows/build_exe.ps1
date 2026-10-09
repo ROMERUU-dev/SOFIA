@@ -24,6 +24,6 @@ if ($LASTEXITCODE -ne 0) { throw "Could not install the build requirements." }
     --distpath (Join-Path $root "dist") `
     --workpath (Join-Path $root "build\pyinstaller") `
     --specpath (Join-Path $root "build") `
-    (Join-Path $root "packaging\windows\sofia_entry.py")
+    (Join-Path $root "packaging\sofia_entry.py")
 if ($LASTEXITCODE -ne 0) { throw "PyInstaller failed with exit code $LASTEXITCODE" }
 Write-Host "Listo: $(Join-Path $root 'dist\SOFIA-Filter-Studio.exe')"

@@ -8,7 +8,7 @@ import time
 from pathlib import Path
 
 try:
-    from PySide6.QtCore import QSize, Qt, QTimer, Signal
+    from PySide6.QtCore import QSize, Qt, QThread, QTimer, Signal
     from PySide6.QtGui import QAction, QColor, QFont, QGuiApplication, QKeySequence, QPalette
     from PySide6.QtWidgets import (
         QApplication,
@@ -38,10 +38,12 @@ except ImportError as exc:  # pragma: no cover - depends on the install
 
 from .. import __version__
 from ..design import design_filter
+from ..board import BoardOptions, Mounting, bom_csv, build_board
 from ..forms import (
     APPROXIMATIONS,
     DEFAULT_BANDS,
     KINDS,
+    MOUNTINGS,
     OPAMPS,
     SERIES,
     SPEC_HINTS,
@@ -62,6 +64,26 @@ from ..netlist import render_netlist, supply_voltage_for
 from ..response import design_response, spec_bands
 from ..synthesis import TOPOLOGY_NAMES
 from ..units import format_quantity, format_resistor_value
+
+
+class _PcbJob(QThread):
+    """Places and routes the board off the GUI thread."""
+
+    finished_job = Signal(object, object)
+
+    def __init__(self, key, board) -> None:
+        super().__init__()
+        self.key = key
+        self.board = board
+
+    def run(self) -> None:
+        from ..pcb import build_pcb
+
+        try:
+            outcome = build_pcb(self.board)
+        except Exception as exc:  # reported in the tab
+            outcome = exc
+        self.finished_job.emit(self.key, outcome)
 
 
 class InputError(ValueError):
@@ -297,6 +319,9 @@ class MainWindow(QMainWindow):
         body.addWidget(_field("Amplificador operacional", self.opamp))
         self.capacitor = QuantityField("10n", "F")
         body.addWidget(_field("Capacitor base", self.capacitor, "Punto de partida; cada etapa lo ajusta si es necesario."))
+        self.mounting = _combo(MOUNTINGS, Mounting.SMD)
+        self.mounting.setToolTip("Huellas del esquemático, la lista de materiales y la PCB.")
+        body.addWidget(_field("Componentes de la placa", self.mounting))
 
         self.advanced_toggle = QToolButton()
         self.advanced_toggle.setObjectName("disclosure")
@@ -331,6 +356,7 @@ class MainWindow(QMainWindow):
         for combo in (self.topology, self.opamp, self.series):
             combo.currentIndexChanged.connect(self.schedule)
         self.auto_cap.toggled.connect(self.schedule)
+        self.mounting.currentIndexChanged.connect(self._invalidate_schematic)
 
         scroll = QScrollArea()
         scroll.setWidget(content)
@@ -417,6 +443,14 @@ class MainWindow(QMainWindow):
         self.tabs.setDocumentMode(True)
         self.stages_area, self.stages_grid = self._scroll_grid()
         self.tabs.addTab(self.stages_area, "Etapas")
+        self.tabs.addTab(self._build_schematic_tab(), "Esquemático")
+        self.tabs.addTab(self._build_pcb_tab(), "PCB")
+        self._schematic_key = None
+        self._pcb_key = None
+        self._pcb = None
+        self._pcb_job: _PcbJob | None = None
+        self._pcb_side = "top"
+        self.tabs.currentChanged.connect(lambda _index: (self._refresh_schematic(), self._refresh_pcb()))
         netlist_tab = QWidget()
         netlist_layout = QVBoxLayout(netlist_tab)
         netlist_layout.setContentsMargins(0, 8, 0, 0)
@@ -446,6 +480,184 @@ class MainWindow(QMainWindow):
         area.setWidget(content)
         area.setWidgetResizable(True)
         return area, grid
+
+    def _build_schematic_tab(self) -> QWidget:
+        from .schematicview import SchematicView
+
+        tab = QWidget()
+        layout = QVBoxLayout(tab)
+        layout.setContentsMargins(0, 8, 0, 0)
+        layout.setSpacing(8)
+        bar = QHBoxLayout()
+        bar.addWidget(_label("Rueda: zoom · arrastrar: mover · doble clic: ajustar", "muted"), 1)
+        for text, what, tip in (
+            ("Guardar para KiCad…", "kicad_sch", "Proyecto de KiCad (ZIP) con el esquemático"),
+            ("Guardar SVG…", "svg", "Esquemático como imagen vectorial"),
+            ("Guardar materiales…", "bom", "Lista de materiales (CSV) para comprar"),
+        ):
+            button = QPushButton(text)
+            button.setObjectName("secondary")
+            button.setToolTip(tip)
+            button.clicked.connect(lambda _checked=False, what=what: self.save_export(what))
+            bar.addWidget(button)
+        layout.addLayout(bar)
+        self.schematic_view = SchematicView()
+        layout.addWidget(self.schematic_view, 1)
+        self.schematic_tab = tab
+        return tab
+
+    def _build_pcb_tab(self) -> QWidget:
+        from .schematicview import SchematicView
+
+        tab = QWidget()
+        layout = QVBoxLayout(tab)
+        layout.setContentsMargins(0, 8, 0, 0)
+        layout.setSpacing(8)
+        bar = QHBoxLayout()
+        self.pcb_status = _label("La placa se rutea al abrir esta pestaña.", "muted", wrap=True)
+        bar.addWidget(self.pcb_status, 1)
+        self.pcb_side_group = QButtonGroup(self)
+        for index, (text, side) in enumerate((("Arriba", "top"), ("Abajo", "bottom"))):
+            button = QPushButton(text)
+            button.setObjectName("segmentSmall")
+            button.setCheckable(True)
+            button.setProperty("side", side)
+            self.pcb_side_group.addButton(button, index)
+            bar.addWidget(button)
+        self.pcb_side_group.button(0).setChecked(True)
+        self.pcb_side_group.idClicked.connect(self._on_pcb_side)
+        for text, what, tip in (
+            ("Guardar PCB de KiCad…", "kicad_pcb", "Proyecto de KiCad (ZIP) con el esquemático y la placa ruteada"),
+            ("Guardar Gerber…", "gerber", "Archivos de fabricación: Gerber y barrenos en un ZIP"),
+            ("Guardar posiciones…", "cpl", "Posiciones de los componentes SMD para ensamble"),
+        ):
+            button = QPushButton(text)
+            button.setObjectName("secondary")
+            button.setToolTip(tip)
+            button.clicked.connect(lambda _checked=False, what=what: self.save_pcb_file(what))
+            bar.addWidget(button)
+        layout.addLayout(bar)
+        self.pcb_view = SchematicView()
+        self.pcb_view.setBackgroundBrush(QColor("#0b1f17"))
+        layout.addWidget(self.pcb_view, 1)
+        self.pcb_tab = tab
+        return tab
+
+    def _on_pcb_side(self, index: int) -> None:
+        self._pcb_side = ("top", "bottom")[index]
+        self._show_pcb()
+
+    def _refresh_pcb(self) -> None:
+        if self.tabs.currentWidget() is not self.pcb_tab or self._result is None or not self._netlist:
+            return
+        key = (id(self._result), self.mounting.currentData())
+        if key == self._pcb_key or (self._pcb_job is not None and self._pcb_job.key == key):
+            return
+        self.pcb_status.setText("Colocando y ruteando la placa…")
+        job = _PcbJob(key, self._board())
+        job.finished_job.connect(self._pcb_done)
+        self._pcb_job = job
+        job.start()
+
+    def _pcb_done(self, key, outcome) -> None:
+        job, self._pcb_job = self._pcb_job, None
+        if job is not None:
+            job.wait()
+        current = (id(self._result), self.mounting.currentData()) if self._result is not None else None
+        if key != current:
+            self._refresh_pcb()
+            return
+        self._pcb_key = key
+        if isinstance(outcome, Exception):
+            self._pcb = None
+            self.pcb_view.show_message(str(outcome))
+            self.pcb_status.setText("No se pudo generar la placa.")
+            return
+        self._pcb = outcome
+        self._show_pcb()
+        routing = f"{len(outcome.unrouted)} conexiones sin rutear" if outcome.unrouted else "ruteo completo"
+        rules = f"{len(outcome.problems)} avisos de reglas" if outcome.problems else "sin errores de reglas"
+        parts = sum(1 for component in outcome.board.components if component.in_bom)
+        self.pcb_status.setText(f"{outcome.width:.1f} × {outcome.height:.1f} mm · {parts} componentes · {len(outcome.vias)} vías · {routing} · {rules}")
+
+    def _show_pcb(self) -> None:
+        if self._pcb is not None:
+            from ..pcb import to_svg as pcb_svg
+
+            self.pcb_view.show_svg(pcb_svg(self._pcb, self._pcb_side))
+
+    def save_pcb_file(self, what: str) -> None:
+        if self._pcb is None:
+            self.statusBar().showMessage("Abre la pestaña PCB y espera a que termine el ruteo.", 6000)
+            return
+        from ..kicad import project_zip
+        from ..pcbfiles import gerber_zip, placement_csv
+        from ..schematic import build_schematic
+
+        base = self._default_filename().removesuffix(".cir")
+        suffix, filters = {
+            "kicad_pcb": ("_kicad.zip", "Proyecto de KiCad (*.zip)"),
+            "gerber": ("_gerber.zip", "Gerber en ZIP (*.zip)"),
+            "cpl": ("_posiciones.csv", "Posiciones CSV (*.csv)"),
+        }[what]
+        path, _ = QFileDialog.getSaveFileName(self, "Guardar", base + suffix, filters + ";;Todos los archivos (*)")
+        if not path:
+            return
+        if what == "gerber":
+            Path(path).write_bytes(gerber_zip(self._pcb, base))
+        elif what == "kicad_pcb":
+            Path(path).write_bytes(project_zip(build_schematic(self._pcb.board), base, self._pcb))
+        else:
+            Path(path).write_text(placement_csv(self._pcb), encoding="utf-8")
+        self.statusBar().showMessage(f"Guardado en {path}", 8000)
+
+    def _board(self):
+        options = BoardOptions(Mounting(self.mounting.currentData()))
+        return build_board(self._inputs, self._result, options)
+
+    def _invalidate_schematic(self, *_args) -> None:
+        self._schematic_key = None
+        self._refresh_schematic()
+        self._refresh_pcb()
+
+    def _refresh_schematic(self) -> None:
+        if self.tabs.currentWidget() is not self.schematic_tab or self._result is None or not self._netlist:
+            return
+        key = (id(self._result), self.mounting.currentData())
+        if key == self._schematic_key:
+            return
+        from ..schematic import build_schematic, to_svg
+
+        try:
+            schematic = build_schematic(self._board())
+        except ValueError as exc:
+            self.schematic_view.show_message(str(exc))
+        else:
+            self.schematic_view.show_svg(to_svg(schematic, standalone=False, inline=True))
+        self._schematic_key = key
+
+    def save_export(self, what: str) -> None:
+        if not self._netlist:
+            return
+        from ..kicad import project_zip
+        from ..schematic import build_schematic, to_svg
+
+        base = self._default_filename().removesuffix(".cir")
+        suffix, filters = {
+            "kicad_sch": ("_kicad.zip", "Proyecto de KiCad (*.zip)"),
+            "svg": ("_esquematico.svg", "Imagen SVG (*.svg)"),
+            "bom": ("_materiales.csv", "Lista de materiales CSV (*.csv)"),
+        }[what]
+        path, _ = QFileDialog.getSaveFileName(self, "Guardar", base + suffix, filters + ";;Todos los archivos (*)")
+        if not path:
+            return
+        board = self._board()
+        if what == "kicad_sch":
+            Path(path).write_bytes(project_zip(build_schematic(board), base))
+        else:
+            content = bom_csv(board) if what == "bom" else to_svg(build_schematic(board))
+            Path(path).write_text(content, encoding="utf-8")
+        self.statusBar().showMessage(f"Guardado en {path}", 8000)
 
     def _scroll_column(self) -> tuple[QScrollArea, QVBoxLayout]:
         content = QWidget()
@@ -560,6 +772,9 @@ class MainWindow(QMainWindow):
         self._update_stages(result)
         self._update_warnings(result)
         self._update_details(inputs, result)
+        self._schematic_key = None
+        self._refresh_schematic()
+        self._refresh_pcb()
         self.netlist_view.setPlainText(self._netlist)
         self.statusBar().showMessage(f"Diseño actualizado en {elapsed_ms:.0f} ms")
 
@@ -573,7 +788,12 @@ class MainWindow(QMainWindow):
         _clear_layout(self.stages_grid)
         _clear_layout(self.warnings_layout)
         _clear_layout(self.details_layout)
-        self.tabs.setTabText(2, "Avisos")
+        self.tabs.setTabText(self.tabs.indexOf(self.warnings_area), "Avisos")
+        self._schematic_key = None
+        self.schematic_view.show_message("Completa la especificación para ver el esquemático")
+        self._pcb = None
+        self._pcb_key = None
+        self.pcb_view.show_message("Completa la especificación para ver la placa")
         self.plot.clear()
         self.netlist_view.clear()
         self.save_button.setEnabled(False)
@@ -668,7 +888,7 @@ class MainWindow(QMainWindow):
             self.warnings_layout.addWidget(_label("✓  Todo en orden: el diseño no tiene avisos.", "okCard", wrap=True))
         self.warnings_layout.addStretch()
         count = len(result.warnings)
-        self.tabs.setTabText(2, f"Avisos ({count})" if count else "Avisos")
+        self.tabs.setTabText(self.tabs.indexOf(self.warnings_area), f"Avisos ({count})" if count else "Avisos")
 
     def _update_details(self, inputs: DesignInputs, result: DesignResult) -> None:
         _clear_layout(self.details_layout)
@@ -727,6 +947,11 @@ class MainWindow(QMainWindow):
             QGuiApplication.clipboard().setText(self._netlist)
             self.statusBar().showMessage("Netlist copiado al portapapeles", 5000)
 
+    def closeEvent(self, event) -> None:  # noqa: N802 (Qt API)
+        if self._pcb_job is not None:
+            self._pcb_job.wait()
+        super().closeEvent(event)
+
     def _about(self) -> None:
         QMessageBox.about(
             self,
@@ -761,6 +986,8 @@ def create_application(argv: list[str] | None = None) -> "QApplication":
 
     app = QApplication.instance() or QApplication(argv if argv is not None else sys.argv)
     app.setApplicationName("SOFIA Filter Studio")
+    # Links the window to the Linux menu entry (sofia-filter-studio.desktop) for its icon on Wayland.
+    app.setDesktopFileName("sofia-filter-studio")
     app.setStyle("Fusion")
     app.setPalette(_light_palette())
     font = QFont("Segoe UI" if sys.platform == "win32" else app.font().family())

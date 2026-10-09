@@ -1,0 +1,91 @@
+# Builds the Linux (.deb) and macOS (.dmg) installers and tries them on clean systems. The files stay
+# as artifacts of the run (Actions > the run > Artifacts); nothing is published as a release.
+name: Instaladores
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [instaladores]
+
+permissions:
+  contents: read
+
+jobs:
+  deb:
+    name: Linux (.deb)
+    # The oldest supported Ubuntu: the package needs that glibc or newer.
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: Bibliotecas para abrir Qt sin pantalla
+        run: sudo apt-get update && sudo apt-get install -y libegl1 libgl1 libxkbcommon0 libfontconfig1
+      - name: Construir el .deb
+        run: bash packaging/linux/build_deb.sh
+      - uses: actions/upload-artifact@v7
+        with:
+          name: sofia-filter-studio-linux
+          path: dist/*.deb
+          if-no-files-found: error
+
+  deb-test:
+    name: Instalar en ${{ matrix.image }}
+    needs: deb
+    runs-on: ubuntu-latest
+    container: ${{ matrix.image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ["ubuntu:22.04", "ubuntu:24.04", "ubuntu:26.04", "debian:12", "debian:13"]
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: sofia-filter-studio-linux
+      - name: Instalar el paquete (apt trae las dependencias)
+        run: |
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y ./sofia-filter-studio_*.deb xvfb xauth
+      - name: Abrir la ventana en una pantalla X11 virtual
+        run: SOFIA_SMOKE_TEST=1 xvfb-run -a sofia-filter-studio
+      - name: Línea de comandos
+        run: |
+          sofia-filter-studio --kind lowpass --approx butterworth --fp 1000 --fs 2000 --ap 1 --as 40 --netlist-out /tmp/filtro.cir
+          grep -qi "^.subckt" /tmp/filtro.cir
+      - name: Menú e ícono
+        run: test -f /usr/share/applications/sofia-filter-studio.desktop && test -f /usr/share/icons/hicolor/256x256/apps/sofia-filter-studio.png
+      - name: Desinstalar
+        run: apt-get remove -y sofia-filter-studio && test ! -e /opt/sofia-filter-studio && test ! -e /usr/bin/sofia-filter-studio
+
+  dmg:
+    name: macOS ${{ matrix.arch }} (.dmg)
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15
+            arch: arm64
+          - runner: macos-15-intel
+            arch: x86_64
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: Construir el .dmg
+        run: bash packaging/macos/build_dmg.sh
+      - name: Abrir la app desde el .dmg
+        run: |
+          hdiutil attach -nobrowse -readonly -mountpoint "$RUNNER_TEMP/sofia" dist/*.dmg
+          app="$RUNNER_TEMP/sofia/SOFIA Filter Studio.app/Contents/MacOS/SOFIA Filter Studio"
+          SOFIA_SMOKE_TEST=1 "$app"
+          "$app" --kind lowpass --approx butterworth --fp 1000 --fs 2000 --ap 1 --as 40 --netlist-out "$RUNNER_TEMP/filtro.cir"
+          grep -qi "^.subckt" "$RUNNER_TEMP/filtro.cir"
+          hdiutil detach "$RUNNER_TEMP/sofia"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: sofia-filter-studio-macos-${{ matrix.arch }}
+          path: dist/*.dmg
+          if-no-files-found: error

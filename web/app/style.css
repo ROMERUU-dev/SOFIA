@@ -27,6 +27,12 @@
   --tooltip-text: #ffffff;
   --shadow: 0 1px 2px rgba(30, 37, 51, 0.04), 0 4px 16px rgba(30, 37, 51, 0.04);
   --font: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Roboto, sans-serif;
+  --sch-wire: #1e2533;
+  --sch-part: #1e4fbf;
+  --sch-text: #1e2533;
+  --sch-muted: #5d6578;
+  --sch-label: #b45309;
+  --sch-paper: #fafbfd;
   --mono: "Cascadia Mono", Consolas, "SF Mono", "DejaVu Sans Mono", monospace;
 }
 
@@ -58,6 +64,12 @@
     --tooltip: #e6eaf2;
     --tooltip-text: #0f131a;
     --shadow: none;
+    --sch-wire: #c9d1e0;
+    --sch-part: #7aa3f2;
+    --sch-text: #e6eaf2;
+    --sch-muted: #97a0b3;
+    --sch-label: #f5a524;
+    --sch-paper: #131821;
   }
 }
 
@@ -88,6 +100,12 @@
   --tooltip: #e6eaf2;
   --tooltip-text: #0f131a;
   --shadow: none;
+  --sch-wire: #c9d1e0;
+  --sch-part: #7aa3f2;
+  --sch-text: #e6eaf2;
+  --sch-muted: #97a0b3;
+  --sch-label: #f5a524;
+  --sch-paper: #131821;
 }
 
 * {
@@ -768,6 +786,75 @@ details.advanced[open] summary {
   font-size: 14px;
 }
 
+.schematic-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px 12px;
+}
+
+.schematic-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.schematic-bar .muted {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.downloads-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.button.small {
+  padding: 5px 11px;
+  font-size: 13px;
+}
+
+.schematic-view {
+  flex: 1;
+  min-height: 260px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--sch-paper);
+  touch-action: none;
+  cursor: grab;
+}
+
+.schematic-panel:fullscreen {
+  background: var(--surface);
+  padding: 16px;
+}
+
+.schematic-view.dragging {
+  cursor: grabbing;
+}
+
+.schematic-view svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.pcb-view {
+  background: #0b1f17;
+}
+
+.pcb-view .empty {
+  color: #cbd5e1;
+}
+
+.schematic-view .empty {
+  padding: 16px;
+}
+
 pre.netlist {
   margin: 0;
   padding: 10px 12px;
@@ -842,6 +929,10 @@ pre.netlist {
 
   .panel {
     max-height: 70vh;
+  }
+
+  .schematic-view {
+    min-height: 360px;
   }
 }
 

@@ -2,7 +2,7 @@
 import { loadPyodide } from "https://cdn.jsdelivr.net/npm/pyodide@314.0.7/pyodide.mjs";
 
 const ROOT = "/home/pyodide/sofia";
-let designView = null;
+let api = null;
 let resolveBundle;
 const bundleName = new Promise((resolve) => {
   resolveBundle = resolve;
@@ -22,9 +22,15 @@ async function boot() {
   pyodide.runPython(`
 import sys
 sys.path.insert(0, "${ROOT}/src")
-from sofia_filter_studio.forms import design_view_json
+from sofia_filter_studio import forms
 `);
-  designView = pyodide.globals.get("design_view_json");
+  const forms = pyodide.globals.get("forms");
+  api = {
+    design: (form) => forms.design_view_json(JSON.stringify(form)),
+    schematic: (form) => forms.schematic_view_json(JSON.stringify(form)),
+    export: (form, what) => forms.export_file_json(JSON.stringify(form), what),
+    pcb: (form, side) => forms.pcb_view_json(JSON.stringify(form), side || "top"),
+  };
   postMessage({ type: "ready" });
 }
 
@@ -39,7 +45,7 @@ onmessage = async (event) => {
     resolveBundle(message.bundle);
     return;
   }
-  if (message.type !== "design") return;
+  if (!["design", "schematic", "export", "pcb"].includes(message.type)) return;
   try {
     await ready;
   } catch {
@@ -47,9 +53,11 @@ onmessage = async (event) => {
   }
   let json;
   try {
-    json = designView(JSON.stringify(message.form));
+    if (message.type === "export") json = api.export(message.form, message.what);
+    else if (message.type === "pcb") json = api.pcb(message.form, message.side);
+    else json = api[message.type](message.form);
   } catch (error) {
     json = JSON.stringify({ ok: false, error: `Error interno: ${error.message}`, fields: [] });
   }
-  postMessage({ type: "result", id: message.id, json });
+  postMessage({ type: message.type === "design" ? "result" : message.type, id: message.id, json });
 };

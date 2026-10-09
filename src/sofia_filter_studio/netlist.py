@@ -4,6 +4,7 @@ import os
 import sys
 from pathlib import Path
 
+from .circuit import CAPACITOR, OPAMP, Part, StageCircuit, build_circuit
 from .models import DesignInputs, DesignResult, FilterKind, Stage, Topology
 
 
@@ -78,29 +79,13 @@ def _stage_comment(stage: Stage, kind: FilterKind) -> str:
     return f"* Stage {stage.index}: {kind.value}, f0={stage.natural_frequency_hz:.5f} Hz, Q={q_text}, order={stage.order}"
 
 
-def _format_resistor_network(name: str, node_a: str, node_b: str, realized_name: str, network) -> list[str]:
-    if network.connection == "single":
-        return [f"{realized_name} {node_a} {node_b} {network.realized_ohms:.6f}"]
-
-    midpoint = f"{realized_name}_MID"
-    lines = [f"* {name}: {network.connection} array for target {network.target_ohms:.6f} ohm"]
-    if network.connection == "series":
-        current_a = node_a
-        for index, value in enumerate(network.parts_ohms, start=1):
-            current_b = node_b if index == len(network.parts_ohms) else f"{midpoint}{index}"
-            lines.append(f"{realized_name}_{index} {current_a} {current_b} {value:.6f}")
-            current_a = current_b
-        return lines
-
-    for index, value in enumerate(network.parts_ohms, start=1):
-        lines.append(f"{realized_name}_{index} {node_a} {node_b} {value:.6f}")
-    return lines
-
-
-def _stage_ports(stage: Stage, total_stages: int) -> tuple[str, str]:
-    stage_input = "IN" if stage.index == 1 else f"1{stage.index - 1}"
-    stage_output = "OUT" if stage.index == total_stages else f"1{stage.index}"
-    return stage_input, stage_output
+def _part_line(part: Part, subckt: str) -> str:
+    if part.kind == OPAMP:
+        plus, minus, out = part.nodes
+        return f"{part.name} {plus} {minus} VCC 0 {out} {subckt}"
+    if part.kind == CAPACITOR:
+        return f"{part.name} {part.nodes[0]} {part.nodes[1]} {part.value:.9e}"
+    return f"{part.name} {part.nodes[0]} {part.nodes[1]} {part.value:.6f}"
 
 
 def model_text_for(inputs: DesignInputs) -> str:
@@ -145,14 +130,13 @@ def render_netlist(
         lines.append(f".param C1={inputs.stage_capacitor_f:.9e}")
         lines.append("* TODO: port legacy OTA sizing equations and transistor-level export.")
     else:
-        total_stages = len(result.stages)
-        stage_lines: list[str] = []
-        for stage in result.stages:
-            stage_lines.append(_stage_comment(stage, inputs.kind))
-            stage_lines.extend(_render_stage_template(inputs, stage, total_stages, exact_values))
-            stage_lines.append("")
-        lines.extend(stage_lines)
-        lines.extend(_nodeset_lines(stage_lines, vref))
+        subckt = subckt_name_for(inputs)
+        circuit = build_circuit(inputs, result, exact_values)
+        for stage_circuit in circuit:
+            lines.append(_stage_comment(stage_circuit.stage, inputs.kind))
+            lines.extend(item if isinstance(item, str) else _part_line(item, subckt) for item in stage_circuit.items)
+            lines.append("")
+        lines.extend(_nodeset_lines(circuit, vref))
 
     if inline_model:
         lines.append(f"* Modelo del opamp {inputs.opamp.value} ({MODEL_FILE_MAP[inputs.opamp.value]})")
@@ -166,7 +150,7 @@ def render_netlist(
     return "\n".join(lines)
 
 
-def _nodeset_lines(stage_lines: list[str], vref: float, per_line: int = 8) -> list[str]:
+def _nodeset_lines(circuit: list[StageCircuit], vref: float, per_line: int = 8) -> list[str]:
     """Seed every op amp output at the virtual ground.
 
     Op amp macro-models (TL082 in particular) admit a latched DC solution with the output stuck at a
@@ -174,12 +158,10 @@ def _nodeset_lines(stage_lines: list[str], vref: float, per_line: int = 8) -> li
     Seeding only the outputs is enough; seeding every node makes some Tow-Thomas cascades diverge.
     """
     nodes: list[str] = []
-    for line in stage_lines:
-        parts = line.split()
-        if len(parts) >= 7 and parts[0].upper().startswith("X"):
-            output = parts[-2]
-            if output not in nodes:
-                nodes.append(output)
+    for stage_circuit in circuit:
+        for part in stage_circuit.parts:
+            if part.kind == OPAMP and part.nodes[2] not in nodes:
+                nodes.append(part.nodes[2])
     if not nodes:
         return []
     lines = ["* punto de operacion inicial en la tierra virtual"]
@@ -188,196 +170,3 @@ def _nodeset_lines(stage_lines: list[str], vref: float, per_line: int = 8) -> li
         lines.append(f".nodeset {chunk}" if start == 0 else f"+ {chunk}")
     lines.append("")
     return lines
-
-
-class _StageWriter:
-    """Small helper that emits the element lines of one stage with legacy-style names."""
-
-    def __init__(self, inputs: DesignInputs, stage: Stage, exact_values: bool = False) -> None:
-        self.inputs = inputs
-        self.stage = stage
-        self.realization = stage.realization
-        self.subckt = subckt_name_for(inputs)
-        self.exact_values = exact_values
-        self.lines: list[str] = []
-
-    def node(self, prefix: int) -> str:
-        return f"{prefix}{self.stage.index}"
-
-    def opamp(self, number: int, plus: str, minus: str, out: str) -> None:
-        self.lines.append(f"Xao{number}{self.stage.index} {plus} {minus} VCC 0 {out} {self.subckt}")
-
-    def cap(self, number: int, node_a: str, node_b: str, key: str) -> None:
-        value = self.realization.capacitor_values_f[key]
-        self.lines.append(f"c{number}{self.stage.index} {node_a} {node_b} {value:.9e}")
-
-    def res(self, number: int, node_a: str, node_b: str, key: str) -> None:
-        network = self.realization.resistor_networks[key]
-        name = f"r{number}{self.stage.index}"
-        if self.exact_values:
-            self.lines.append(f"{name} {node_a} {node_b} {network.target_ohms:.6f}")
-            return
-        self.lines.extend(_format_resistor_network(key, node_a, node_b, name, network))
-
-    def has(self, key: str) -> bool:
-        return key in self.realization.resistor_networks or key in self.realization.capacitor_values_f
-
-
-def _render_stage_template(inputs: DesignInputs, stage: Stage, total_stages: int, exact_values: bool = False) -> list[str]:
-    realization = stage.realization
-    stage_input, stage_output = _stage_ports(stage, total_stages)
-    lines = [f"* Stage input: {stage_input}", f"* Stage output: {stage_output}"]
-    if realization is None:
-        lines.append("* Missing realization")
-        return lines
-    for note in realization.notes:
-        lines.append(f"* {note}")
-
-    writer = _StageWriter(inputs, stage, exact_values)
-    topology = realization.topology
-    if stage.order == 1:
-        if topology in {Topology.MFB, Topology.TOW_THOMAS}:
-            _render_first_order_inverting(writer, inputs.kind, stage_input, stage_output)
-        else:
-            _render_first_order_follower(writer, inputs.kind, stage_input, stage_output)
-    elif topology is Topology.SALLEN_KEY:
-        _render_sallen_key(writer, inputs.kind, stage_input, stage_output)
-    elif topology is Topology.MFB:
-        _render_mfb(writer, inputs.kind, stage_input, stage_output)
-    elif topology is Topology.TOW_THOMAS:
-        _render_tow_thomas(writer, inputs.kind, stage_input, stage_output)
-    elif topology is Topology.ANTONIOU:
-        _render_antoniou(writer, inputs.kind, stage_input, stage_output)
-    else:
-        writer.lines.append("* Unknown topology")
-    return lines + writer.lines
-
-
-def _render_first_order_follower(w: _StageWriter, kind: FilterKind, in_node: str, out_node: str) -> None:
-    n2 = w.node(2)
-    w.opamp(1, n2, out_node, out_node)
-    if kind is FilterKind.HIGHPASS:
-        w.cap(1, in_node, n2, "C1")
-        w.res(1, n2, "VREF", "R1")
-    else:
-        w.res(1, in_node, n2, "R1")
-        w.cap(1, n2, "VREF", "C1")
-
-
-def _render_first_order_inverting(w: _StageWriter, kind: FilterKind, in_node: str, out_node: str) -> None:
-    n2, n3 = w.node(2), w.node(3)
-    w.opamp(1, "VREF", n3, out_node)
-    if kind is FilterKind.HIGHPASS:
-        w.cap(1, in_node, n2, "C1")
-        w.res(1, n2, n3, "R1")
-    else:
-        w.res(1, in_node, n3, "R1")
-        w.cap(1, n3, out_node, "C1")
-    w.res(2, n3, out_node, "R2")
-
-
-def _render_sallen_key(w: _StageWriter, kind: FilterKind, in_node: str, out_node: str) -> None:
-    n2, n3, n4 = w.node(2), w.node(3), w.node(4)
-    unity = not w.has("Rf")
-    w.opamp(1, n3, out_node if unity else n4, out_node)
-    if kind is FilterKind.HIGHPASS:
-        w.cap(1, in_node, n2, "C1")
-        w.cap(2, n2, n3, "C2")
-        w.res(3, n2, out_node, "R1")
-        w.res(4, n3, "VREF", "R2")
-    elif kind is FilterKind.BANDPASS:
-        if w.has("R1a"):
-            w.res(3, in_node, n2, "R1a")
-            w.res(6, n2, "VREF", "R1b")
-        else:
-            w.res(3, in_node, n2, "R1")
-        w.cap(1, n2, "VREF", "C1")
-        w.cap(2, n2, n3, "C2")
-        w.res(4, n2, out_node, "R2")
-        w.res(5, n3, "VREF", "R3")
-    else:
-        w.cap(1, n3, "VREF", "C1")
-        w.cap(2, n2, out_node, "C2")
-        w.res(3, in_node, n2, "R1")
-        w.res(4, n2, n3, "R2")
-    if not unity:
-        w.res(1, n4, "VREF", "Rg")
-        w.res(2, n4, out_node, "Rf")
-
-
-def _render_mfb(w: _StageWriter, kind: FilterKind, in_node: str, out_node: str) -> None:
-    n2, n3 = w.node(2), w.node(3)
-    w.opamp(1, "VREF", n3, out_node)
-    if kind is FilterKind.BANDPASS:
-        w.cap(1, n2, n3, "C1")
-        w.cap(2, n2, out_node, "C2")
-        w.res(1, n3, out_node, "R1")
-        if w.has("R2"):
-            w.res(2, n2, "VREF", "R2")
-        w.res(3, in_node, n2, "R3")
-    elif kind is FilterKind.HIGHPASS:
-        w.cap(1, in_node, n2, "C1")
-        w.cap(2, n2, out_node, "C2")
-        w.cap(3, n2, n3, "C3")
-        w.res(1, n2, "VREF", "R1")
-        w.res(2, n3, out_node, "R2")
-    else:
-        w.cap(1, n2, "VREF", "C1")
-        w.cap(2, n3, out_node, "C2")
-        w.res(1, in_node, n2, "R1")
-        w.res(2, n2, out_node, "R2")
-        w.res(3, n2, n3, "R3")
-
-
-def _render_tow_thomas(w: _StageWriter, kind: FilterKind, in_node: str, out_node: str) -> None:
-    n2, n4, n6, n7 = w.node(2), w.node(4), w.node(6), w.node(7)
-    if kind is FilterKind.LOWPASS:
-        bandpass_node, lowpass_node = w.node(3), out_node
-    else:
-        bandpass_node, lowpass_node = out_node, w.node(5)
-    w.opamp(1, "VREF", n2, bandpass_node)
-    w.opamp(2, "VREF", n4, lowpass_node)
-    w.opamp(3, "VREF", n6, n7)
-    w.cap(1, n2, bandpass_node, "C1")
-    w.cap(2, n4, lowpass_node, "C2")
-    w.res(2, n7, n2, "R")
-    w.res(3, bandpass_node, n4, "R")
-    w.res(4, n2, bandpass_node, "Rq")
-    w.res(5, lowpass_node, n6, "Rinv")
-    w.res(6, n6, n7, "Rinv")
-    if w.has("R1"):
-        w.res(1, in_node, n2, "R1")
-    if w.has("Cff"):
-        w.cap(3, in_node, n2, "Cff")
-    if w.has("Rff"):
-        w.res(7, in_node, n4, "Rff")
-
-
-def _render_antoniou(w: _StageWriter, kind: FilterKind, in_node: str, out_node: str) -> None:
-    # GIC nodes: X=n6 (simulated inductor), a=n5, b=n4, c=n3, d=n2.
-    n2, n3, n4, n5, n6, n7 = w.node(2), w.node(3), w.node(4), w.node(5), w.node(6), w.node(7)
-    w.opamp(1, n2, n4, n5)
-    w.opamp(2, n6, n4, n3)
-    if w.has("Rf"):
-        w.opamp(3, n6, n7, out_node)
-        w.res(8, n7, "VREF", "Rg")
-        w.res(9, n7, out_node, "Rf")
-    else:
-        w.opamp(3, n6, out_node, out_node)
-    w.res(1, n5, n6, "R")
-    w.res(2, n4, n5, "R")
-    w.res(3, n3, n4, "R")
-    w.cap(4, n2, n3, "C1")
-    if w.has("R5"):
-        lifted = kind in {FilterKind.LOWPASS, FilterKind.BANDSTOP}
-        w.res(5, n2, in_node if lifted else "VREF", "R5")
-    if w.has("R5a"):
-        w.res(5, n2, in_node, "R5a")
-        w.res(7, n2, "VREF", "R5b")
-    if w.has("C2"):
-        w.cap(6, n6, in_node if kind is FilterKind.HIGHPASS else "VREF", "C2")
-    if w.has("C2a"):
-        w.cap(6, n6, in_node, "C2a")
-    if w.has("C2b"):
-        w.cap(7, n6, "VREF", "C2b")
-    w.res(6, n6, in_node if kind is FilterKind.BANDPASS else "VREF", "Rq")

@@ -1,1 +1,0 @@
-python -m sofia_filter_studio --kind lowpass --approx chebyshev --ap 1 --as 40 --topology sallen_key --opamp LM7171 --cap 1e-7 --resistor-series E96 --max-network-size 2 --netlist-out docs/benchmark/case_010_lowpass_chebyshev_sallen_lm7171/generated.cir --fp 1000 --fs 2000

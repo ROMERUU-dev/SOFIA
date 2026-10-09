@@ -1,2 +1,0 @@
-Legado: El TL082 no polariza con la fuente de 5 V y tierra virtual de 2.5 V que escribe SOFIA (salida muerta). Con opamp ideal el rizo sube a ~1.5 dB por redondear cada resistencia a un solo valor comercial de 5% (R = 1462.7 a 1500 ohm) y por el error de `abs()` en Ajuste.
-Nuevo: `cumple` (funciona): rizo 0.85 dB (limite 1), atenuacion 41.6 dB (minimo 40), ganancia 16.7 dB; con opamp ideal rizo 0.86 dB, atenuacion 41.6 dB
