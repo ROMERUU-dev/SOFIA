@@ -18,12 +18,11 @@ original; funciona en Windows, Linux, macOS y en el navegador.
 
 ## Instaladores
 
-Los instaladores publicados estan en [Releases](https://github.com/ROMERUU-dev/SOFIA/releases) (por ahora el
-de Windows).
+Los instaladores estan en [Releases](https://github.com/ROMERUU-dev/SOFIA/releases/latest).
 
 | Sistema | Archivo | Como se instala |
 | --- | --- | --- |
-| Windows | `SOFIA-Filter-Studio.exe` | Un solo archivo, no se instala ni necesita Python. |
+| Windows | `SOFIA-Filter-Studio-<version>-windows.exe` | Un solo archivo, no se instala ni necesita Python. |
 | Ubuntu y Debian | `sofia-filter-studio_<version>_amd64.deb` | `sudo apt install ./sofia-filter-studio_<version>_amd64.deb`. Queda en el menu de aplicaciones; se quita con `sudo apt remove sofia-filter-studio`. Ubuntu 22.04 o mas reciente, Debian 12 o mas reciente. |
 | macOS | `SOFIA-Filter-Studio-<version>-macos-arm64.dmg` (Apple Silicon) o `-x86_64.dmg` (Intel) | Abrir el `.dmg` y arrastrar la app a Aplicaciones. |
 
@@ -37,16 +36,16 @@ tambien se puede: `xattr -dr com.apple.quarantine "/Applications/SOFIA Filter St
 Cada instalador se arma con PyInstaller en su propio sistema:
 
 ```bash
-powershell -ExecutionPolicy Bypass -File packaging\windows\build_exe.ps1   # Windows: dist\SOFIA-Filter-Studio.exe
+powershell -ExecutionPolicy Bypass -File packaging\windows\build_exe.ps1   # Windows: dist\*.exe
 bash packaging/linux/build_deb.sh                                          # Ubuntu 22.04: dist/*.deb
 bash packaging/macos/build_dmg.sh                                          # macOS: dist/*.dmg
 ```
 
-Los de Linux y macOS prueban el programa empaquetado antes de terminar (abren la ventana, dibujan el
-esquematico y rutean la placa). El flujo `.github/workflows/instaladores.yml` los arma en GitHub Actions
-(Ubuntu 22.04, macOS Apple Silicon e Intel), instala el `.deb` en Ubuntu 22.04, 24.04 y 26.04 y en Debian 12
-y 13 limpios, y deja los archivos como artefactos de la ejecucion. Se lanza a mano desde la pestana Actions o
-con un push a la rama `instaladores`.
+Los tres prueban el programa empaquetado antes de terminar (abren la ventana, dibujan el esquematico y
+rutean la placa). El flujo `.github/workflows/instaladores.yml` los arma en GitHub Actions (Windows,
+Ubuntu 22.04, macOS Apple Silicon e Intel), instala el `.deb` en Ubuntu 22.04, 24.04 y 26.04 y en Debian 12
+y 13 limpios, y deja los archivos como artefactos de la ejecucion; de ahi se suben al release. Se lanza a mano
+desde la pestana Actions, con un push a la rama `instaladores` o con una etiqueta `v*`.
 
 ## Esquematico, materiales y PCB
 

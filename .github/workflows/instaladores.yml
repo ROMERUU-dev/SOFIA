@@ -1,16 +1,42 @@
-# Builds the Linux (.deb) and macOS (.dmg) installers and tries them on clean systems. The files stay
-# as artifacts of the run (Actions > the run > Artifacts); nothing is published as a release.
+# Builds the Windows (.exe), Linux (.deb) and macOS (.dmg) installers and tries them on clean systems.
+# The files stay as artifacts of the run (Actions > the run > Artifacts); the release is made from them
+# by hand, so nothing is published from here.
 name: Instaladores
 
 on:
   workflow_dispatch:
   push:
     branches: [instaladores]
+    tags: ["v*"]
 
 permissions:
   contents: read
 
 jobs:
+  exe:
+    name: Windows (.exe)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: Construir el .exe
+        run: powershell -ExecutionPolicy Bypass -File packaging\windows\build_exe.ps1
+      - name: Línea de comandos
+        run: |
+          $exe = (Get-ChildItem dist\*.exe).FullName
+          $netlist = Join-Path $env:RUNNER_TEMP "filtro.cir"
+          $options = "--kind lowpass --approx butterworth --fp 1000 --fs 2000 --ap 1 --as 40 --netlist-out `"$netlist`""
+          $process = Start-Process -FilePath $exe -ArgumentList $options -Wait -PassThru
+          if ($process.ExitCode -ne 0) { throw "El .exe termino con el codigo $($process.ExitCode)" }
+          if (-not (Select-String -Path $netlist -Pattern '^\.subckt' -Quiet)) { throw "El netlist no trae el modelo del opamp" }
+      - uses: actions/upload-artifact@v7
+        with:
+          name: sofia-filter-studio-windows
+          path: dist/*.exe
+          if-no-files-found: error
+
   deb:
     name: Linux (.deb)
     # The oldest supported Ubuntu: the package needs that glibc or newer.

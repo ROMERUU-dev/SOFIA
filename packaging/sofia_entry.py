@@ -39,7 +39,8 @@ def smoke_test() -> int:
         "platform": app.platformName(),
     }
     window.close()
-    print(json.dumps(checks))
+    if sys.stdout is not None:  # the windowed Windows build has no console; its exit status says it all
+        print(json.dumps(checks))
     return 0 if all(checks.values()) else 1
 
 

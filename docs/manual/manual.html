@@ -38,7 +38,7 @@
         <li><a href="#placa">Esquemático, materiales y placa</a></li>
         <li><a href="#armar">Armar el circuito</a></li>
         <li><a href="#mensajes">Mensajes de error y avisos</a></li>
-        <li><a href="#windows">Versión para Windows y línea de comandos</a></li>
+        <li><a href="#windows">Versiones de escritorio y línea de comandos</a></li>
         <li><a href="#preguntas">Preguntas frecuentes</a></li>
       </ol>
 
@@ -66,12 +66,14 @@
         <thead><tr><th>Versión</th><th>Cómo se abre</th><th>Necesita</th></tr></thead>
         <tbody>
           <tr><td><b>Navegador</b></td><td>romeruu-dev.github.io/SOFIA/app</td><td>Internet la primera vez (descarga unos 6 MB). Funciona en computadora y celular.</td></tr>
-          <tr><td><b>Windows</b></td><td>SOFIA-Filter-Studio.exe, en la sección Releases del repositorio</td><td>Nada: es un solo archivo y funciona sin internet.</td></tr>
+          <tr><td><b>Windows</b></td><td>El .exe de la sección Releases del repositorio</td><td>Nada: es un solo archivo y funciona sin internet.</td></tr>
+          <tr><td><b>Ubuntu y Debian</b></td><td>El .deb de Releases; queda en el menú de aplicaciones</td><td>Ubuntu 22.04 o Debian 12, o más recientes. Funciona sin internet.</td></tr>
+          <tr><td><b>macOS</b></td><td>El .dmg de Releases (Apple Silicon o Intel)</td><td>Funciona sin internet.</td></tr>
           <tr><td><b>Python</b></td><td><code>sofia-gui</code> o <code>sofia</code> (línea de comandos)</td><td>Python 3.11 o más reciente; la ventana usa PySide6.</td></tr>
         </tbody>
       </table>
       <p class="note">
-        Las tres versiones usan el mismo motor de cálculo y dan exactamente los mismos resultados. Este manual muestra
+        Todas las versiones usan el mismo motor de cálculo y dan exactamente los mismos resultados. Este manual muestra
         la versión del navegador; la de escritorio tiene la misma pantalla, con <i>Guardar netlist…</i> en lugar de
         <i>Descargar netlist</i>.
       </p>
@@ -438,14 +440,23 @@ plot vdb(out)</pre>
     </section>
 
     <section class="page">
-      <h2 id="windows"><span class="num">9</span>Versión para Windows y línea de comandos</h2>
+      <h2 id="windows"><span class="num">9</span>Versiones de escritorio y línea de comandos</h2>
       <p>
-        Descarga <code>SOFIA-Filter-Studio.exe</code> de la sección <i>Releases</i> del repositorio y ábrelo con doble
-        clic; no se instala. La ventana es la misma que la del navegador. Atajos: <b>Ctrl+S</b> guarda el netlist y
-        <b>Ctrl+Shift+C</b> lo copia.
+        Los instaladores están en la sección <i>Releases</i> del repositorio. La ventana es la misma que la del
+        navegador. Atajos: <b>Ctrl+S</b> guarda el netlist y <b>Ctrl+Shift+C</b> lo copia (<b>Cmd</b> en macOS).
       </p>
+      <ul>
+        <li><b>Windows:</b> el <code>.exe</code> se abre con doble clic; no se instala.</li>
+        <li><b>Ubuntu y Debian:</b> <code>sudo apt install ./sofia-filter-studio_0.4.0_amd64.deb</code> lo instala con sus
+          dependencias y lo deja en el menú de aplicaciones; <code>sudo apt remove sofia-filter-studio</code> lo quita.</li>
+        <li><b>macOS:</b> abre el <code>.dmg</code> (arm64 para Apple Silicon, x86_64 para Intel) y arrastra la app a
+          Aplicaciones. No está firmada con una cuenta de Apple, así que la primera vez macOS no la deja abrir: ve a
+          Ajustes del Sistema &gt; Privacidad y seguridad y elige <i>Abrir de todos modos</i>.</li>
+      </ul>
       <p>
-        El mismo .exe funciona como línea de comandos si le pasas opciones; como no abre consola, usa <code>--netlist-out</code> para obtener el archivo. En Python, después de
+        El programa de escritorio también funciona como línea de comandos si le pasas opciones (en Linux,
+        <code>sofia-filter-studio --kind lowpass …</code>); en Windows no abre consola, así que usa <code>--netlist-out</code>
+        para obtener el archivo. En Python, después de
         <code>pip install -e ".[gui]"</code>, los comandos son <code>sofia</code> y <code>sofia-gui</code>:
       </p>
       <pre>sofia --kind lowpass --approx butterworth --fp 1000 --fs 2000 \
@@ -463,7 +474,7 @@ plot vdb(out)</pre>
           <tr><td><code>--cap</code></td><td>Capacitor base en faradios (por defecto 1e-8)</td></tr>
           <tr><td><code>--resistor-series</code></td><td>E96, E48, E24, E12 (por defecto E96)</td></tr>
           <tr><td><code>--netlist-out</code></td><td>Archivo donde guardar el netlist</td></tr>
-          <tr><td><code>--inline-model</code></td><td>Copia el modelo del opamp dentro del netlist (el .exe siempre lo hace)</td></tr>
+          <tr><td><code>--inline-model</code></td><td>Copia el modelo del opamp dentro del netlist (las versiones de escritorio siempre lo hacen)</td></tr>
         </tbody>
       </table>
       <p class="note">
@@ -476,7 +487,7 @@ plot vdb(out)</pre>
         <dt>¿Por qué me sale un orden más alto del que esperaba?</dt>
         <dd>Es el mínimo entero que cumple Ap y As. Si quieres menos etapas, prueba Chebyshev o relaja la especificación (más rizo, menos atenuación o bandas más separadas).</dd>
         <dt>¿La versión del navegador funciona sin internet?</dt>
-        <dd>Necesita internet la primera vez; después el navegador la guarda. El ejecutable para Windows funciona siempre sin conexión.</dd>
+        <dd>Necesita internet la primera vez; después el navegador la guarda. Las versiones de Windows, Linux y macOS funcionan siempre sin conexión.</dd>
         <dt>¿La gráfica de la app es una simulación?</dt>
         <dd>No: es la respuesta ideal del diseño, calculada con sus polos. Para ver el efecto del opamp real, simula el netlist.</dd>
         <dt>¿Puedo usar resistencias de 5 %?</dt>
