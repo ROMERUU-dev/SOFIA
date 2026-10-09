@@ -74,8 +74,31 @@ jobs:
         run: |
           apt-get update
           DEBIAN_FRONTEND=noninteractive apt-get install -y ./sofia-filter-studio_*.deb xvfb xauth
+      - name: Bibliotecas del sistema
+        # Everything the program loads must resolve; other optional Qt plugins only warn.
+        run: |
+          app=/opt/sofia-filter-studio/_internal
+          core="$(find "$app" "$app/PySide6" "$app/PySide6/Qt/lib" "$app/python3"*/lib-dynload -maxdepth 1 -name '*.so*' -type f)
+          $app/PySide6/Qt/plugins/platforms/libqxcb.so $app/PySide6/Qt/plugins/platforms/libqwayland.so"
+          missing="$(for lib in $core; do ldd "$lib" | grep 'not found' | sed "s|^|$(basename "$lib"): |"; done)"
+          optional="$(find "$app/PySide6/Qt/plugins" -name '*.so' -exec ldd {} + 2>/dev/null | grep 'not found' | sort -u)"
+          [ -z "$optional" ] || echo "Opcionales sin resolver (no se usan): $optional"
+          if [ -n "$missing" ]; then echo "$missing"; exit 1; fi
       - name: Abrir la ventana en una pantalla X11 virtual
         run: SOFIA_SMOKE_TEST=1 xvfb-run -a sofia-filter-studio
+      - name: Abrir la ventana en Wayland (weston sin pantalla)
+        # Wayland is what Ubuntu and Debian desktops use by default.
+        run: |
+          DEBIAN_FRONTEND=noninteractive apt-get install -y weston
+          export XDG_RUNTIME_DIR=/tmp/xdg
+          mkdir -p -m 700 "$XDG_RUNTIME_DIR"
+          for backend in headless headless-backend.so; do
+            weston --backend=$backend --socket=wayland-9 --idle-time=0 > /tmp/weston.log 2>&1 &
+            sleep 4
+            [ -S "$XDG_RUNTIME_DIR/wayland-9" ] && break
+          done
+          [ -S "$XDG_RUNTIME_DIR/wayland-9" ] || { cat /tmp/weston.log; exit 1; }
+          SOFIA_SMOKE_TEST=1 WAYLAND_DISPLAY=wayland-9 QT_QPA_PLATFORM=wayland sofia-filter-studio
       - name: Línea de comandos
         run: |
           sofia-filter-studio --kind lowpass --approx butterworth --fp 1000 --fs 2000 --ap 1 --as 40 --netlist-out /tmp/filtro.cir
