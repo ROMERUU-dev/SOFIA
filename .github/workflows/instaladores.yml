@@ -75,9 +75,11 @@ jobs:
           apt-get update
           DEBIAN_FRONTEND=noninteractive apt-get install -y ./sofia-filter-studio_*.deb xvfb xauth
       - name: Bibliotecas del sistema
-        # Everything the program loads must resolve; other optional Qt plugins only warn.
+        # Everything the program loads must resolve, from the system or from the bundle (PyInstaller's
+        # launcher puts _internal on the library path); other optional Qt plugins only warn.
         run: |
           app=/opt/sofia-filter-studio/_internal
+          export LD_LIBRARY_PATH="$app:$app/PySide6/Qt/lib"
           core="$(find "$app" "$app/PySide6" "$app/PySide6/Qt/lib" "$app/python3"*/lib-dynload -maxdepth 1 -name '*.so*' -type f)
           $app/PySide6/Qt/plugins/platforms/libqxcb.so $app/PySide6/Qt/plugins/platforms/libqwayland.so"
           missing="$(for lib in $core; do ldd "$lib" | grep 'not found' | sed "s|^|$(basename "$lib"): |"; done)"
