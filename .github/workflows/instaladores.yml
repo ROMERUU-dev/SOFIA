@@ -60,7 +60,8 @@ jobs:
     name: Instalar en ${{ matrix.image }}
     needs: deb
     runs-on: ubuntu-latest
-    container: ${{ matrix.image }}
+    # The official images from the AWS mirror: Docker Hub limits anonymous pulls from shared runners.
+    container: public.ecr.aws/docker/library/${{ matrix.image }}
     strategy:
       fail-fast: false
       matrix:
