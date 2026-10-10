@@ -61,7 +61,7 @@ class DesignFilterTests(unittest.TestCase):
                     self.assertIn("Xao13", netlist)
                     self.assertIn("VCC 0 OUT", netlist)
 
-    def test_butterworth_bandpass_keeps_margin_inside_the_spec(self) -> None:
+    def test_butterworth_bandpass_edges_are_exact(self) -> None:
         inputs = DesignInputs(
             kind=FilterKind.BANDPASS,
             approximation=Approximation.BUTTERWORTH,
@@ -84,10 +84,9 @@ class DesignFilterTests(unittest.TestCase):
             s = complex(0, 2 * math.pi * freq_hz)
             return 20 * math.log10(abs(response(s)) / abs(response(complex(0, center))))
 
-        # The excess order is split: band edges inside the 1 dB ripple, stopband edges past 30 dB.
+        # Band edges exactly at -1 dB; the excess order goes to the stopband edges, past 30 dB.
         for edge in (800, 1_200):
-            self.assertLess(gain_db(edge), 0.0)
-            self.assertGreater(gain_db(edge), -0.95)
+            self.assertAlmostEqual(gain_db(edge), -1.0, places=9)
         for edge in (500, 2_000):
             self.assertLess(gain_db(edge), -30.5)
 
@@ -240,6 +239,43 @@ class DesignFilterTests(unittest.TestCase):
         netlist = render_netlist(inputs, design_filter(inputs))
         self.assertIn(" LM7171B/NS", netlist)
         self.assertNotIn(" LM7171\n", netlist)
+
+    def test_passband_edges_are_exact(self) -> None:
+        # Textbook design: exactly Ap of attenuation at every passband edge, at least As at the stopband ones.
+        from sofia_filter_studio.response import ideal_response_db
+
+        cases = [
+            (FilterKind.LOWPASS, FilterSpec(1_000, 2_000), 1, 40),
+            (FilterKind.LOWPASS, FilterSpec(1_000, 1_500), 3, 30),
+            (FilterKind.HIGHPASS, FilterSpec(300, 100), 2, 45),
+            (FilterKind.BANDPASS, FilterSpec((800, 1_200), (500, 2_000)), 1, 30),
+            (FilterKind.BANDSTOP, FilterSpec((600, 1_600), (900, 1_100)), 0.5, 40),
+        ]
+        for kind, spec, ap, a_stop in cases:
+            for approximation in Approximation:
+                with self.subTest(kind=kind.value, approximation=approximation.value):
+                    inputs = DesignInputs(kind, approximation, spec, ap, a_stop)
+                    result = design_filter(inputs)
+                    passband = spec.passband_hz if isinstance(spec.passband_hz, tuple) else (spec.passband_hz,)
+                    stopband = spec.stopband_hz if isinstance(spec.stopband_hz, tuple) else (spec.stopband_hz,)
+                    # The response is normalized to its passband peak, so the grid has to be dense.
+                    grid = sorted({10 ** (k / 4000) for k in range(4000, 20000)} | set(passband) | set(stopband))
+                    response = dict(zip(grid, ideal_response_db(inputs, result, grid)))
+                    for edge in passband:
+                        self.assertAlmostEqual(response[edge], -ap, delta=1e-4)
+                    for edge in stopband:
+                        self.assertLessEqual(response[edge], -a_stop)
+
+    def test_margin_option_splits_the_excess_order(self) -> None:
+        from sofia_filter_studio.response import ideal_response_db
+
+        inputs = DesignInputs(FilterKind.LOWPASS, Approximation.BUTTERWORTH, FilterSpec(1_000, 2_000), 1, 40, design_margin=True)
+        dc, edge, stop = ideal_response_db(inputs, design_filter(inputs), [1.0, 1_000.0, 2_000.0])
+        self.assertAlmostEqual(dc, 0.0, delta=0.01)
+        # Order 8 has slack: with the margin the passband edge stays above -1 dB, the stopband past -40 dB.
+        self.assertGreater(edge, -0.9)
+        self.assertLess(edge, -0.5)
+        self.assertLess(stop, -40.5)
 
     def test_nodeset_only_for_models_that_need_it(self) -> None:
         # TL082 and uA741 can latch at a rail without it; LM7171, LM6171 and LM6165 do not converge with it.

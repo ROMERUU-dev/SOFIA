@@ -117,8 +117,10 @@
               <span>Serie de resistencias comerciales</span>
               <select id="series"></select>
             </label>
-            <p class="hint">Un solo resistor comercial por posición. E96 mantiene el filtro dentro de la especificación.</p>
+            <p class="hint">Un solo resistor comercial por posición. E96 (1 %) es la serie que más se acerca al diseño ideal.</p>
             <label class="check"><input type="checkbox" id="auto_cap" /> Ajustar el capacitor de cada etapa</label>
+            <label class="check"><input type="checkbox" id="margin" /> Dejar margen para componentes comerciales</label>
+            <p class="hint">Reparte el orden que sobra entre las dos bandas: con resistencias comerciales el circuito cumple con holgura, pero el borde de la banda de paso ya no cae exacto en la frecuencia pedida.</p>
           </details>
         </section>
 
@@ -209,7 +211,10 @@
             </div>
             <div class="schematic-view pcb-view" id="pcb-view"><p class="empty">Abriendo la placa…</p></div>
           </div>
-          <div class="panel" role="tabpanel" id="panel-netlist" hidden><pre class="netlist" id="netlist"></pre></div>
+          <div class="panel" role="tabpanel" id="panel-netlist" hidden>
+            <label class="check netlist-option"><input type="checkbox" id="exact_values" /> Valores exactos, sin redondear: para comprobar el cálculo (en LTspice los bordes caen justo en las frecuencias pedidas)</label>
+            <pre class="netlist" id="netlist"></pre>
+          </div>
           <div class="panel" role="tabpanel" id="panel-warnings" hidden></div>
           <div class="panel" role="tabpanel" id="panel-details" hidden></div>
         </section>

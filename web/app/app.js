@@ -129,6 +129,14 @@ function buildForm(options) {
     state.form.auto_cap = event.target.checked;
     schedule();
   });
+  $("margin").addEventListener("change", (event) => {
+    state.form.margin = event.target.checked;
+    schedule();
+  });
+  $("exact_values").addEventListener("change", (event) => {
+    state.form.exact_values = event.target.checked;
+    schedule();
+  });
   $("version").textContent = `SOFIA Filter Studio ${options.version}`;
 }
 
@@ -147,6 +155,8 @@ function applyForm() {
   for (const name of TEXT_FIELDS) $(name).value = form[name];
   for (const name of SELECTS) $(name).value = form[name];
   $("auto_cap").checked = Boolean(form.auto_cap);
+  $("exact_values").checked = Boolean(form.exact_values);
+  $("margin").checked = Boolean(form.margin);
   syncRadios();
   const single = SINGLE_KINDS.has(form.kind);
   $("single-spec").hidden = !single;
@@ -195,6 +205,8 @@ function readHash(options) {
     if (value !== null && value.length <= 32) form[name] = value;
   }
   if (params.has("auto_cap")) form.auto_cap = params.get("auto_cap") !== "0";
+  if (params.get("exact") === "1") form.exact_values = true;
+  if (params.get("margin") === "1") form.margin = true;
   return form;
 }
 
@@ -206,6 +218,8 @@ function writeHash() {
   const fields = SINGLE_KINDS.has(form.kind) ? ["fp", "fs"] : BAND_FIELDS;
   for (const name of [...fields, "ap", "as", "topology", "opamp", "cap", "series", "mounting"]) params.set(name, form[name]);
   if (!form.auto_cap) params.set("auto_cap", "0");
+  if (form.exact_values) params.set("exact", "1");
+  if (form.margin) params.set("margin", "1");
   history.replaceState(null, "", `#${params}`);
 }
 

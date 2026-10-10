@@ -855,6 +855,12 @@ details.advanced[open] summary {
   padding: 16px;
 }
 
+.netlist-option {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
 pre.netlist {
   margin: 0;
   padding: 10px 12px;

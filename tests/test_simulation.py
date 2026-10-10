@@ -36,7 +36,9 @@ SPECS = {
 }
 
 
-def _inputs(kind: FilterKind, approximation: Approximation, topology: Topology, opamp: OpAmpModel) -> tuple[DesignInputs, dict]:
+def _inputs(
+    kind: FilterKind, approximation: Approximation, topology: Topology, opamp: OpAmpModel, margin: bool = False
+) -> tuple[DesignInputs, dict]:
     edges = SPECS[kind]
     if kind in {FilterKind.LOWPASS, FilterKind.HIGHPASS}:
         spec = FilterSpec(passband_hz=edges["fp"], stopband_hz=edges["fs"])
@@ -52,24 +54,39 @@ def _inputs(kind: FilterKind, approximation: Approximation, topology: Topology, 
         topology=topology,
         opamp=opamp,
         resistor_series=ResistorSeries.E96,
+        design_margin=margin,
     )
     return inputs, {"kind": kind.value, "ap": 1, "as": a_stop, **edges}
 
 
 @unittest.skipIf(SIMULATOR is None, "no SPICE simulator found")
 class SimulatedResponseTests(unittest.TestCase):
-    def _simulate(self, inputs: DesignInputs, spec: dict, ideal: bool) -> dict:
+    def _simulate(self, inputs: DesignInputs, spec: dict, ideal: bool, exact: bool = False) -> dict:
         with tempfile.TemporaryDirectory(prefix="sofia_test_") as tmp:
             path = Path(tmp) / "filter.cir"
-            path.write_text(render_netlist(inputs, design_filter(inputs), path), encoding="utf-8")
+            path.write_text(render_netlist(inputs, design_filter(inputs), path, exact_values=exact), encoding="utf-8")
             return simulate.simulate_netlist(SIMULATOR, path, spec, "OUT", 0.15, 0.5, ideal_opamp=ideal)
 
-    def test_every_topology_and_kind_meets_spec_with_ideal_opamps(self) -> None:
+    def test_exact_values_meet_the_spec_exactly_with_ideal_opamps(self) -> None:
+        # The textbook design sits on Ap at the passband edge: Ap of ripple, at least As. The 200-point-
+        # per-decade sweep, interpolated at the sharp band edges, reads up to ~0.04 dB more ripple; the
+        # exact match with the design is checked by test_netlists_realize_the_designed_transfer_function.
         for topology in (Topology.SALLEN_KEY, Topology.MFB, Topology.TOW_THOMAS, Topology.ANTONIOU, Topology.AUTO):
             for kind in FilterKind:
                 for approximation in Approximation:
                     with self.subTest(topology=topology.value, kind=kind.value, approximation=approximation.value):
                         inputs, spec = _inputs(kind, approximation, topology, OpAmpModel.TL082)
+                        result = self._simulate(inputs, spec, ideal=True, exact=True)
+                        self.assertAlmostEqual(result["passband_ripple_db"], 1.0, delta=0.05, msg=result)
+                        self.assertGreaterEqual(result["stopband_attenuation_db"], spec["as"], result)
+
+    def test_commercial_values_meet_the_spec_with_the_margin_option(self) -> None:
+        # With the margin option the E96 values (one resistor per position) still meet the spec.
+        for topology in (Topology.SALLEN_KEY, Topology.MFB, Topology.TOW_THOMAS, Topology.ANTONIOU, Topology.AUTO):
+            for kind in FilterKind:
+                for approximation in Approximation:
+                    with self.subTest(topology=topology.value, kind=kind.value, approximation=approximation.value):
+                        inputs, spec = _inputs(kind, approximation, topology, OpAmpModel.TL082, margin=True)
                         result = self._simulate(inputs, spec, ideal=True)
                         self.assertIn(result["verdict"], PASSING, result)
 
@@ -98,7 +115,7 @@ class SimulatedResponseTests(unittest.TestCase):
         # One low-pass per bundled model: catches wrong subcircuit names, bad rails and bias-current offsets.
         for opamp in OpAmpModel:
             with self.subTest(opamp=opamp.value):
-                inputs, spec = _inputs(FilterKind.LOWPASS, Approximation.BUTTERWORTH, Topology.SALLEN_KEY, opamp)
+                inputs, spec = _inputs(FilterKind.LOWPASS, Approximation.BUTTERWORTH, Topology.SALLEN_KEY, opamp, margin=True)
                 result = self._simulate(inputs, spec, ideal=False)
                 self.assertIn(result["verdict"], PASSING, result)
 
@@ -108,7 +125,7 @@ class SimulatedResponseTests(unittest.TestCase):
         for opamp in (OpAmpModel.LM7171, OpAmpModel.LM6171):
             for kind in (FilterKind.LOWPASS, FilterKind.BANDPASS):
                 with self.subTest(opamp=opamp.value, kind=kind.value):
-                    inputs, spec = _inputs(kind, Approximation.CHEBYSHEV_I, Topology.AUTO, opamp)
+                    inputs, spec = _inputs(kind, Approximation.CHEBYSHEV_I, Topology.AUTO, opamp, margin=True)
                     result = self._simulate(inputs, spec, ideal=False)
                     self.assertIn(result["verdict"], PASSING, result)
 

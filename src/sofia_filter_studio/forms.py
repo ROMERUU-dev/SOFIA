@@ -85,6 +85,10 @@ DEFAULT_FORM: dict[str, Any] = {
     "series": ResistorSeries.E96.value,
     "auto_cap": True,
     "mounting": Mounting.SMD.value,
+    # Netlist with the ideal values instead of the commercial ones (to check the design in SPICE).
+    "exact_values": False,
+    # Split the excess order between both bands so commercial values keep the spec (edge no longer exact).
+    "margin": False,
 }
 MOUNTINGS = [
     (Mounting.SMD, "SMD · 0805 y SOIC"),
@@ -152,12 +156,20 @@ def read_form(form: dict[str, Any]) -> DesignInputs:
         resistor_series=ResistorSeries(form.get("series", ResistorSeries.E96)),
         allow_resistor_arrays=False,
         auto_stage_capacitor=bool(form.get("auto_cap", True)),
+        design_margin=bool(form.get("margin", False)),
     )
 
 
-def netlist_filename(inputs: DesignInputs, result: DesignResult) -> str:
+def passband_edge_text(inputs: DesignInputs, ripple_db: float) -> str:
+    if inputs.design_margin:
+        return f"{ripple_db:.3f} dB  (margen {inputs.passband_ripple_db - ripple_db:.3f} dB frente a Ap)"
+    return f"{ripple_db:.3f} dB  (exacta: Ap)"
+
+
+def netlist_filename(inputs: DesignInputs, result: DesignResult, exact_values: bool = False) -> str:
     kind = KIND_NAMES[inputs.kind].replace(" ", "")
-    return f"filtro_{kind}_{inputs.approximation.value}_orden{result.order}.cir"
+    suffix = "_valores_exactos" if exact_values else ""
+    return f"filtro_{kind}_{inputs.approximation.value}_orden{result.order}{suffix}.cir"
 
 
 def options() -> dict[str, Any]:
@@ -241,8 +253,8 @@ def design_view(form: dict[str, Any], points_per_decade: int = 160) -> dict[str,
     ripple, attenuation = summary["design_ripple_db"], summary["design_attenuation_db"]
     details = [
         ["Orden del filtro", str(result.order)],
-        ["Rizo del diseño", f"{ripple:.3f} dB  (margen {inputs.passband_ripple_db - ripple:.3f} dB)"],
-        ["Atenuación del diseño", f"{attenuation:.2f} dB  (margen {attenuation - inputs.stopband_attenuation_db:.2f} dB)"],
+        ["Atenuación en el borde de paso", passband_edge_text(inputs, ripple)],
+        ["Atenuación en el borde de rechazo", f"{attenuation:.2f} dB  (sobran {attenuation - inputs.stopband_attenuation_db:.2f} dB)"],
         ["Épsilon (rizo pedido)", f"{result.epsilon:.5f}"],
         ["Selectividad", f"{summary['ratio']:.4g}"],
         ["Alimentación", f"{supply:g} V, tierra virtual en {supply / 2:g} V"],
@@ -268,8 +280,8 @@ def design_view(form: dict[str, Any], points_per_decade: int = 160) -> dict[str,
         "warnings": list(result.warnings),
         "details": details,
         "poles": [[f"{pole.real:,.2f}", f"{pole.imag:+,.2f} j"] for pole in result.poles],
-        "netlist": render_netlist(inputs, result, inline_model=True),
-        "filename": netlist_filename(inputs, result),
+        "netlist": render_netlist(inputs, result, inline_model=True, exact_values=bool(form.get("exact_values"))),
+        "filename": netlist_filename(inputs, result, bool(form.get("exact_values"))),
         "elapsed_ms": elapsed_ms,
     }
 
@@ -318,7 +330,7 @@ def _pcb(form: dict[str, Any]):
     from .pcb import build_pcb
     from .schematic import build_schematic
 
-    key = json.dumps({name: form.get(name) for name in DEFAULT_FORM}, sort_keys=True)
+    key = json.dumps({name: form.get(name) for name in DEFAULT_FORM if name != "exact_values"}, sort_keys=True)
     if key not in _PCB_CACHE:
         inputs, result, board = _board(form)
         schematic = build_schematic(board)

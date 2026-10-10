@@ -50,6 +50,7 @@ from ..forms import (
     TOPOLOGIES,
     FormError,
     netlist_filename,
+    passband_edge_text,
     read_form,
 )
 from ..models import (
@@ -345,6 +346,12 @@ class MainWindow(QMainWindow):
         self.auto_cap = QCheckBox("Ajustar el capacitor de cada etapa")
         self.auto_cap.setChecked(True)
         advanced.addWidget(self.auto_cap)
+        self.margin = QCheckBox("Dejar margen para componentes comerciales")
+        self.margin.setToolTip(
+            "Reparte el orden que sobra entre las dos bandas: con resistencias comerciales el circuito cumple con holgura,\n"
+            "pero el borde de la banda de paso ya no cae exacto en la frecuencia pedida."
+        )
+        advanced.addWidget(self.margin)
         self.advanced.setVisible(False)
         body.addWidget(self.advanced)
         self.advanced_toggle.toggled.connect(self._toggle_advanced)
@@ -356,6 +363,7 @@ class MainWindow(QMainWindow):
         for combo in (self.topology, self.opamp, self.series):
             combo.currentIndexChanged.connect(self.schedule)
         self.auto_cap.toggled.connect(self.schedule)
+        self.margin.toggled.connect(self.schedule)
         self.mounting.currentIndexChanged.connect(self._invalidate_schematic)
 
         scroll = QScrollArea()
@@ -454,6 +462,12 @@ class MainWindow(QMainWindow):
         netlist_tab = QWidget()
         netlist_layout = QVBoxLayout(netlist_tab)
         netlist_layout.setContentsMargins(0, 8, 0, 0)
+        self.exact_values = QCheckBox(
+            "Valores exactos, sin redondear: para comprobar el cálculo (en LTspice los bordes caen justo en las frecuencias pedidas)"
+        )
+        # Only a valid design on screen has a netlist to redo (after an error the old result stays around).
+        self.exact_values.toggled.connect(lambda _checked: self._render_netlist() if self._netlist else None)
+        netlist_layout.addWidget(self.exact_values)
         self.netlist_view = QPlainTextEdit()
         self.netlist_view.setObjectName("code")
         self.netlist_view.setReadOnly(True)
@@ -742,6 +756,7 @@ class MainWindow(QMainWindow):
             opamp=self.opamp.currentData(),
             series=self.series.currentData(),
             auto_cap=self.auto_cap.isChecked(),
+            margin=self.margin.isChecked(),
         )
         try:
             return read_form(form)
@@ -763,7 +778,7 @@ class MainWindow(QMainWindow):
             return
         elapsed_ms = (time.perf_counter() - started) * 1e3
         self._inputs, self._result = inputs, result
-        self._netlist = render_netlist(inputs, result, inline_model=True)
+        self._render_netlist()
         self.error_banner.setVisible(False)
         self.save_button.setEnabled(True)
         self.copy_button.setEnabled(True)
@@ -775,8 +790,14 @@ class MainWindow(QMainWindow):
         self._schematic_key = None
         self._refresh_schematic()
         self._refresh_pcb()
-        self.netlist_view.setPlainText(self._netlist)
         self.statusBar().showMessage(f"Diseño actualizado en {elapsed_ms:.0f} ms")
+
+    def _render_netlist(self, *_args) -> None:
+        if self._result is None:
+            return
+        exact = self.exact_values.isChecked()
+        self._netlist = render_netlist(self._inputs, self._result, inline_model=True, exact_values=exact)
+        self.netlist_view.setPlainText(self._netlist)
 
     def _show_error(self, message: str) -> None:
         # Drop the previous design so nothing on screen contradicts the current inputs.
@@ -896,8 +917,8 @@ class MainWindow(QMainWindow):
         ripple, attenuation = summary["design_ripple_db"], summary["design_attenuation_db"]
         rows = [
             ("Orden del filtro", str(result.order)),
-            ("Rizo del diseño", f"{ripple:.3f} dB  (margen {inputs.passband_ripple_db - ripple:.3f} dB)"),
-            ("Atenuación del diseño", f"{attenuation:.2f} dB  (margen {attenuation - inputs.stopband_attenuation_db:.2f} dB)"),
+            ("Atenuación en el borde de paso", passband_edge_text(inputs, ripple)),
+            ("Atenuación en el borde de rechazo", f"{attenuation:.2f} dB  (sobran {attenuation - inputs.stopband_attenuation_db:.2f} dB)"),
             ("Épsilon (rizo pedido)", f"{result.epsilon:.5f}"),
             ("Selectividad", f"{summary['ratio']:.4g}"),
             ("Alimentación", f"{supply_voltage_for(inputs):g} V, tierra virtual en {supply_voltage_for(inputs) / 2:g} V"),
@@ -935,7 +956,10 @@ class MainWindow(QMainWindow):
         if not self._netlist:
             return
         path, _ = QFileDialog.getSaveFileName(
-            self, "Guardar netlist", self._default_filename(), "Netlist SPICE (*.cir *.sp);;Todos los archivos (*)"
+            self,
+            "Guardar netlist",
+            netlist_filename(self._inputs, self._result, self.exact_values.isChecked()),
+            "Netlist SPICE (*.cir *.sp);;Todos los archivos (*)",
         )
         if not path:
             return

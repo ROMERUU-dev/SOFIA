@@ -36,6 +36,16 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--fs2", type=float, help="Upper stopband edge for band filters.")
     parser.add_argument("--netlist-out", type=Path, help="Optional path to save the generated SPICE netlist.")
     parser.add_argument(
+        "--margin",
+        action="store_true",
+        help="Split the excess order between both bands (commercial values keep the spec; the passband edge is no longer exact).",
+    )
+    parser.add_argument(
+        "--exact-values",
+        action="store_true",
+        help="Write the ideal component values instead of the commercial ones (to check the design in SPICE).",
+    )
+    parser.add_argument(
         "--inline-model",
         action="store_true",
         help="Embed the op amp model in the netlist instead of using .include (always on in the Windows executable).",
@@ -70,13 +80,15 @@ def main() -> int:
         allow_resistor_arrays=args.resistor_arrays and not args.no_resistor_arrays,
         max_resistors_per_network=args.max_network_size,
         auto_stage_capacitor=not args.no_auto_stage_capacitor,
+        design_margin=args.margin,
     )
     result = design_filter(inputs)
     print(format_result(result))
     if args.netlist_out:
         # A frozen executable unpacks its models to a temporary folder, so an .include would dangle.
         inline = args.inline_model or getattr(sys, "frozen", False)
-        args.netlist_out.write_text(render_netlist(inputs, result, args.netlist_out, inline_model=inline), encoding="utf-8")
+        netlist = render_netlist(inputs, result, args.netlist_out, inline_model=inline, exact_values=args.exact_values)
+        args.netlist_out.write_text(netlist, encoding="utf-8")
         print(f"Netlist written to {args.netlist_out}")
     return 0
 

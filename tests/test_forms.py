@@ -55,6 +55,20 @@ class DesignViewTests(unittest.TestCase):
         self.assertTrue(resistors)
         self.assertTrue(all("+" not in part["detail"].split("(")[0] for part in resistors))
 
+    def test_exact_values_netlist(self) -> None:
+        commercial = design_view(DEFAULT_FORM)
+        exact = design_view(form(exact_values=True))
+        self.assertNotEqual(commercial["netlist"], exact["netlist"])
+        self.assertTrue(exact["filename"].endswith("_valores_exactos.cir"))
+        self.assertEqual(commercial["stages"], exact["stages"], "only the netlist changes")
+
+    def test_margin_option_reaches_the_design(self) -> None:
+        exact = dict(design_view(DEFAULT_FORM)["details"])
+        margin = dict(design_view(form(margin=True))["details"])
+        self.assertIn("exacta: Ap", exact["Atenuación en el borde de paso"])
+        self.assertIn("margen", margin["Atenuación en el borde de paso"])
+        self.assertTrue(read_form(form(margin=True)).design_margin)
+
     def test_invalid_form_returns_the_message(self) -> None:
         view = design_view(form(fs="500"))
         self.assertFalse(view["ok"])

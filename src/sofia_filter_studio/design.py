@@ -170,24 +170,31 @@ def _estimate_order(inputs: DesignInputs, epsilon: float) -> tuple[int, dict[str
 def _normalized_prototype(inputs: DesignInputs, order: int, epsilon: float, ratio: float) -> tuple[list[complex], dict[str, float]]:
     """Low-pass prototype normalized to the passband edge (Omega = 1).
 
-    Rounding the order up leaves excess selectivity; it is split between both bands (geometric middle)
-    so the design keeps margin on ripple and attenuation instead of sitting exactly on the passband edge.
-    That margin is what absorbs commercial component values.
+    By default it is exact at that edge, as in the textbook method: the attenuation at Omega = 1 is
+    exactly Ap, so the passband edge lands on the requested frequency, and the excess selectivity left by
+    rounding the order up all goes to the stopband (more than As at Omega = ratio).
+
+    With ``design_margin`` the excess is split between both bands (geometric middle): less ripple than Ap
+    and more attenuation than As, which absorbs commercial component values, but the edge moves.
     """
     stop_epsilon = math.sqrt(10 ** (inputs.stopband_attenuation_db / 10) - 1)
     if inputs.approximation is Approximation.BUTTERWORTH:
-        # -Ap exactly at Omega = 1 needs this cutoff; -As exactly at Omega = ratio needs the other one.
-        passband_cutoff = epsilon ** (-1 / order)
-        stopband_cutoff = ratio * stop_epsilon ** (-1 / order)
-        cutoff = math.sqrt(passband_cutoff * max(passband_cutoff, stopband_cutoff))
+        # |H| = -Ap at Omega = 1 needs this cutoff (the -3 dB frequency); -As at Omega = ratio, the other.
+        cutoff = epsilon ** (-1 / order)
+        if inputs.design_margin:
+            stopband_cutoff = ratio * stop_epsilon ** (-1 / order)
+            cutoff = math.sqrt(cutoff * max(cutoff, stopband_cutoff))
         poles = [cutoff * pole for pole in _butterworth_poles(order)]
         ripple = 10 * math.log10(1 + cutoff ** (-2 * order))
         attenuation = 10 * math.log10(1 + (ratio / cutoff) ** (2 * order))
         return poles, {"design_cutoff": cutoff, "design_ripple_db": ripple, "design_attenuation_db": attenuation}
     if inputs.approximation is Approximation.CHEBYSHEV_I:
-        # Smallest ripple that still reaches As at Omega = ratio, then halfway (geometrically) to the spec.
-        minimum_epsilon = stop_epsilon / math.cosh(order * math.acosh(ratio))
-        design_epsilon = min(epsilon, math.sqrt(minimum_epsilon * epsilon))
+        # Ripple exactly Ap, so the equiripple band ends at Omega = 1; with margin, halfway (geometrically)
+        # down to the smallest ripple that still reaches As at Omega = ratio.
+        design_epsilon = epsilon
+        if inputs.design_margin:
+            minimum_epsilon = stop_epsilon / math.cosh(order * math.acosh(ratio))
+            design_epsilon = min(epsilon, math.sqrt(minimum_epsilon * epsilon))
         poles = _chebyshev_poles(order, design_epsilon)
         ripple = 10 * math.log10(1 + design_epsilon**2)
         attenuation = 10 * math.log10(1 + (design_epsilon * math.cosh(order * math.acosh(ratio))) ** 2)

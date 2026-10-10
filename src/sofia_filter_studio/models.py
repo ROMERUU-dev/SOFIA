@@ -65,6 +65,9 @@ class DesignInputs:
     allow_resistor_arrays: bool = False
     max_resistors_per_network: int = 2
     auto_stage_capacitor: bool = True
+    # False: textbook design, exactly Ap at the passband edge. True: the excess order is split between
+    # both bands, so commercial (rounded) values still meet the spec but the edge is no longer exact.
+    design_margin: bool = False
 
     def validate(self) -> None:
         if self.passband_ripple_db <= 0:

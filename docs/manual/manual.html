@@ -20,7 +20,7 @@
       <p class="cover-lead">Diseño de filtros activos Butterworth y Chebyshev, de la especificación al netlist SPICE.</p>
       <img class="cover-shot" src="../../web/img/app-pasabanda.webp" alt="" />
       <dl class="cover-meta">
-        <div><dt>Versión</dt><dd>0.4.1</dd></div>
+        <div><dt>Versión</dt><dd>0.5.0</dd></div>
         <div><dt>App en el navegador</dt><dd>romeruu-dev.github.io/SOFIA/app</dd></div>
         <div><dt>Descargas y código</dt><dd>github.com/ROMERUU-dev/SOFIA</dd></div>
       </dl>
@@ -57,8 +57,9 @@
         <li>dibuja el <b>esquemático</b>, arma la <b>lista de materiales</b> y rutea la <b>placa</b> (PCB) lista para fabricar.</li>
       </ul>
       <p>
-        Es una versión en Python del programa SOFIA original. El cálculo se verificó simulando en SPICE: con resistencias E96 y el modelo real del TL082, las 40
-        combinaciones de tipo de filtro, aproximación y topología cumplen la especificación.
+        Es una versión en Python del programa SOFIA original. El cálculo se verificó simulando en SPICE: con los valores exactos, los bordes de la banda de paso caen en la
+        frecuencia pedida en las 40 combinaciones de tipo de filtro, aproximación y topología (error menor a
+        0.002 %). Con resistencias E96 y el modelo real del TL082 se mueven en promedio 0.3 %.
       </p>
 
       <h3>Dónde usarla</h3>
@@ -205,6 +206,10 @@
           especificación, y la app avisa cuando alguna resistencia se redondea más de 1 %.
         </li>
         <li><b>Ajustar el capacitor de cada etapa:</b> activado por defecto. Desactívalo si quieres que todas las etapas usen exactamente el capacitor base.</li>
+        <li><b>Dejar margen para componentes comerciales:</b> desactivado por defecto. El diseño normal es exacto: el borde de
+          la banda de paso cae justo en la frecuencia pedida. Con esta opción, el orden que sobra se reparte entre las dos
+          bandas (menos rizo que Ap y más atenuación que As), de modo que el circuito con resistencias comerciales cumple
+          con holgura, pero el borde ya no cae exacto. Conviene si vas a armar el circuito.</li>
       </ul>
     </section>
 
@@ -270,6 +275,11 @@
         <li><code>.nodeset</code>, que ayuda a SPICE a encontrar el punto de operación correcto (con LM7171, LM6171 y LM6165
           se omite porque les estorba), y el barrido <code>.ac</code> que cubre de una década abajo a una década arriba de las frecuencias del filtro.</li>
       </ul>
+      <p>
+        La casilla <i>Valores exactos</i> pone en el netlist los valores ideales, sin redondear. Sirve para comprobar el
+        cálculo: en LTspice los bordes de la banda de paso caen justo en las frecuencias pedidas. Con los valores
+        comerciales (E96, 1 %) y el modelo real del opamp, el borde se mueve unas décimas de por ciento.
+      </p>
       <figure class="medium narrow">
         <div class="crop" style="--x: 0.286; --y: 0.592; --w: 0.4; --h: 0.358">
           <img src="../../web/img/app-netlist.webp" alt="" />
@@ -291,14 +301,16 @@
 
       <h3>4.6 Detalles</h3>
       <p>
-        Muestra el orden; el rizo y la atenuación que realmente tiene el diseño, con su margen frente a lo que pediste;
+        Muestra el orden; la atenuación en el borde de la banda de paso (exactamente Ap) y en el de la banda de rechazo,
+        con lo que sobra frente a lo que pediste;
         épsilon; la selectividad; la alimentación; los opamps adecuados para esa frecuencia, y los polos en rad/s. En
         filtros de banda también aparecen la frecuencia central y el ancho de banda.
       </p>
       <p class="note">
-        El orden se redondea hacia arriba, así que casi siempre sobra selectividad. SOFIA la reparte como margen entre
-        las dos bandas: por ejemplo, el pasa bajas del ejemplo queda con 0.787 dB de rizo (pediste 1 dB) y 41.15 dB de
-        atenuación (pediste 40 dB). Ese margen absorbe el redondeo de los componentes.
+        SOFIA diseña como en el método de libro: la atenuación en el borde de la banda de paso es exactamente Ap, así
+        que el borde cae justo en la frecuencia pedida. El orden se redondea hacia arriba y la selectividad que sobra
+        queda en la banda de rechazo: el pasa bajas del ejemplo tiene exactamente 1 dB en 1 kHz y 42.30 dB en 2 kHz
+        (pediste 40 dB).
       </p>
 
       <h3>4.7 Compartir un diseño</h3>
@@ -480,6 +492,8 @@ plot vdb(out)</pre>
           <tr><td><code>--resistor-series</code></td><td>E96, E48, E24, E12 (por defecto E96)</td></tr>
           <tr><td><code>--netlist-out</code></td><td>Archivo donde guardar el netlist</td></tr>
           <tr><td><code>--inline-model</code></td><td>Copia el modelo del opamp dentro del netlist (las versiones de escritorio siempre lo hacen)</td></tr>
+          <tr><td><code>--exact-values</code></td><td>Escribe en el netlist los valores exactos en lugar de los comerciales</td></tr>
+          <tr><td><code>--margin</code></td><td>Deja margen para componentes comerciales (el borde ya no cae exacto)</td></tr>
         </tbody>
       </table>
       <p class="note">
@@ -491,6 +505,10 @@ plot vdb(out)</pre>
       <dl class="faq">
         <dt>¿Por qué me sale un orden más alto del que esperaba?</dt>
         <dd>Es el mínimo entero que cumple Ap y As. Si quieres menos etapas, prueba Chebyshev o relaja la especificación (más rizo, menos atenuación o bandas más separadas).</dd>
+        <dt>¿Por qué en LTspice el borde de la banda no cae exactamente en la frecuencia pedida?</dt>
+        <dd>El diseño sí es exacto: la gráfica de la app tiene exactamente Ap en el borde. El netlist trae resistencias
+          comerciales (E96, redondeadas al 1 %) y el modelo real del opamp, que mueven el borde unas décimas de por ciento.
+          Activa <i>Valores exactos</i> en la pestaña Netlist y en LTspice el borde cae justo en la frecuencia pedida.</dd>
         <dt>¿La versión del navegador funciona sin internet?</dt>
         <dd>Necesita internet la primera vez; después el navegador la guarda. Las versiones de Windows, Linux y macOS funcionan siempre sin conexión.</dd>
         <dt>¿La gráfica de la app es una simulación?</dt>

@@ -8,8 +8,11 @@ original; funciona en Windows, Linux, macOS y en el navegador.
 - filtros `lowpass`, `highpass`, `bandpass` y `bandstop`
 - topologias Sallen-Key, MFB, Tow-Thomas y Antoniou (GIC), elegidas por etapa segun su Q
 - sintesis por etapa con un solo resistor comercial por posicion (E12, E24, E48 o E96; E96 por defecto)
-- margen de diseno: el orden extra se reparte entre banda de paso y de rechazo, y el capacitor de cada
-  etapa se elige de la serie E12 para que las resistencias caigan cerca de valores comerciales
+- diseno exacto, como en el metodo de libro: atenuacion Ap justo en el borde de la banda de paso; el orden
+  que sobra queda en la banda de rechazo. El capacitor de cada etapa se elige de la serie E12 para que las
+  resistencias caigan cerca de valores comerciales, y el netlist puede llevar los valores exactos
+  (`--exact-values`) para comprobar el calculo en SPICE. La opcion de margen (`--margin`) reparte el orden
+  que sobra entre las dos bandas para que el circuito con resistencias comerciales cumpla con holgura
 - netlist SPICE con el modelo del opamp, listo para LTspice o ngspice (modelos en `resources/models/`)
 - esquematico (SVG y proyecto de KiCad), lista de materiales y PCB ruteada con Gerber, en SMD o through-hole
 - interfaz de escritorio con PySide6: calculo en vivo, grafica de respuesta con la especificacion marcada,

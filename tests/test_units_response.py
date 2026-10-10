@@ -34,7 +34,7 @@ class ResponseTests(unittest.TestCase):
     def _response(self, inputs: DesignInputs, freqs: list[float]) -> list[float]:
         return ideal_response_db(inputs, design_filter(inputs), freqs)
 
-    def test_butterworth_lowpass_meets_the_spec_with_margin(self) -> None:
+    def test_butterworth_lowpass_passband_edge_is_exact(self) -> None:
         inputs = DesignInputs(
             kind=FilterKind.LOWPASS,
             approximation=Approximation.BUTTERWORTH,
@@ -44,9 +44,8 @@ class ResponseTests(unittest.TestCase):
         )
         dc, edge, stop = self._response(inputs, [1.0, 1_000.0, 2_000.0])
         self.assertAlmostEqual(dc, 0.0, delta=0.01)
-        # Order 8 has slack: the passband edge stays above -1 dB and the stopband edge below -40 dB.
-        self.assertGreater(edge, -0.9)
-        self.assertLess(edge, -0.5)
+        # Exactly -1 dB at the passband edge; order 8 has slack, so the stopband edge passes -40 dB.
+        self.assertAlmostEqual(edge, -1.0, places=6)
         self.assertLess(stop, -40.5)
 
     def test_bandstop_has_a_notch_at_the_center(self) -> None:

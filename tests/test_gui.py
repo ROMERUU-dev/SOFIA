@@ -28,6 +28,13 @@ class MainWindowTests(unittest.TestCase):
         self.assertIn(".subckt TL082", self.window.netlist_view.toPlainText())
         self.assertTrue(self.window.save_button.isEnabled())
 
+    def test_exact_values_checkbox_redoes_the_netlist(self) -> None:
+        commercial = self.window.netlist_view.toPlainText()
+        self.window.exact_values.setChecked(True)
+        self.assertNotEqual(self.window.netlist_view.toPlainText(), commercial)
+        self.window.exact_values.setChecked(False)
+        self.assertEqual(self.window.netlist_view.toPlainText(), commercial)
+
     def test_band_filter_and_engineering_notation(self) -> None:
         self.window.kind_group.button(2).click()
         self.window.fp1.set_text("0.8k")
