@@ -277,6 +277,16 @@ class DesignFilterTests(unittest.TestCase):
         self.assertLess(edge, -0.5)
         self.assertLess(stop, -40.5)
 
+    def test_netlists_open_in_current_ltspice(self) -> None:
+        # LTspice 24 rejects .probe and the commas some vendor models used in poly() node lists.
+        for opamp in OpAmpModel:
+            with self.subTest(opamp=opamp.value):
+                inputs = DesignInputs(FilterKind.BANDPASS, Approximation.CHEBYSHEV_I, FilterSpec((800, 1_200), (500, 2_000)), 1, 30, Topology.AUTO, opamp)
+                netlist = render_netlist(inputs, design_filter(inputs), inline_model=True)
+                self.assertNotIn(".probe", netlist.lower())
+                code = [line for line in netlist.splitlines() if not line.lstrip().startswith("*")]
+                self.assertFalse([line for line in code if "," in line])
+
     def test_nodeset_only_for_models_that_need_it(self) -> None:
         # TL082 and uA741 can latch at a rail without it; LM7171, LM6171 and LM6165 do not converge with it.
         for opamp, expected in ((OpAmpModel.TL082, True), (OpAmpModel.UA741, True), (OpAmpModel.LM7171, False), (OpAmpModel.LM6171, False), (OpAmpModel.LM6165, False)):

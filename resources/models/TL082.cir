@@ -14,7 +14,8 @@
   dlp  90 91 dx
   dln  92 90 dx
   dp    4  3 dx
-  egnd 99  0 poly(2),(3,0),(4,0) 0 .5 .5
+* SOFIA: los nodos de la fuente egnd van sin comas ni parentesis (mismo circuito) porque LTspice 24 las marca como error.
+  egnd 99  0 poly(2) 3 0 4 0 0 .5 .5
   fb    7 99 poly(5) vb vc ve vlp vln 0 3.467E6 -1E3 1E3 3E6 -3E6
   ga    6  0 11 12 339.3E-6
   gcm   0  6 10 99 17.01E-9

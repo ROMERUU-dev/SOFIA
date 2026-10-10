@@ -25,6 +25,8 @@ ROOT = Path(__file__).absolute().parents[1]
 MODELS_DIR = ROOT / "resources" / "models"
 
 LTSPICE_CANDIDATES = [
+    # LTspice 24 and later install per user by default.
+    os.path.join(os.environ.get("LOCALAPPDATA", ""), "Programs", "ADI", "LTspice", "LTspice.exe"),
     r"C:\Program Files\ADI\LTspice\LTspice.exe",
     r"C:\Program Files\LTC\LTspiceXVII\XVIIx64.exe",
     r"D:\Program Files\LTC\LTspiceXVII\XVIIx64.exe",

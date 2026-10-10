@@ -150,7 +150,6 @@ def render_netlist(
 
     f_start, f_stop = ac_sweep_limits(inputs)
     lines.append(f".ac dec 100 {f_start:.6g} {f_stop:.6g}")
-    lines.append(".probe V(OUT)")
     lines.append(".end")
     return "\n".join(lines)
 
