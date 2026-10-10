@@ -24,7 +24,8 @@ MAX_BIAS_OFFSET_PER_STAGE_V = 0.01
 # run at noise gains of about 1 to 3, and transient simulation shows them oscillating at 15-105 MHz.
 MIN_STABLE_GAIN = {OpAmpModel.LM6164: 5, OpAmpModel.LM6165: 25}
 
-# 100-200 MHz parts whose transient simulation does not converge in integrator-based sections.
+# 100-200 MHz parts: with their macro-models LTspice rarely finds the operating point of Tow-Thomas
+# and Antoniou sections (it keeps stepping and never finishes), so the automatic topology avoids them.
 HIGH_SPEED_MODELS = {OpAmpModel.LM7171, OpAmpModel.LM6171}
 
 
@@ -37,9 +38,13 @@ def stability_warnings(inputs: DesignInputs, topologies: set) -> list[str]:
         warnings.append(
             f"El {inputs.opamp.value} es descompensado (solo es estable con ganancia de lazo cerrado >= {min_gain}); en estas etapas trabaja cerca de ganancia 1 y va a oscilar. Usa LM6171, LM7171 o LM318."
         )
-    if inputs.opamp in HIGH_SPEED_MODELS and topologies & {Topology.MFB, Topology.TOW_THOMAS, Topology.ANTONIOU}:
+    if inputs.opamp in HIGH_SPEED_MODELS and topologies & {Topology.TOW_THOMAS, Topology.ANTONIOU}:
+        if inputs.kind is FilterKind.BANDSTOP:
+            advice = "Un rechaza banda solo se arma con Tow-Thomas: para simularlo usa TL082 o LM318."
+        else:
+            advice = "Usa Sallen-Key o MFB (la topología automática los elige) o un opamp más lento (TL082, LM318)."
         warnings.append(
-            f"El {inputs.opamp.value} es un opamp de 100-200 MHz; en etapas con realimentación capacitiva (MFB, Tow-Thomas, Antoniou) su simulación transitoria no se estabiliza, señal de oscilación. Para este rango conviene Sallen-Key o un opamp más lento (TL082, LM318)."
+            f"Con el modelo del {inputs.opamp.value} (100-200 MHz), LTspice casi nunca encuentra el punto de operación de las etapas Tow-Thomas o Antoniou y se queda calculando. {advice}"
         )
     return warnings
 

@@ -20,7 +20,7 @@
       <p class="cover-lead">Diseño de filtros activos Butterworth y Chebyshev, de la especificación al netlist SPICE.</p>
       <img class="cover-shot" src="../../web/img/app-pasabanda.webp" alt="" />
       <dl class="cover-meta">
-        <div><dt>Versión</dt><dd>0.4.0</dd></div>
+        <div><dt>Versión</dt><dd>0.4.1</dd></div>
         <div><dt>App en el navegador</dt><dd>romeruu-dev.github.io/SOFIA/app</dd></div>
         <div><dt>Descargas y código</dt><dd>github.com/ROMERUU-dev/SOFIA</dd></div>
       </dl>
@@ -170,6 +170,10 @@
           <tr><td><b>Tow-Thomas</b></td><td>3</td><td>Rechaza banda, pasa banda con Q &gt; 3 y cualquier etapa con Q &gt; 4.</td></tr>
         </tbody>
       </table>
+      <p class="note">
+        Con LM7171 o LM6171 la automática usa solo Sallen-Key y MFB (MFB en lugar de Antoniou y Tow-Thomas): con
+        sus modelos, LTspice casi nunca encuentra el punto de operación de una etapa Tow-Thomas o Antoniou.
+      </p>
 
       <p><b>Amplificador operacional.</b> Cada modelo trae su macro-modelo SPICE, que se copia dentro del netlist.</p>
       <table>
@@ -179,7 +183,7 @@
           <tr><td><b>LM324</b></td><td>5 V</td><td>El único que funciona con 5 V. Para filtros de baja frecuencia.</td></tr>
           <tr><td><b>uA741</b></td><td>15 V</td><td>Clásico; ancho de banda bajo.</td></tr>
           <tr><td><b>LM318</b></td><td>15 V</td><td>Más rápido que el TL082.</td></tr>
-          <tr><td><b>LM7171, LM6171</b></td><td>15 V</td><td>Alta velocidad (100–200 MHz). Con MFB, Tow-Thomas o Antoniou la app avisa que conviene otra opción.</td></tr>
+          <tr><td><b>LM7171, LM6171</b></td><td>15 V</td><td>Alta velocidad (100–200 MHz). La automática usa Sallen-Key y MFB; el rechaza banda (Tow-Thomas) no se puede simular con ellos.</td></tr>
           <tr><td><b>LM6164, LM6165</b></td><td>15 V</td><td>Descompensados: solo son estables con ganancia ≥ 5 y ≥ 25. En estas etapas oscilan; la app lo avisa.</td></tr>
         </tbody>
       </table>
@@ -263,7 +267,8 @@
         <li>las fuentes: <code>Vin</code> (entrada, con la tierra virtual de DC y 1 V de AC), <code>VTIERRA</code> y <code>VCC</code>, y una carga de 100 kΩ en la salida <code>OUT</code>;</li>
         <li>cada etapa, comentada, con sus opamps, resistores y capacitores;</li>
         <li>el modelo del opamp, copiado dentro del archivo, así que no hace falta buscarlo;</li>
-        <li><code>.nodeset</code>, que ayuda a SPICE a encontrar el punto de operación correcto, y el barrido <code>.ac</code> que cubre de una década abajo a una década arriba de las frecuencias del filtro.</li>
+        <li><code>.nodeset</code>, que ayuda a SPICE a encontrar el punto de operación correcto (con LM7171, LM6171 y LM6165
+          se omite porque les estorba), y el barrido <code>.ac</code> que cubre de una década abajo a una década arriba de las frecuencias del filtro.</li>
       </ul>
       <figure class="medium narrow">
         <div class="crop" style="--x: 0.286; --y: 0.592; --w: 0.4; --h: 0.358">
@@ -427,7 +432,7 @@ plot vdb(out)</pre>
         <thead><tr><th>Aviso</th><th>Qué significa</th></tr></thead>
         <tbody>
           <tr><td>El LM6164 / LM6165 es descompensado…</td><td>Va a oscilar con las ganancias de estas etapas. Usa LM6171, LM7171 o LM318.</td></tr>
-          <tr><td>El LM7171 / LM6171 es un opamp de 100-200 MHz…</td><td>Con MFB, Tow-Thomas o Antoniou su simulación transitoria no se estabiliza. Usa Sallen-Key o un opamp más lento.</td></tr>
+          <tr><td>Con el modelo del LM7171 / LM6171, LTspice casi nunca encuentra el punto de operación…</td><td>Forzaste Tow-Thomas o Antoniou, o es un rechaza banda. Usa Sallen-Key o MFB, o un opamp más lento (TL082, LM318).</td></tr>
           <tr><td>Etapas Sallen-Key con Q mayor a 10</td><td>Muy sensibles a la tolerancia. Tow-Thomas o MFB son más robustas.</td></tr>
           <tr><td>… no puede realizar una etapa …; esta etapa usa Tow-Thomas</td><td>La topología que forzaste no sirve para ese tipo de etapa; SOFIA la cambió solo en esa etapa.</td></tr>
           <tr><td>La etapa N redondea resistencias hasta X %</td><td>La serie elegida queda lejos de los valores ideales. Usa E96.</td></tr>
@@ -447,7 +452,7 @@ plot vdb(out)</pre>
       </p>
       <ul>
         <li><b>Windows:</b> el <code>.exe</code> se abre con doble clic; no se instala.</li>
-        <li><b>Ubuntu y Debian:</b> <code>sudo apt install ./sofia-filter-studio_0.4.0_amd64.deb</code> lo instala con sus
+        <li><b>Ubuntu y Debian:</b> <code>sudo apt install ./sofia-filter-studio_*_amd64.deb</code> lo instala con sus
           dependencias y lo deja en el menú de aplicaciones; <code>sudo apt remove sofia-filter-studio</code> lo quita.</li>
         <li><b>macOS:</b> abre el <code>.dmg</code> (arm64 para Apple Silicon, x86_64 para Intel) y arrastra la app a
           Aplicaciones. No está firmada con una cuenta de Apple, así que la primera vez macOS no la deja abrir: ve a

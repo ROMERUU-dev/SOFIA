@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 
 from .models import DesignInputs, FilterKind, ResistorNetwork, ResistorSeries, Stage, StageRealization, Topology
-from .opamps import INPUT_BIAS_CURRENT_A, max_bias_safe_resistance
+from .opamps import HIGH_SPEED_MODELS, INPUT_BIAS_CURRENT_A, max_bias_safe_resistance
 from .resistors import fit_resistor_network, fit_resistor_ratio
 
 MIN_PRACTICAL_RESISTANCE = 100.0
@@ -115,12 +115,17 @@ def _auto_topology(inputs: DesignInputs, stage: Stage) -> Topology:
     q = stage.q or 0.707
     if stage.order == 1:
         return Topology.SALLEN_KEY
+    # LTspice rarely finds the operating point of Tow-Thomas or Antoniou sections built with the
+    # 100-200 MHz models; Sallen-Key and MFB simulate fine at any Q with them.
+    high_speed = inputs.opamp in HIGH_SPEED_MODELS
     if inputs.kind is FilterKind.BANDPASS:
-        return Topology.MFB if q <= 3 else Topology.TOW_THOMAS
+        return Topology.MFB if q <= 3 or high_speed else Topology.TOW_THOMAS
     if inputs.kind is FilterKind.BANDSTOP:
         return Topology.TOW_THOMAS
     if q <= 1.2:
         return Topology.SALLEN_KEY
+    if high_speed:
+        return Topology.MFB
     if q <= 4:
         return Topology.ANTONIOU
     return Topology.TOW_THOMAS

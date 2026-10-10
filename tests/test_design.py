@@ -241,6 +241,29 @@ class DesignFilterTests(unittest.TestCase):
         self.assertIn(" LM7171B/NS", netlist)
         self.assertNotIn(" LM7171\n", netlist)
 
+    def test_nodeset_only_for_models_that_need_it(self) -> None:
+        # TL082 and uA741 can latch at a rail without it; LM7171, LM6171 and LM6165 do not converge with it.
+        for opamp, expected in ((OpAmpModel.TL082, True), (OpAmpModel.UA741, True), (OpAmpModel.LM7171, False), (OpAmpModel.LM6171, False), (OpAmpModel.LM6165, False)):
+            inputs = DesignInputs(FilterKind.LOWPASS, Approximation.BUTTERWORTH, FilterSpec(1_000, 2_000), 1, 40, Topology.AUTO, opamp)
+            self.assertEqual(".nodeset" in render_netlist(inputs, design_filter(inputs)), expected, opamp.value)
+
+    def test_high_speed_opamps_avoid_tow_thomas_and_antoniou(self) -> None:
+        specs = {
+            FilterKind.LOWPASS: FilterSpec(1_000, 2_000),
+            FilterKind.HIGHPASS: FilterSpec(2_000, 1_000),
+            FilterKind.BANDPASS: FilterSpec((800, 1_200), (500, 2_000)),
+        }
+        for opamp in (OpAmpModel.LM7171, OpAmpModel.LM6171):
+            for kind, spec in specs.items():
+                for approximation in Approximation:
+                    with self.subTest(opamp=opamp.value, kind=kind.value, approximation=approximation.value):
+                        result = design_filter(DesignInputs(kind, approximation, spec, 1, 30, Topology.AUTO, opamp))
+                        topologies = {stage.realization.topology for stage in result.stages if stage.realization is not None}
+                        self.assertLessEqual(topologies, {Topology.SALLEN_KEY, Topology.MFB})
+                        self.assertFalse(any("punto de operación" in warning for warning in result.warnings))
+            bandstop = design_filter(DesignInputs(FilterKind.BANDSTOP, Approximation.BUTTERWORTH, FilterSpec((600, 1_600), (900, 1_100)), 1, 40, Topology.AUTO, opamp))
+            self.assertTrue(any("TL082 o LM318" in warning for warning in bandstop.warnings))
+
     def test_inline_model_makes_a_self_contained_netlist(self) -> None:
         inputs = DesignInputs(
             kind=FilterKind.LOWPASS,

@@ -32,6 +32,10 @@ MODEL_SUBCKT_MAP = {
 DEFAULT_SUPPLY_V = 15.0
 SUPPLY_VOLTAGE_MAP = {"LM324": 5.0}
 
+# Models whose DC solution the .nodeset hint makes worse: with it LTspice never finds the operating
+# point of many LM7171/LM6171 designs (and one LM6165 design), while TL082 and uA741 need it.
+NO_NODESET_MODELS = {"LM7171", "LM6171", "LM6165"}
+
 def _models_dir() -> Path:
     # Inside a PyInstaller bundle the models travel next to the extracted package.
     bundle = getattr(sys, "_MEIPASS", None)
@@ -136,7 +140,8 @@ def render_netlist(
             lines.append(_stage_comment(stage_circuit.stage, inputs.kind))
             lines.extend(item if isinstance(item, str) else _part_line(item, subckt) for item in stage_circuit.items)
             lines.append("")
-        lines.extend(_nodeset_lines(circuit, vref))
+        if inputs.opamp.value not in NO_NODESET_MODELS:
+            lines.extend(_nodeset_lines(circuit, vref))
 
     if inline_model:
         lines.append(f"* Modelo del opamp {inputs.opamp.value} ({MODEL_FILE_MAP[inputs.opamp.value]})")

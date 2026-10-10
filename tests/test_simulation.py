@@ -102,6 +102,16 @@ class SimulatedResponseTests(unittest.TestCase):
                 result = self._simulate(inputs, spec, ideal=False)
                 self.assertIn(result["verdict"], PASSING, result)
 
+    def test_high_speed_opamps_simulate_with_the_automatic_topology(self) -> None:
+        # With the LM7171/LM6171 macro-models LTspice only finishes without .nodeset and without
+        # Tow-Thomas or Antoniou sections, which is what SOFIA writes for them.
+        for opamp in (OpAmpModel.LM7171, OpAmpModel.LM6171):
+            for kind in (FilterKind.LOWPASS, FilterKind.BANDPASS):
+                with self.subTest(opamp=opamp.value, kind=kind.value):
+                    inputs, spec = _inputs(kind, Approximation.CHEBYSHEV_I, Topology.AUTO, opamp)
+                    result = self._simulate(inputs, spec, ideal=False)
+                    self.assertIn(result["verdict"], PASSING, result)
+
     def test_bandpass_cascade_has_unity_gain_at_center(self) -> None:
         for topology in (Topology.SALLEN_KEY, Topology.MFB, Topology.TOW_THOMAS, Topology.ANTONIOU):
             with self.subTest(topology=topology.value):
